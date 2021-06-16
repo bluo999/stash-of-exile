@@ -1,0 +1,2343 @@
+{
+  "numTabs": 115,
+  "items": [
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Rings/BereksPassAlt.png?v=b140b35d3be0aebc957af7ad05797529&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "b58da498173103f77e996bc6ec817f82c76677e537ee22bef82cf3017c2e1e2f",
+      "name": "Berek's Pass",
+      "typeLine": "Two-Stone Ring",
+      "baseType": "Two-Stone Ring",
+      "identified": true,
+      "ilvl": 100,
+      "note": "~skip ",
+      "requirements": [
+        { "name": "Level", "values": [["20", 0]], "displayMode": 0 }
+      ],
+      "implicitMods": ["+13% to Fire and Cold Resistances"],
+      "explicitMods": [
+        "11% increased Fire Damage",
+        "Adds 1 to 27 Cold Damage to Spells and Attacks",
+        "+34 to maximum Energy Shield",
+        "30% increased Damage while Ignited",
+        "+5000 to Armour while Frozen"
+      ],
+      "flavourText": [
+        "\"From Frost's ice-bound pass\r",
+        "Berek taunted and jeered\r",
+        "Until furious Flame scaled the mountain\r",
+        "Berek escaped through the thaw\r",
+        "And Frost's tortured moans.\"\r",
+        "- Berek and the Untamed"
+      ],
+      "frameType": 3,
+      "x": 1,
+      "y": 11,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 2,
+      "h": 3,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Armours/BodyArmours/BodyStr1C.png?v=890da62b76971297e9eacccd44123e99&w=2&h=3&scale=1",
+      "league": "Standard",
+      "id": "2ddbebef47adeb56de77d3e709fd9524e14e601057bc881cd02cc7abe3582901",
+      "influences": { "crusader": true, "hunter": true },
+      "sockets": [
+        { "group": 0, "attr": "G", "sColour": "W" },
+        { "group": 0, "attr": "G", "sColour": "W" },
+        { "group": 0, "attr": "G", "sColour": "W" },
+        { "group": 0, "attr": "G", "sColour": "W" },
+        { "group": 0, "attr": "G", "sColour": "W" },
+        { "group": 0, "attr": "G", "sColour": "W" }
+      ],
+      "name": "Oblivion Ward",
+      "typeLine": "Astral Plate",
+      "baseType": "Astral Plate",
+      "identified": true,
+      "ilvl": 100,
+      "properties": [
+        {
+          "name": "Quality",
+          "values": [["+30%", 1]],
+          "displayMode": 0,
+          "type": 6
+        },
+        {
+          "name": "Armour",
+          "values": [["711", 0]],
+          "displayMode": 0,
+          "type": 16
+        }
+      ],
+      "requirements": [
+        { "name": "Level", "values": [["68", 0]], "displayMode": 0 },
+        { "name": "Str", "values": [["180", 0]], "displayMode": 1 }
+      ],
+      "implicitMods": ["+12% to all Elemental Resistances"],
+      "explicitMods": [
+        "+129 to maximum Life",
+        "15% chance to gain a Power Charge on Critical Strike",
+        "You can apply an additional Curse",
+        "Attacks have +1.48% to Critical Strike Chance",
+        "Enemies you Kill Explode, dealing 3% of their Life as Physical Damage"
+      ],
+      "craftedMods": ["+33% to Lightning Resistance"],
+      "enchantMods": [
+        "Quality does not increase Defences",
+        "Grants +1 to Maximum Life per 2% Quality"
+      ],
+      "frameType": 2,
+      "x": 9,
+      "y": 0,
+      "inventoryId": "Stash8",
+      "socketedItems": [],
+      "incubatedItem": {
+        "name": "Breach Item",
+        "level": 68,
+        "progress": 7297,
+        "total": 10530
+      }
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 2,
+      "icon": "https://web.poecdn.com/gen/image/WzksMTQseyJmIjoiMkRJdGVtc1wvRmxhc2tzXC9zaWx2ZXIiLCJ3IjoxLCJoIjoyLCJzY2FsZSI6dHJ1ZSwibGV2ZWwiOjF9XQ/1b56f2fdf2/Item.png",
+      "league": "Standard",
+      "id": "524a5b2a30726bfa29c7b59b14bdd16604848e5285081302c59de824ec1fc564",
+      "name": "",
+      "typeLine": "Experimenter's Silver Flask of Curing",
+      "baseType": "Silver Flask",
+      "identified": true,
+      "ilvl": 34,
+      "properties": [
+        {
+          "name": "Quality",
+          "values": [["+20%", 1]],
+          "displayMode": 0,
+          "type": 6
+        },
+        {
+          "name": "Lasts {0} Seconds",
+          "values": [["7.6", 1]],
+          "displayMode": 3
+        },
+        {
+          "name": "Consumes {0} of {1} Charges on use",
+          "values": [
+            ["40", 0],
+            ["60", 0]
+          ],
+          "displayMode": 3
+        },
+        {
+          "name": "Currently has {0} Charges",
+          "values": [["0", 0]],
+          "displayMode": 3
+        }
+      ],
+      "requirements": [
+        { "name": "Level", "values": [["22", 0]], "displayMode": 0 }
+      ],
+      "utilityMods": ["Onslaught"],
+      "explicitMods": [
+        "Immune to Poison during Flask Effect\nRemoves Poison on use",
+        "32% increased Duration"
+      ],
+      "descrText": "Right click to drink. Can only hold charges while in belt. Refills as you kill monsters.",
+      "frameType": 1,
+      "x": 10,
+      "y": 5,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Heist/UnbreakableFightContract.png?v=2fd2fc7fb0004d619925ee02a05c592d&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "c89fe4f687f2aa80dfafd5e4a92bf11072d4ccceb1f5e8765e26d81c4eab8b0f",
+      "name": "Contract: Breaking the Unbreakable",
+      "typeLine": "Preventative Contract",
+      "baseType": "Preventative Contract",
+      "identified": true,
+      "ilvl": 82,
+      "properties": [
+        { "name": "Client", "values": [["Isla", 0]], "displayMode": 0 },
+        {
+          "name": "Heist Target: {0}",
+          "values": [["Destroy \"The Unbreakable\"", 0]],
+          "displayMode": 3,
+          "type": 47
+        },
+        {
+          "name": "Area Level",
+          "values": [["80", 0]],
+          "displayMode": 0,
+          "type": 34
+        },
+        {
+          "name": "Requires {1} (Level {0})",
+          "values": [
+            ["3", 0],
+            ["Engineering", 0]
+          ],
+          "displayMode": 3,
+          "type": 46
+        },
+        {
+          "name": "Requires {0}",
+          "values": [["Isla, the Engineer", 0]],
+          "displayMode": 3
+        }
+      ],
+      "descrText": "Give this Contract to Adiyah in the Rogue Harbour to embark on the Heist.",
+      "flavourText": [
+        "...the blueprints for my Extreme Warmth Beam, my Storm Wooing Rod,\r",
+        "the Mind Sublimator, and the Unbreakable...!"
+      ],
+      "frameType": 3,
+      "x": 2,
+      "y": 8,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 2,
+      "icon": "https://web.poecdn.com/gen/image/WzksMTQseyJmIjoiMkRJdGVtc1wvRmxhc2tzXC9Tb3VsQ2F0Y2hlciIsInciOjEsImgiOjIsInNjYWxlIjp0cnVlLCJsZXZlbCI6MX1d/ca30e633aa/Item.png",
+      "league": "Standard",
+      "id": "3115317cfb216245d35cc601a6141f3264f71798704326415271af533964f4af",
+      "name": "Soul Catcher",
+      "typeLine": "Quartz Flask",
+      "baseType": "Quartz Flask",
+      "identified": true,
+      "ilvl": 85,
+      "properties": [
+        {
+          "name": "Lasts {0} Seconds",
+          "values": [["4.0", 0]],
+          "displayMode": 3
+        },
+        {
+          "name": "Consumes {0} of {1} Charges on use",
+          "values": [
+            ["30", 0],
+            ["60", 0]
+          ],
+          "displayMode": 3
+        },
+        {
+          "name": "Currently has {0} Charges",
+          "values": [["0", 0]],
+          "displayMode": 3
+        }
+      ],
+      "requirements": [
+        { "name": "Level", "values": [["27", 0]], "displayMode": 0 }
+      ],
+      "utilityMods": [
+        "10% chance to Dodge Attack Hits",
+        "10% chance to Dodge Spell Hits",
+        "Phasing"
+      ],
+      "explicitMods": [
+        "Cannot gain Mana during effect",
+        "92% increased Damage with Vaal Skills during effect",
+        "Vaal Skills require 25% reduced Souls Per Use during effect",
+        "Vaal Skills used during effect have 39% reduced Soul Gain Prevention Duration"
+      ],
+      "descrText": "Right click to drink. Can only hold charges while in belt. Refills as you kill monsters.",
+      "flavourText": [
+        "Freedom is for the privileged, even in death.\r",
+        "\r",
+        "<default>{This item can be transformed on the Altar of Sacrifice along with Vial of the Ghost}"
+      ],
+      "frameType": 3,
+      "x": 9,
+      "y": 5,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/gen/image/WzI4LDE0LHsiZiI6IjJESXRlbXNcL01hcHNcL0F0bGFzMk1hcHNcL05ld1wvVG93ZXIiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6dHJ1ZSwibW4iOjEwLCJtdCI6Mn1d/1f8e37bf12/Item.png",
+      "league": "Standard",
+      "id": "c141c5e3c1ffcf590b3ba38896b26577fda31728226995c2dd4eebfdd0656f95",
+      "fractured": true,
+      "name": "Ancient Dwelling",
+      "typeLine": "Tower Map",
+      "baseType": "Tower Map",
+      "identified": true,
+      "ilvl": 69,
+      "properties": [
+        {
+          "name": "Map Tier",
+          "values": [["2", 0]],
+          "displayMode": 0,
+          "type": 1
+        },
+        {
+          "name": "Atlas Region",
+          "values": [["Glennach Cairns", 0]],
+          "displayMode": 0
+        },
+        {
+          "name": "Item Quantity",
+          "values": [["+101%", 1]],
+          "displayMode": 0,
+          "type": 2
+        },
+        {
+          "name": "Item Rarity",
+          "values": [["+48%", 1]],
+          "displayMode": 0,
+          "type": 3
+        },
+        {
+          "name": "Monster Pack Size",
+          "values": [["+28%", 1]],
+          "displayMode": 0,
+          "type": 4
+        },
+        {
+          "name": "Quality",
+          "values": [["+35%", 1]],
+          "displayMode": 0,
+          "type": 6
+        }
+      ],
+      "explicitMods": [
+        "Area contains many Totems",
+        "29% more Magic Monsters",
+        "Magic Monster Packs each have a Bloodline Mod",
+        "Found Items have 10% chance to drop Corrupted in Area",
+        "Area is inhabited by the Vaal",
+        "Players have 15% less Area of Effect"
+      ],
+      "enchantMods": [
+        "Does not consume Sextant Uses",
+        "Delirium Reward Type: Currency",
+        "Delirium Reward Type: Currency",
+        "Delirium Reward Type: Currency",
+        "Delirium Reward Type: Currency",
+        "Delirium Reward Type: Currency",
+        "Players in Area are 100% Delirious"
+      ],
+      "fracturedMods": [
+        "30% more Rare Monsters",
+        "Rare Monsters each have a Nemesis Mod"
+      ],
+      "descrText": "Travel to this Map by using it in a personal Map Device. Maps can only be used once.",
+      "frameType": 2,
+      "x": 0,
+      "y": 6,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Heist/LuckCharm1.png?v=d35ec19990550d083c3b8d460206e48a&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "76127dd7eed282966ba89377321491824dedd4856d71c9b900a205b2ecce574a",
+      "name": "Fate Curio",
+      "typeLine": "Thief's Trinket",
+      "baseType": "Thief's Trinket",
+      "identified": true,
+      "ilvl": 83,
+      "corrupted": true,
+      "requirements": [
+        { "name": "Level", "values": [["56", 0]], "displayMode": 0 }
+      ],
+      "explicitMods": [
+        "3% chance to receive additional Breach items when opening a Reward Chest in a Heist",
+        "6% chance to receive additional Weapons when opening a Reward Chest in a Heist",
+        "7% chance in Heists for Orbs of Augmentation to drop as Chaos Orbs instead"
+      ],
+      "descrText": "You must find the sculpture The Catch in a Smuggler's Den or Underbelly Blueprint to be able to equip this",
+      "frameType": 2,
+      "x": 9,
+      "y": 4,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 2,
+      "h": 4,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Weapons/TwoHandWeapons/Staves/PledgeofHands.png?v=881076938a4b0ccb9b54d51fa1d6dff1&w=2&h=4&scale=1&relic=1",
+      "league": "Standard",
+      "id": "20de6891d737dbc338e13890d71988d1d34cf3001b5f1e60e100d525bedd4bd8",
+      "sockets": [
+        { "group": 0, "attr": "I", "sColour": "B" },
+        { "group": 0, "attr": "S", "sColour": "R" },
+        { "group": 0, "attr": "S", "sColour": "R" },
+        { "group": 0, "attr": "I", "sColour": "B" },
+        { "group": 0, "attr": "I", "sColour": "B" },
+        { "group": 0, "attr": "I", "sColour": "B" }
+      ],
+      "name": "Pledge of Hands",
+      "typeLine": "Judgement Staff",
+      "baseType": "Judgement Staff",
+      "identified": true,
+      "ilvl": 75,
+      "properties": [
+        { "name": "Warstaff", "values": [], "displayMode": 0 },
+        {
+          "name": "Quality",
+          "values": [["+20%", 1]],
+          "displayMode": 0,
+          "type": 6
+        },
+        {
+          "name": "Physical Damage",
+          "values": [["88-163", 1]],
+          "displayMode": 0,
+          "type": 9
+        },
+        {
+          "name": "Critical Strike Chance",
+          "values": [["6.50%", 0]],
+          "displayMode": 0,
+          "type": 12
+        },
+        {
+          "name": "Attacks per Second",
+          "values": [["1.30", 0]],
+          "displayMode": 0,
+          "type": 13
+        },
+        {
+          "name": "Weapon Range",
+          "values": [["13", 0]],
+          "displayMode": 0,
+          "type": 14
+        }
+      ],
+      "requirements": [
+        { "name": "Level", "values": [["68", 0]], "displayMode": 0 },
+        { "name": "Str", "values": [["113", 0]], "displayMode": 1 },
+        { "name": "Int", "values": [["113", 0]], "displayMode": 1 }
+      ],
+      "implicitMods": [
+        "+20% Chance to Block Spell Damage while wielding a Staff"
+      ],
+      "explicitMods": [
+        "Socketed Gems are Supported by Level 30 Greater Spell Echo",
+        "154% increased Spell Damage",
+        "100% increased maximum Mana"
+      ],
+      "flavourText": [
+        "\"To shake a hand is to double your power.\"\r",
+        "- Jaetai, Queen's Advisor"
+      ],
+      "isRelic": true,
+      "frameType": 9,
+      "x": 7,
+      "y": 0,
+      "inventoryId": "Stash8",
+      "socketedItems": []
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Jewels/basicdex.png?v=7375b3bb90a9809870b31d1aa4aa68b9&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "fd8441ba56c42f6b768344a6e9e83151028114002261b3c5387e3fa21ecc5b58",
+      "name": "Phoenix Glimmer",
+      "typeLine": "Viridian Jewel",
+      "baseType": "Viridian Jewel",
+      "identified": true,
+      "ilvl": 84,
+      "explicitMods": [
+        "12% increased Attack Damage while holding a Shield",
+        "4% increased Attack Speed",
+        "5% increased maximum Life"
+      ],
+      "descrText": "Place into an allocated Jewel Socket on the Passive Skill Tree. Right click to remove from the Socket.",
+      "frameType": 2,
+      "x": 7,
+      "y": 4,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Strongholds/TirnsEndWatchstone2.png?v=5812cfe11ec84e324319e8c2031bb93b&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "61bfa326945583cbe0acb2387ff78a8f20f396a0f5e6d94344f7d1730f874d18",
+      "name": "",
+      "typeLine": "Lingering Platinum Tirn's End Watchstone of Progress",
+      "baseType": "Platinum Tirn's End Watchstone",
+      "identified": true,
+      "ilvl": 85,
+      "explicitMods": [
+        "Monsters and Chests in Areas have 3% chance to drop Items with +1 to Item Level",
+        "Tormented Spirits in Areas have 45% increased Duration"
+      ],
+      "descrText": "Socket this into a Citadel on your Atlas to increase the Tier of Maps and reveal hidden Maps in that Citadel's Region. You can only socket one Crimson, Viridian, Cobalt or Golden Watchstone into each Citadel.",
+      "flavourText": [
+        "Only the souls trapped within can bear witness to the Maven's dark proclivities, and they dare not speak up."
+      ],
+      "frameType": 1,
+      "x": 6,
+      "y": 6,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/gen/image/WzI4LDE0LHsiZiI6IjJESXRlbXNcL01hcHNcL0F0bGFzMk1hcHNcL05ld1wvQ29sb25uYWRlIiwidyI6MSwiaCI6MSwic2NhbGUiOnRydWUsIm1uIjoxMCwibXQiOjE1fV0/b1775a6eae/Item.png",
+      "league": "Standard",
+      "id": "22e3cfb1c60f513a3ae6634a824e2f97d2d4f5a4d4239c650cd17784965e4b66",
+      "name": "Forsaken Shadows",
+      "typeLine": "Colonnade Map",
+      "baseType": "Colonnade Map",
+      "identified": true,
+      "ilvl": 84,
+      "properties": [
+        {
+          "name": "Map Tier",
+          "values": [["15", 0]],
+          "displayMode": 0,
+          "type": 1
+        },
+        {
+          "name": "Atlas Region",
+          "values": [["Tirn's End", 0]],
+          "displayMode": 0
+        },
+        {
+          "name": "Item Quantity",
+          "values": [["+43%", 1]],
+          "displayMode": 0,
+          "type": 2
+        },
+        {
+          "name": "Item Rarity",
+          "values": [["+26%", 1]],
+          "displayMode": 0,
+          "type": 3
+        },
+        {
+          "name": "Monster Pack Size",
+          "values": [["+17%", 1]],
+          "displayMode": 0,
+          "type": 4
+        }
+      ],
+      "explicitMods": [
+        "Monsters have 70% chance to Avoid Elemental Ailments",
+        "+25% Monster Chaos Resistance",
+        "+40% Monster Elemental Resistance",
+        "All Monster Damage from Hits always Ignites",
+        "Monsters cannot be Taunted",
+        "Monsters' Action Speed cannot be modified to below base value"
+      ],
+      "descrText": "Travel to this Map by using it in a personal Map Device. Maps can only be used once.",
+      "frameType": 2,
+      "x": 7,
+      "y": 5,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 4,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Weapons/OneHandWeapons/Rapiers/AssassinationUnique2.png?v=3a2502286aaad23a9b6e95875adec869&w=1&h=4&scale=1",
+      "league": "Standard",
+      "id": "f2340664e8cb4c1369d08e48d79c285121398179e7cde9ae0fedc1971d375d49",
+      "sockets": [
+        { "group": 0, "attr": "S", "sColour": "R" },
+        { "group": 0, "attr": "S", "sColour": "R" },
+        { "group": 0, "attr": "D", "sColour": "G" }
+      ],
+      "name": "Paradoxica",
+      "typeLine": "Vaal Rapier",
+      "baseType": "Vaal Rapier",
+      "identified": true,
+      "ilvl": 84,
+      "properties": [
+        { "name": "One Handed Sword", "values": [], "displayMode": 0 },
+        {
+          "name": "Quality",
+          "values": [["+38%", 1]],
+          "displayMode": 0,
+          "type": 6
+        },
+        {
+          "name": "Physical Damage",
+          "values": [["51-200", 1]],
+          "displayMode": 0,
+          "type": 9
+        },
+        {
+          "name": "Critical Strike Chance",
+          "values": [["6.50%", 0]],
+          "displayMode": 0,
+          "type": 12
+        },
+        {
+          "name": "Attacks per Second",
+          "values": [["1.50", 1]],
+          "displayMode": 0,
+          "type": 13
+        },
+        {
+          "name": "Weapon Range",
+          "values": [["14", 0]],
+          "displayMode": 0,
+          "type": 14
+        }
+      ],
+      "requirements": [
+        { "name": "Level", "values": [["66", 0]], "displayMode": 0 },
+        { "name": "Dex", "values": [["212", 0]], "displayMode": 1 }
+      ],
+      "implicitMods": ["+25% to Global Critical Strike Multiplier"],
+      "explicitMods": ["Attacks with this Weapon deal Double Damage"],
+      "craftedMods": [
+        "92% increased Physical Damage",
+        "15% increased Attack Speed",
+        "17% chance to Impale Enemies on Hit with Attacks",
+        "+18% to Quality"
+      ],
+      "flavourText": ["What has no siblings but is always a twin?"],
+      "frameType": 3,
+      "x": 0,
+      "y": 0,
+      "inventoryId": "Stash8",
+      "socketedItems": [],
+      "incubatedItem": {
+        "name": "Unique Map Item",
+        "level": 68,
+        "progress": 5478,
+        "total": 7356
+      }
+    },
+    {
+      "verified": false,
+      "w": 2,
+      "h": 2,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Armours/Boots/BootsInt4.png?v=4808dffa0aa9745b57119af9319d0be3&w=2&h=2&scale=1",
+      "league": "Standard",
+      "id": "4add3d95f64f48014c5b884c46fad17fdf002ddc67c787c2f6207a158457ba58",
+      "influences": { "crusader": true, "hunter": true },
+      "sockets": [
+        { "group": 0, "attr": "G", "sColour": "W" },
+        { "group": 0, "attr": "G", "sColour": "W" },
+        { "group": 0, "attr": "G", "sColour": "W" },
+        { "group": 0, "attr": "I", "sColour": "B" }
+      ],
+      "name": "Empyrean March",
+      "typeLine": "Sorcerer Boots",
+      "baseType": "Sorcerer Boots",
+      "identified": true,
+      "ilvl": 88,
+      "properties": [
+        {
+          "name": "Quality",
+          "values": [["+27%", 1]],
+          "displayMode": 0,
+          "type": 6
+        },
+        {
+          "name": "Energy Shield",
+          "values": [["201", 1]],
+          "displayMode": 0,
+          "type": 18
+        }
+      ],
+      "requirements": [
+        {
+          "name": "Level",
+          "values": [["70", 0]],
+          "displayMode": 0,
+          "suffix": "(gem)"
+        },
+        {
+          "name": "Int",
+          "values": [["155", 0]],
+          "displayMode": 1,
+          "suffix": "(gem)"
+        }
+      ],
+      "explicitMods": [
+        "+52 to Intelligence",
+        "+49 to maximum Energy Shield",
+        "78% increased Energy Shield",
+        "15% increased Cooldown Recovery Rate",
+        "You have Tailwind if you have dealt a Critical Strike Recently"
+      ],
+      "craftedMods": ["24% increased Movement Speed"],
+      "frameType": 2,
+      "x": 2,
+      "y": 4,
+      "inventoryId": "Stash8",
+      "socketedItems": [
+        {
+          "verified": false,
+          "w": 1,
+          "h": 1,
+          "icon": "https://web.poecdn.com/image/Art/2DItems/Gems/VaalGems/VaalDiscipline.png?v=d0c982ea27060d34dcfc311c32ec1f8c&w=1&h=1&scale=1",
+          "support": false,
+          "id": "c8febdddd88d5ba6d5ffb23f026bfd2e99029e2a31a9563ad6671d6bc327d7ad",
+          "name": "",
+          "typeLine": "Vaal Discipline",
+          "baseType": "Vaal Discipline",
+          "identified": true,
+          "ilvl": 0,
+          "corrupted": true,
+          "properties": [
+            {
+              "name": "Aura, Vaal, Spell, AoE, Duration",
+              "values": [],
+              "displayMode": 0
+            },
+            {
+              "name": "Level",
+              "values": [["20 (Max)", 0]],
+              "displayMode": 0,
+              "type": 5
+            },
+            {
+              "name": "Reservation",
+              "values": [["35% Mana", 0]],
+              "displayMode": 0
+            },
+            {
+              "name": "Cooldown Time",
+              "values": [["1.20 sec", 0]],
+              "displayMode": 0
+            },
+            {
+              "name": "Cast Time",
+              "values": [["Instant", 0]],
+              "displayMode": 0
+            },
+            {
+              "name": "Quality",
+              "values": [["+20%", 1]],
+              "displayMode": 0,
+              "type": 6
+            }
+          ],
+          "requirements": [
+            { "name": "Level", "values": [["70", 0]], "displayMode": 0 },
+            { "name": "Int", "values": [["155", 0]], "displayMode": 1 }
+          ],
+          "secDescrText": "Casts an aura that grants additional energy shield and increased energy shield recharge rate to you and your allies.",
+          "explicitMods": [
+            "+19 to radius",
+            "40% increased Area of Effect",
+            "You and nearby allies gain 217 additional Energy Shield",
+            "You and nearby Allies gain 30% increased Energy Shield Recharge rate"
+          ],
+          "descrText": "Place into an item socket of the right colour to gain this skill. Right click to remove from a socket.",
+          "frameType": 4,
+          "socket": 0,
+          "colour": "I",
+          "hybrid": {
+            "isVaalGem": true,
+            "baseTypeName": "Discipline",
+            "properties": [
+              {
+                "name": "Cooldown Time",
+                "values": [["0.50 sec", 0]],
+                "displayMode": 0
+              },
+              {
+                "name": "Souls Per Use",
+                "values": [["50", 0]],
+                "displayMode": 0
+              },
+              {
+                "name": "Can Store {0} Use",
+                "values": [["1", 0]],
+                "displayMode": 3
+              },
+              {
+                "name": "Soul Gain Prevention",
+                "values": [["5 sec", 0]],
+                "displayMode": 0
+              },
+              {
+                "name": "Cast Time",
+                "values": [["Instant", 0]],
+                "displayMode": 0
+              }
+            ],
+            "explicitMods": [
+              "Base duration is 3.00 seconds",
+              "Modifiers to Buff Duration also apply to this Skill's Soul Gain Prevention",
+              "+19 to radius",
+              "40% increased Area of Effect",
+              "Your and nearby allies' Energy Shield Recharges are not delayed by Damage"
+            ],
+            "secDescrText": "Casts a temporary aura that prevents energy shield recharge being delayed by damage taken for you and your allies."
+          }
+        },
+        {
+          "verified": false,
+          "w": 1,
+          "h": 1,
+          "icon": "https://web.poecdn.com/image/Art/2DItems/Gems/Clarity.png?v=f609c128e5ee053e773b391625757d6a&w=1&h=1&scale=1",
+          "support": false,
+          "id": "260abac9e7fc6f960531a401be182cea66f62d84d838d6aff301a96bba287725",
+          "name": "",
+          "typeLine": "Clarity",
+          "baseType": "Clarity",
+          "identified": true,
+          "ilvl": 0,
+          "properties": [
+            { "name": "Aura, Spell, AoE", "values": [], "displayMode": 0 },
+            {
+              "name": "Level",
+              "values": [["1", 0]],
+              "displayMode": 0,
+              "type": 5
+            },
+            {
+              "name": "Reservation",
+              "values": [["34 Mana", 0]],
+              "displayMode": 0
+            },
+            {
+              "name": "Cooldown Time",
+              "values": [["1.20 sec", 0]],
+              "displayMode": 0
+            },
+            {
+              "name": "Cast Time",
+              "values": [["Instant", 0]],
+              "displayMode": 0
+            }
+          ],
+          "requirements": [
+            { "name": "Level", "values": [["10", 0]], "displayMode": 0 },
+            { "name": "Int", "values": [["22", 0]], "displayMode": 1 }
+          ],
+          "additionalProperties": [
+            {
+              "name": "Experience",
+              "values": [["9569/9569", 0]],
+              "displayMode": 2,
+              "progress": 1,
+              "type": 20
+            }
+          ],
+          "nextLevelRequirements": [
+            { "name": "Level", "values": [["13", 0]], "displayMode": 0 },
+            { "name": "Int", "values": [["27", 0]], "displayMode": 1 }
+          ],
+          "secDescrText": "Casts an aura that grants mana regeneration to you and your allies.",
+          "explicitMods": [
+            "You and nearby Allies Regenerate 2.9 Mana per second"
+          ],
+          "descrText": "Place into an item socket of the right colour to gain this skill. Right click to remove from a socket.",
+          "frameType": 4,
+          "socket": 1,
+          "colour": "I"
+        }
+      ]
+    },
+    {
+      "verified": false,
+      "w": 2,
+      "h": 4,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Weapons/TwoHandWeapons/Bows/Bow5.png?v=daf0ddbfc1b8447bcd479d760100f24b&w=2&h=4&scale=1",
+      "league": "Standard",
+      "id": "12a4dab14fcb7e259a661dcb30466853bdc33fc6f3a258825ce71a05cd37b559",
+      "influences": { "shaper": true },
+      "shaper": true,
+      "sockets": [
+        { "group": 0, "attr": "D", "sColour": "G" },
+        { "group": 1, "attr": "D", "sColour": "G" },
+        { "group": 1, "attr": "S", "sColour": "R" }
+      ],
+      "name": "Spirit Blast",
+      "typeLine": "Assassin Bow",
+      "baseType": "Assassin Bow",
+      "identified": true,
+      "ilvl": 85,
+      "properties": [
+        { "name": "Bow", "values": [], "displayMode": 0 },
+        {
+          "name": "Quality",
+          "values": [["+20%", 1]],
+          "displayMode": 0,
+          "type": 6
+        },
+        {
+          "name": "Physical Damage",
+          "values": [["36-107", 1]],
+          "displayMode": 0,
+          "type": 9
+        },
+        {
+          "name": "Critical Strike Chance",
+          "values": [["6.70%", 0]],
+          "displayMode": 0,
+          "type": 12
+        },
+        {
+          "name": "Attacks per Second",
+          "values": [["1.49", 1]],
+          "displayMode": 0,
+          "type": 13
+        }
+      ],
+      "requirements": [
+        { "name": "Level", "values": [["66", 0]], "displayMode": 0 },
+        { "name": "Dex", "values": [["212", 0]], "displayMode": 1 }
+      ],
+      "implicitMods": ["+25% to Global Critical Strike Multiplier"],
+      "explicitMods": [
+        "Socketed Gems are supported by Level 18 Cast On Critical Strike",
+        "144% increased Spell Damage",
+        "19% increased Attack Speed",
+        "+37% to Global Critical Strike Multiplier",
+        "Damage Penetrates 11% Elemental Resistances"
+      ],
+      "frameType": 2,
+      "x": 3,
+      "y": 0,
+      "inventoryId": "Stash8",
+      "socketedItems": []
+    },
+    {
+      "verified": false,
+      "w": 2,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Belts/CrystalBelt.png?v=63156732e8bfa8dc4f84a814124d19d5&w=2&h=1&scale=1",
+      "league": "Standard",
+      "id": "409c86353ef0467c8d8935c53277ad4197ca122a1898a2350298fd52cc33ce92",
+      "influences": { "crusader": true, "redeemer": true },
+      "name": "Phoenix Trap",
+      "typeLine": "Crystal Belt",
+      "baseType": "Crystal Belt",
+      "identified": true,
+      "ilvl": 84,
+      "properties": [
+        {
+          "name": "Quality (Defence Modifiers)",
+          "values": [["+20%", 1]],
+          "displayMode": 0,
+          "type": 6
+        }
+      ],
+      "requirements": [
+        { "name": "Level", "values": [["79", 0]], "displayMode": 0 }
+      ],
+      "implicitMods": ["+96 to maximum Energy Shield"],
+      "explicitMods": [
+        "25% increased Cold Damage",
+        "+55 to maximum Energy Shield",
+        "24% increased Energy Shield Recovery rate",
+        "19% increased Cooldown Recovery Rate",
+        "34% increased Damage with Hits against Chilled Enemies",
+        "35% increased Spell Damage during any Flask Effect"
+      ],
+      "enchantMods": [
+        "Elemental Ailments inflicted on Enemies Exposed by you have 20% increased Duration"
+      ],
+      "cosmeticMods": [
+        "Has Maligaro's Restraint Skin. You can reclaim this by shift-clicking this item."
+      ],
+      "frameType": 2,
+      "x": 4,
+      "y": 4,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 2,
+      "h": 3,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Armours/Shields/ShieldStrInt5.png?v=823818e9cfc86e3ea4c642b97695932c&w=2&h=3&scale=1",
+      "league": "Standard",
+      "id": "52c987de45f3afade51f6dcbb61920616d37c09abea27933c9e0e98e32bd4c7f",
+      "sockets": [
+        { "group": 0, "attr": "S", "sColour": "R" },
+        { "group": 0, "attr": "I", "sColour": "B" },
+        { "group": 0, "attr": "I", "sColour": "B" }
+      ],
+      "name": "Foe Emblem",
+      "typeLine": "Angelic Kite Shield",
+      "baseType": "Angelic Kite Shield",
+      "identified": true,
+      "ilvl": 77,
+      "properties": [
+        {
+          "name": "Quality",
+          "values": [["+20%", 1]],
+          "displayMode": 0,
+          "type": 6
+        },
+        {
+          "name": "Chance to Block",
+          "values": [["22%", 0]],
+          "displayMode": 0,
+          "type": 15
+        },
+        {
+          "name": "Armour",
+          "values": [["149", 1]],
+          "displayMode": 0,
+          "type": 16
+        },
+        {
+          "name": "Energy Shield",
+          "values": [["29", 1]],
+          "displayMode": 0,
+          "type": 18
+        }
+      ],
+      "requirements": [
+        { "name": "Level", "values": [["57", 0]], "displayMode": 0 },
+        { "name": "Str", "values": [["70", 0]], "displayMode": 1 },
+        { "name": "Int", "values": [["70", 0]], "displayMode": 1 }
+      ],
+      "implicitMods": ["+12% to all Elemental Resistances"],
+      "explicitMods": [
+        "+99 to maximum Life",
+        "+27 to maximum Mana",
+        "+44% to Fire Resistance",
+        "+44% to Cold Resistance"
+      ],
+      "craftedMods": ["7% increased Cast Speed"],
+      "frameType": 2,
+      "x": 1,
+      "y": 0,
+      "inventoryId": "Stash8",
+      "socketedItems": []
+    },
+    {
+      "verified": false,
+      "w": 2,
+      "h": 4,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Weapons/TwoHandWeapons/Staves/MartyrInnocence.png?v=76a2744a1d22dc7ac62daf26e032cf1b&w=2&h=4&scale=1",
+      "league": "Standard",
+      "id": "026be0ecd010e83c4e0d50f7afe804a1c56644da463f29020a8131b0032e2380",
+      "sockets": [
+        { "group": 0, "attr": "D", "sColour": "G" },
+        { "group": 0, "attr": "S", "sColour": "R" },
+        { "group": 0, "attr": "S", "sColour": "R" }
+      ],
+      "name": "Martyr of Innocence",
+      "typeLine": "Highborn Staff",
+      "baseType": "Highborn Staff",
+      "identified": true,
+      "ilvl": 85,
+      "properties": [
+        { "name": "Staff", "values": [], "displayMode": 0 },
+        {
+          "name": "Physical Damage",
+          "values": [["48-145", 0]],
+          "displayMode": 0,
+          "type": 9
+        },
+        {
+          "name": "Elemental Damage",
+          "values": [["352-599", 4]],
+          "displayMode": 0,
+          "type": 10
+        },
+        {
+          "name": "Critical Strike Chance",
+          "values": [["6.50%", 0]],
+          "displayMode": 0,
+          "type": 12
+        },
+        {
+          "name": "Attacks per Second",
+          "values": [["1.15", 0]],
+          "displayMode": 0,
+          "type": 13
+        },
+        {
+          "name": "Weapon Range",
+          "values": [["13", 0]],
+          "displayMode": 0,
+          "type": 14
+        }
+      ],
+      "requirements": [
+        {
+          "name": "Level",
+          "values": [["70", 0]],
+          "displayMode": 0,
+          "suffix": "(gem)"
+        },
+        {
+          "name": "Str",
+          "values": [["155", 0]],
+          "displayMode": 1,
+          "suffix": "(gem)"
+        },
+        { "name": "Int", "values": [["89", 0]], "displayMode": 1 }
+      ],
+      "implicitMods": [
+        "+18% Chance to Block Attack Damage while wielding a Staff"
+      ],
+      "explicitMods": [
+        "Grants Level 15 Vengeance Skill",
+        "+14% Chance to Block Attack Damage while wielding a Staff",
+        "100% increased Fire Damage",
+        "Adds 352 to 599 Fire Damage",
+        "Damage Penetrates 15% of Fire Resistance if you have Blocked Recently",
+        "Immune to Freeze and Chill while Ignited",
+        "Battlemage"
+      ],
+      "enchantMods": [
+        "Quality does not increase Physical Damage",
+        "Grants 1% increased Elemental Damage per 2% Quality"
+      ],
+      "flavourText": [
+        "You have been found guilty.\r",
+        "Let the fires cleanse you of your sins."
+      ],
+      "frameType": 3,
+      "x": 5,
+      "y": 0,
+      "inventoryId": "Stash8",
+      "socketedItems": [
+        {
+          "verified": false,
+          "w": 1,
+          "h": 1,
+          "icon": "https://web.poecdn.com/image/Art/2DItems/Gems/MoltenShell.png?v=e8e7e6c0bf2ddaf50de0856a8b4abca8&w=1&h=1&scale=1",
+          "support": false,
+          "id": "f3ceedb0c824e01240c6bf8dc58f3c3f4d168cb5e08f843aec57a81a3bdd56c7",
+          "name": "",
+          "typeLine": "Molten Shell",
+          "baseType": "Molten Shell",
+          "identified": true,
+          "ilvl": 0,
+          "corrupted": true,
+          "properties": [
+            {
+              "name": "Spell, AoE, Duration, Fire, Physical, Guard",
+              "values": [],
+              "displayMode": 0
+            },
+            {
+              "name": "Level",
+              "values": [["20 (Max)", 0]],
+              "displayMode": 0,
+              "type": 5
+            },
+            { "name": "Cost", "values": [["12 Mana", 0]], "displayMode": 0 },
+            {
+              "name": "Cooldown Time",
+              "values": [["4.00 sec", 0]],
+              "displayMode": 0
+            },
+            {
+              "name": "Cast Time",
+              "values": [["Instant", 0]],
+              "displayMode": 0
+            },
+            {
+              "name": "Quality",
+              "values": [["+20%", 1]],
+              "displayMode": 0,
+              "type": 6
+            }
+          ],
+          "requirements": [
+            { "name": "Level", "values": [["70", 0]], "displayMode": 0 },
+            { "name": "Str", "values": [["155", 0]], "displayMode": 1 }
+          ],
+          "secDescrText": "Applies a buff that adds to your armour, and can take some of the damage from hits for you before being depleted. When the buff expires or is depleted, the skill deals reflected damage to enemies around you based on the total damage that was taken from the buff. Shares a cooldown with other Guard skills.",
+          "explicitMods": [
+            "Base duration is 3.00 seconds",
+            "20% increased Skill Effect Duration",
+            "This Skill's Cooldown does not recover during its effect",
+            "75% of Damage from Hits is taken from the Buff before your Life or Energy Shield\nBuff can take Damage equal to 20% of your Armour, up to a maximum of 10000",
+            "Reflects 3000% of Damage taken from Buff as Fire Damage when Buff expires or is depleted",
+            "Buff grants +858 to Armour"
+          ],
+          "descrText": "Place into an item socket of the right colour to gain this skill. Right click to remove from a socket.",
+          "frameType": 4,
+          "socket": 1,
+          "colour": "S"
+        },
+        {
+          "verified": false,
+          "w": 1,
+          "h": 1,
+          "icon": "https://web.poecdn.com/image/Art/2DItems/Gems/VaalGems/VaalQuakeSlam.png?v=4359e806b4844b3580971830253e775d&w=1&h=1&scale=1",
+          "support": false,
+          "id": "6eea05da8a46f7d48049ad9646553b82759e6dfd98ce41400db6869d151b5a2f",
+          "name": "",
+          "typeLine": "Vaal Earthquake",
+          "baseType": "Vaal Earthquake",
+          "identified": true,
+          "ilvl": 0,
+          "corrupted": true,
+          "properties": [
+            {
+              "name": "Vaal, Attack, AoE, Duration, Slam, Melee",
+              "values": [],
+              "displayMode": 0
+            },
+            {
+              "name": "Level",
+              "values": [["1", 0]],
+              "displayMode": 0,
+              "type": 5
+            },
+            { "name": "Cost", "values": [["10 Mana", 0]], "displayMode": 0 },
+            {
+              "name": "Attack Speed",
+              "values": [["75% of base", 0]],
+              "displayMode": 0
+            },
+            {
+              "name": "Attack Damage",
+              "values": [["85% of base", 0]],
+              "displayMode": 0
+            },
+            {
+              "name": "Effectiveness of Added Damage",
+              "values": [["85%", 0]],
+              "displayMode": 0
+            },
+            {
+              "name": "Quality",
+              "values": [["+20%", 1]],
+              "displayMode": 0,
+              "type": 6
+            }
+          ],
+          "requirements": [
+            { "name": "Level", "values": [["28", 0]], "displayMode": 0 },
+            { "name": "Str", "values": [["67", 0]], "displayMode": 1 }
+          ],
+          "additionalProperties": [
+            {
+              "name": "Experience",
+              "values": [["1/199345", 0]],
+              "displayMode": 2,
+              "progress": 0,
+              "type": 20
+            }
+          ],
+          "secDescrText": "Smashes the ground, dealing damage in an area and cracking the earth. The crack will erupt in a powerful aftershock after a short duration. Cracks created before the first one has erupted will not generate their own aftershocks. Requires an Axe, Mace, Sceptre, Staff or Unarmed.",
+          "explicitMods": [
+            "Base duration is 1.00 seconds",
+            "20% increased Damage",
+            "Aftershock deals 150% more Damage with Hits and Ailments"
+          ],
+          "descrText": "Place into an item socket of the right colour to gain this skill. Right click to remove from a socket.",
+          "frameType": 4,
+          "socket": 2,
+          "colour": "S",
+          "hybrid": {
+            "isVaalGem": true,
+            "baseTypeName": "Earthquake",
+            "properties": [
+              {
+                "name": "Souls Per Use",
+                "values": [["30", 0]],
+                "displayMode": 0
+              },
+              {
+                "name": "Can Store {0} Use",
+                "values": [["1", 0]],
+                "displayMode": 3
+              },
+              {
+                "name": "Soul Gain Prevention",
+                "values": [["9 sec", 0]],
+                "displayMode": 0
+              },
+              {
+                "name": "Attack Speed",
+                "values": [["75% of base", 0]],
+                "displayMode": 0
+              },
+              {
+                "name": "Attack Damage",
+                "values": [["70% of base", 0]],
+                "displayMode": 0
+              },
+              {
+                "name": "Effectiveness of Added Damage",
+                "values": [["70%", 0]],
+                "displayMode": 0
+              }
+            ],
+            "explicitMods": [
+              "Base duration is 1.00 seconds",
+              "Base secondary duration is 12.00 seconds",
+              "Modifiers to Skill Effect Duration also apply to this Skill's Soul Gain Prevention",
+              "20% increased Damage",
+              "Aftershock deals 350% more Damage with Hits and Ailments",
+              "Ongoing effect ends after 9 Aftershocks"
+            ],
+            "secDescrText": "Smashes the ground, dealing damage in an area and cracking the earth. The crack will erupt in a powerful aftershock after a short duration. After using this skill, your steps will deal damage around you, cracking the earth if the previous cracks have erupted. This effect ends after a secondary duration, or after a maximum number of aftershocks. Requires an Axe, Mace, Sceptre, Staff or Unarmed."
+          }
+        }
+      ]
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Atlas/ProvingGroundHaewarkHamlet5.png?v=4e4005d82fe0bdfc6748967655f00262&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "540d8a2f8065288392c92df62cb10fa05dbfc10e2761ea5ae96036f5ea7c8edf",
+      "name": "Armageddon Urge",
+      "typeLine": "Maven's Invitation: Haewark Hamlet",
+      "baseType": "Maven's Invitation: Haewark Hamlet",
+      "identified": true,
+      "ilvl": 83,
+      "properties": [
+        {
+          "name": "Item Quantity",
+          "values": [["+62%", 1]],
+          "displayMode": 0,
+          "type": 2
+        },
+        {
+          "name": "Item Rarity",
+          "values": [["+37%", 1]],
+          "displayMode": 0,
+          "type": 3
+        }
+      ],
+      "explicitMods": [
+        "27% more Monster Life",
+        "Monsters cannot be Stunned",
+        "Monsters are Hexproof",
+        "Monsters take 36% reduced Extra Damage from Critical Strikes",
+        "Monsters gain an Endurance Charge on Hit",
+        "All Monster Damage from Hits always Ignites"
+      ],
+      "descrText": "Can be used in a personal Map Device. Modifiers to Item Quantity will affect the number of encounter rewards dropped.",
+      "flavourText": [
+        "For those who must not endure it,\r",
+        "there may be found a perverse joy \r",
+        "in watching the struggle for survival."
+      ],
+      "frameType": 2,
+      "x": 7,
+      "y": 6,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/gen/image/WzI4LDE0LHsiZiI6IjJESXRlbXNcL01hcHNcL0F0bGFzMk1hcHNcL05ld1wvUGllciIsInciOjEsImgiOjEsInNjYWxlIjp0cnVlLCJtbiI6NywibXQiOjE0LCJtYiI6dHJ1ZX1d/985bc2bb74/Item.png",
+      "league": "Standard",
+      "id": "aaa57fe79c36703e2b50ecaa27c14303b509a16ada5ab0b611653ba771cbc784",
+      "name": "",
+      "typeLine": "Blighted Pier Map",
+      "baseType": "Blighted Pier Map",
+      "identified": true,
+      "ilvl": 83,
+      "properties": [
+        {
+          "name": "Map Tier",
+          "values": [["14", 0]],
+          "displayMode": 0,
+          "type": 1
+        },
+        {
+          "name": "Monster Pack Size",
+          "values": [["+15%", 1]],
+          "displayMode": 0,
+          "type": 4
+        }
+      ],
+      "implicitMods": [
+        "Area is infested with Fungal Growths\nMap's Item Quantity Modifiers also affect Blight Chest count at 20% value",
+        "Natural inhabitants of this area have been removed"
+      ],
+      "enchantMods": ["Blight Monsters in Areas spawn 6% faster"],
+      "descrText": "Travel to this Map by using it in a personal Map Device. Maps can only be used once.",
+      "frameType": 0,
+      "x": 0,
+      "y": 9,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Heist/FoliateBrooch.png?v=f04f30de9e8de31206ee7ff50610fa44&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "ae4b3c277ef2f515d0a2a32aa9b580ab1d9448c0a7b9835ee0141ce03885790d",
+      "name": "Gloom Scarab",
+      "typeLine": "Foliate Brooch",
+      "baseType": "Foliate Brooch",
+      "identified": true,
+      "ilvl": 85,
+      "properties": [
+        {
+          "name": "Any Heist member can equip this item.",
+          "values": [["", 0]],
+          "displayMode": 3
+        }
+      ],
+      "requirements": [
+        {
+          "name": "Level {0} in {1}",
+          "values": [
+            ["5", 0],
+            ["Any Job", 0]
+          ],
+          "displayMode": 3
+        }
+      ],
+      "implicitMods": ["30% increased Rarity of Items dropped in Heists"],
+      "explicitMods": [
+        "Heist Chests have a 14% chance to Duplicate contained Catalysts",
+        "15% reduced Hiring Fee",
+        "3% increased Job Experience gain"
+      ],
+      "descrText": "Can only be equipped to Heist members.",
+      "frameType": 2,
+      "x": 0,
+      "y": 11,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 2,
+      "h": 2,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Heist/BurstBandMagicStone.png?v=ed5da141bf38989e42f4156a9735c79c&w=2&h=2&scale=1",
+      "league": "Standard",
+      "id": "d892f00ce08057be3b6e5303b7565b8633f911c1ce50bb45598248192885c471",
+      "name": "Behemoth Implement",
+      "typeLine": "Burst Band",
+      "baseType": "Burst Band",
+      "identified": true,
+      "ilvl": 85,
+      "properties": [
+        {
+          "name": "Any Heist member can equip this item.",
+          "values": [["", 0]],
+          "displayMode": 3
+        }
+      ],
+      "requirements": [
+        {
+          "name": "Level {0} in {1}",
+          "values": [
+            ["5", 0],
+            ["Any Job", 0]
+          ],
+          "displayMode": 3
+        }
+      ],
+      "implicitMods": ["27% increased Spell Damage"],
+      "explicitMods": [
+        "39% increased Damage",
+        "9% increased Job Experience gain",
+        "Grants Level 15 Wrath Skill"
+      ],
+      "descrText": "Can only be equipped to Heist members.",
+      "frameType": 2,
+      "x": 1,
+      "y": 6,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Metamorph/BrainInventory.png?v=021e436a86e69d86567c60a85ec05198&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "1fc4b5b96aaeba64843cceaece0b85f6ee2f96536cdb154e278a8ed95b5be84f",
+      "name": "",
+      "typeLine": "Berrots, The Breaker's Brain",
+      "baseType": "Berrots, The Breaker's Brain",
+      "identified": true,
+      "itemLevel": 81,
+      "ilvl": 81,
+      "properties": [
+        {
+          "name": "Uses",
+          "values": [["Caustic Explosion", 0]],
+          "displayMode": 0,
+          "type": 27
+        }
+      ],
+      "explicitMods": [
+        "Drops additional Currency Items",
+        "Drops additional Rare Talismans",
+        "Drops additional Fossils"
+      ],
+      "descrText": "Combine this with four other different samples in Tane's Laboratory.",
+      "frameType": 3,
+      "x": 0,
+      "y": 8,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/ProphecyOrbRed.png?v=dc9105d2b038a79c7c316fc2ba30cef0&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "79e72ce5d99574e02fb5a4157e8f50d4c312903b78b958ff92b523cd0c8133d3",
+      "name": "",
+      "typeLine": "The Queen's Vaults",
+      "baseType": "The Queen's Vaults",
+      "identified": true,
+      "ilvl": 0,
+      "descrText": "Right-click to add this prophecy to your character.",
+      "flavourText": [
+        "The Red Queen holds the key to her vaults, and only death will loosen her grip."
+      ],
+      "prophecyText": "You will slay Atziri, Queen of the Vaal, and gain access to her Vaults.",
+      "frameType": 8,
+      "x": 4,
+      "y": 5,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Heist/ContractItem.png?v=8929128caf23379f12f7ef7b03ed233e&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "adf6e9da2f0cd505dade5c324dbd01a951d7723210367d641d72a58340d08427",
+      "name": "Hypnotic Orders",
+      "typeLine": "Contract: Bunker",
+      "baseType": "Contract: Bunker",
+      "identified": true,
+      "ilvl": 82,
+      "properties": [
+        { "name": "Client", "values": [["Count Geonor", 0]], "displayMode": 0 },
+        {
+          "name": "Heist Target: {0} ({1})",
+          "values": [
+            ["Ogham Candelabra", 0],
+            ["Moderate Value", 0]
+          ],
+          "displayMode": 3,
+          "type": 47
+        },
+        {
+          "name": "Area Level",
+          "values": [["82", 0]],
+          "displayMode": 0,
+          "type": 34
+        },
+        {
+          "name": "Requires {1} (Level {0})",
+          "values": [
+            ["2", 0],
+            ["Agility", 0]
+          ],
+          "displayMode": 3,
+          "type": 44
+        },
+        {
+          "name": "Item Quantity",
+          "values": [["+64%", 1]],
+          "displayMode": 0,
+          "type": 2
+        },
+        {
+          "name": "Item Rarity",
+          "values": [["+37%", 1]],
+          "displayMode": 0,
+          "type": 3
+        },
+        {
+          "name": "Alert Level Reduction",
+          "values": [["+24%", 1]],
+          "displayMode": 0
+        },
+        {
+          "name": "Time Before Lockdown",
+          "values": [["+24%", 1]],
+          "displayMode": 0
+        },
+        {
+          "name": "Maximum Alive Reinforcements",
+          "values": [["+24%", 1]],
+          "displayMode": 0,
+          "type": 4
+        }
+      ],
+      "explicitMods": [
+        "Monsters have 368% increased Critical Strike Chance",
+        "+44% to Monster Critical Strike Multiplier",
+        "27% increased Monster Movement Speed",
+        "43% increased Monster Attack Speed",
+        "35% increased Monster Cast Speed",
+        "Guards take 28% reduced Damage",
+        "Reward Rooms have 21% increased Monsters"
+      ],
+      "descrText": "Give this Contract to Adiyah in the Rogue Harbour to embark on the Heist.",
+      "flavourText": [
+        "\"Those Eternal bastards looted everything that wasn't bolted to the floor when we\r",
+        "finally drove them from our island! That candelabra belongs with us!\""
+      ],
+      "frameType": 2,
+      "x": 2,
+      "y": 3,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Rings/DieOfDestiny.png?v=72c5acdfcec0e4170539ef8d044baff8&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "6690df004cd13593d0637ef7efb090b2a2a50f4b99e0a7eadb07a7789047446c",
+      "name": "Ventor's Gamble",
+      "typeLine": "Gold Ring",
+      "baseType": "Gold Ring",
+      "identified": true,
+      "ilvl": 82,
+      "requirements": [
+        { "name": "Level", "values": [["65", 0]], "displayMode": 0 }
+      ],
+      "implicitMods": ["7% increased Rarity of Items found"],
+      "explicitMods": [
+        "+34 to maximum Life",
+        "9% increased Quantity of Items found",
+        "5% increased Rarity of Items found",
+        "+49% to Fire Resistance",
+        "+41% to Cold Resistance",
+        "-12% to Lightning Resistance"
+      ],
+      "flavourText": [
+        "In a blaze of glory,\r",
+        "An anomaly defying all odds\r",
+        "The \"unkillable\" beast met the divine\r",
+        "And Ventor met his latest trophy."
+      ],
+      "frameType": 3,
+      "x": 6,
+      "y": 4,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Gems/Support/SlowerProjectiles.png?v=6d296762a32530f3f484b129ecc5aecc&w=1&h=1&scale=1",
+      "support": true,
+      "league": "Standard",
+      "id": "ba0922750d4656dea4aa58acef502e13f726421e59a1d9ce49fc968ebc6aed12",
+      "name": "",
+      "typeLine": "Slower Projectiles Support",
+      "baseType": "Slower Projectiles Support",
+      "identified": true,
+      "ilvl": 0,
+      "corrupted": true,
+      "properties": [
+        { "name": "Support, Projectile", "values": [], "displayMode": 0 },
+        {
+          "name": "Level",
+          "values": [["20 (Max)", 0]],
+          "displayMode": 0,
+          "type": 5
+        },
+        {
+          "name": "Cost & Reservation Multiplier",
+          "values": [["140%", 0]],
+          "displayMode": 0
+        },
+        {
+          "name": "Quality",
+          "values": [["+20%", 1]],
+          "displayMode": 0,
+          "type": 6
+        }
+      ],
+      "requirements": [
+        { "name": "Level", "values": [["70", 0]], "displayMode": 0 },
+        { "name": "Dex", "values": [["111", 0]], "displayMode": 1 }
+      ],
+      "secDescrText": "Supports projectile skills.",
+      "explicitMods": [
+        "Supported Skills have 30% less Projectile Speed",
+        "Supported Skills deal 10% increased Projectile Damage",
+        "Supported Skills deal 29% more Projectile Damage"
+      ],
+      "descrText": "This is a Support Gem. It does not grant a bonus to your character, but to skills in sockets connected to it. Place into an item socket connected to a socket containing the Active Skill Gem you wish to augment. Right click to remove from a socket.",
+      "frameType": 4,
+      "x": 8,
+      "y": 4,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Maps/Vaal04.png?v=72207b7e72a4ed4fafd3e72f7b0b2a93&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "054e3c43ab13c1dd446ed4381912d5d516b6e37b4ede4d5fa59b03ea2f25541c",
+      "name": "",
+      "typeLine": "Sacrifice at Dusk",
+      "baseType": "Sacrifice at Dusk",
+      "identified": true,
+      "ilvl": 0,
+      "descrText": "Can be used in a personal Map Device.",
+      "flavourText": ["The Vaal shall never fear the setting of our sun."],
+      "frameType": 0,
+      "x": 8,
+      "y": 5,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Ritual/Effigy.png?v=851918ae4cd7761b8dc745a06c191138&w=1&h=1&scale=1",
+      "stackSize": 1,
+      "maxStackSize": 10,
+      "league": "Standard",
+      "id": "cd093445bb01f27710c227fec3982330ae32664a36b7b8e68b4a281dca4c2b3c",
+      "name": "",
+      "typeLine": "Ritual Vessel",
+      "baseType": "Ritual Vessel",
+      "identified": true,
+      "ilvl": 0,
+      "properties": [
+        {
+          "name": "Stack Size",
+          "values": [["1/10", 0]],
+          "displayMode": 0,
+          "type": 32
+        }
+      ],
+      "explicitMods": [
+        "Stores the monsters slain for the first time from a completed Ritual Altar for future use"
+      ],
+      "descrText": "Right-click this item then left-click a Ritual Altar to store the monsters from the completed Ritual in this item. Cannot be used on a Ritual in a map opened with a Blood-Filled Vessel.",
+      "frameType": 5,
+      "x": 11,
+      "y": 6,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Breach/EshsEnrichedBreachstone.png?v=1af445ae7ec0f26b1f056179bd99f3ae&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "bcc6e00775649d72f135a6c7f568b1ba23a8222f2efeebc80c8cd79e39791c13",
+      "name": "",
+      "typeLine": "Esh's Enriched Breachstone",
+      "baseType": "Esh's Enriched Breachstone",
+      "identified": true,
+      "ilvl": 0,
+      "descrText": "Travel to Esh's Domain by using this item in a personal Map Device. Can only be used once.",
+      "frameType": 0,
+      "x": 11,
+      "y": 4,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Scarabs/GreaterScarabTorment.png?v=1e5891063b4f27d83d24ae0dbd37ceb4&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "fa26ac12e823330549dfbc8f502259753537615ba713b6c6fd4eba18d24352cb",
+      "name": "",
+      "typeLine": "Gilded Torment Scarab",
+      "baseType": "Gilded Torment Scarab",
+      "identified": true,
+      "ilvl": 0,
+      "explicitMods": ["Area contains 7 additional Tormented Spirits"],
+      "descrText": "Can be used in a personal Map Device to add modifiers to a Map.",
+      "flavourText": [
+        "Though you were swallowed by your own darkness, you saved countless others\r",
+        "from eternal misery, young Tsarsk. You were not nothing, as you feared."
+      ],
+      "frameType": 0,
+      "x": 11,
+      "y": 5,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollMagic.png?v=6d9520174f6643e502da336e76b730d3&w=1&h=1&scale=1",
+      "stackSize": 1,
+      "maxStackSize": 20,
+      "league": "Standard",
+      "id": "71ef2555bc60c635eb4086d7e5ce260575a5acb8ecfac72bd344964a75785b81",
+      "name": "",
+      "typeLine": "Orb of Alteration",
+      "baseType": "Orb of Alteration",
+      "identified": true,
+      "ilvl": 0,
+      "properties": [
+        {
+          "name": "Stack Size",
+          "values": [["1/20", 0]],
+          "displayMode": 0,
+          "type": 32
+        }
+      ],
+      "explicitMods": ["Reforges a magic item with new random modifiers"],
+      "descrText": "Right click this item then left click a magic item to apply it.",
+      "frameType": 5,
+      "x": 6,
+      "y": 5,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png?v=c60aa876dd6bab31174df91b1da1b4f9&w=1&h=1&scale=1",
+      "stackSize": 1,
+      "maxStackSize": 10,
+      "league": "Standard",
+      "id": "746f6852e6378c8fa11c82e4f6b45fa8027beabdc8d2a0e498d6260a1f878f4c",
+      "name": "",
+      "typeLine": "Chaos Orb",
+      "baseType": "Chaos Orb",
+      "identified": true,
+      "ilvl": 0,
+      "properties": [
+        {
+          "name": "Stack Size",
+          "values": [["1/10", 0]],
+          "displayMode": 0,
+          "type": 32
+        }
+      ],
+      "explicitMods": ["Reforges a rare item with new random modifiers"],
+      "descrText": "Right click this item then left click a rare item to apply it.",
+      "frameType": 5,
+      "x": 5,
+      "y": 6,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Essence/Rage7.png?v=eedc0092ba0e7d4619fd2c3d5d4447a2&w=1&h=1&scale=1",
+      "stackSize": 1,
+      "maxStackSize": 9,
+      "league": "Standard",
+      "id": "b16b63b71c381a0b0f5c7589049fb473c3d2dd8522c2d5fd155c1d77db3f2477",
+      "name": "",
+      "typeLine": "Deafening Essence of Rage",
+      "baseType": "Deafening Essence of Rage",
+      "identified": true,
+      "ilvl": 0,
+      "properties": [
+        {
+          "name": "Stack Size",
+          "values": [["1/9", 0]],
+          "displayMode": 0,
+          "type": 32
+        }
+      ],
+      "explicitMods": [
+        "Upgrades a normal item to rare or reforges a rare item, guaranteeing one property",
+        "",
+        "One Handed Weapon: Damage Penetrates 8% Fire Resistance",
+        "Two Handed Weapon: Damage Penetrates (15-16)% Fire Resistance",
+        "Other Item: (51-58) to Strength"
+      ],
+      "descrText": "Right click this item then left click a normal or rare item to apply it.",
+      "frameType": 5,
+      "x": 0,
+      "y": 7,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/BestiaryOrbFull.png?v=0d0f6c8509eaf231513fc8b9a5df4626&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "a05ce937fcc61c0b474e386f10f2ebfb725b9ebf030f8b11ca20a525883dc9f8",
+      "name": "Pitscalp",
+      "typeLine": "Farric Flame Hellion Alpha",
+      "baseType": "Farric Flame Hellion Alpha",
+      "identified": true,
+      "itemLevel": 83,
+      "ilvl": 83,
+      "properties": [
+        {
+          "name": "Genus",
+          "values": [["Hellions", 0]],
+          "displayMode": 0,
+          "type": 21
+        },
+        {
+          "name": "Group",
+          "values": [["Felines", 0]],
+          "displayMode": 0,
+          "type": 22
+        },
+        {
+          "name": "Family",
+          "values": [["The Wilds", 0]],
+          "displayMode": 0,
+          "type": 23
+        }
+      ],
+      "explicitMods": [
+        "Aspect of the Hellion",
+        "Farric Presence",
+        "Enemies are Slowed",
+        "Life Regen",
+        "Gains Frenzy Charges"
+      ],
+      "descrText": "Right-click to add this to your bestiary.",
+      "frameType": 2,
+      "x": 0,
+      "y": 10,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Divination/InventoryIcon.png?v=a8ae131b97fad3c64de0e6d9f250d743&w=1&h=1&scale=1",
+      "stackSize": 1,
+      "maxStackSize": 5,
+      "league": "Standard",
+      "id": "d2af01d292b22bf70115ad8156543b2267d9c8a0aea063abc9f648e2975810e2",
+      "name": "",
+      "typeLine": "Alone in the Darkness",
+      "baseType": "Alone in the Darkness",
+      "identified": true,
+      "ilvl": 0,
+      "properties": [
+        {
+          "name": "Stack Size",
+          "values": [["1/5", 0]],
+          "displayMode": 0,
+          "type": 32
+        }
+      ],
+      "explicitMods": ["<uniqueitem>{Delve Item}"],
+      "flavourText": [
+        "\"Sometimes, the most beautiful treasures...are the ones you cannot have.\" \r",
+        "- Beryl, Survivor from the Azurite Mines"
+      ],
+      "frameType": 6,
+      "artFilename": "AloneintheDarkness",
+      "x": 1,
+      "y": 3,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Delve/GildedFossil.png?v=6314bd89971f353179f630def8cf3a17&w=1&h=1&scale=1",
+      "stackSize": 1,
+      "maxStackSize": 10,
+      "league": "Standard",
+      "id": "54fc4216470d2df8f5c2016f25466faef6f61210ccac80f5b1fd987ef6afd02a",
+      "name": "",
+      "typeLine": "Sanctified Fossil",
+      "baseType": "Sanctified Fossil",
+      "identified": true,
+      "ilvl": 0,
+      "properties": [
+        {
+          "name": "Stack Size",
+          "values": [["1/10", 0]],
+          "displayMode": 0,
+          "type": 32
+        }
+      ],
+      "explicitMods": [
+        "Numeric modifier values are lucky\r\nHigh Level modifiers are more common"
+      ],
+      "descrText": "Place in a Resonator to influence item crafting.",
+      "frameType": 5,
+      "x": 1,
+      "y": 8,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 2,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Delve/Reroll2x1A.png?v=5426a15e85e4dc95e23ce23873bb0751&w=1&h=2&scale=1",
+      "stackSize": 1,
+      "maxStackSize": 10,
+      "league": "Standard",
+      "id": "1d1194cbfc2dc1a00ff3aa408154002051b6e5753f312a238e16605ccece5edc",
+      "delve": true,
+      "sockets": [
+        { "group": 0, "attr": "DV", "sColour": "DV" },
+        { "group": 1, "attr": "DV", "sColour": "DV" }
+      ],
+      "name": "",
+      "typeLine": "Potent Chaotic Resonator",
+      "baseType": "Potent Chaotic Resonator",
+      "identified": true,
+      "ilvl": 0,
+      "properties": [
+        {
+          "name": "Stack Size",
+          "values": [["1/10", 0]],
+          "displayMode": 0,
+          "type": 32
+        },
+        {
+          "name": "Requires <unmet>{2} Socketed Fossils",
+          "values": [],
+          "displayMode": 0
+        }
+      ],
+      "explicitMods": ["Reforges a rare item with new random modifiers"],
+      "descrText": "All sockets must be filled with Fossils before this item can be used.",
+      "frameType": 5,
+      "x": 1,
+      "y": 9,
+      "inventoryId": "Stash8",
+      "socketedItems": []
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/gen/image/WzI4LDE0LHsiZiI6IjJESXRlbXNcL01hcHNcL1dvbGZNYXAiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6dHJ1ZX1d/12273bac14/Item.png",
+      "league": "Standard",
+      "id": "e608a75d1c976a19351742a6297a937f16279e7daf0a9af74e55fd0e75e8e0f9",
+      "name": "",
+      "typeLine": "Underground River Map",
+      "baseType": "Underground River Map",
+      "identified": false,
+      "ilvl": 85,
+      "properties": [
+        {
+          "name": "Map Tier",
+          "values": [["2", 0]],
+          "displayMode": 0,
+          "type": 1
+        },
+        {
+          "name": "Atlas Region",
+          "values": [["Tirn's End", 0]],
+          "displayMode": 0
+        }
+      ],
+      "descrText": "Travel to this Map by using it in a personal Map Device. Maps can only be used once.",
+      "frameType": 3,
+      "x": 8,
+      "y": 6,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Jewels/NewGemBase3.png?v=d001e9192de6d47bf7c8cbdcd173e50e&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "fdd9601a878253bbca70fb9c23aaa4960e483e2b1990842a2e24ceccdcb133b1",
+      "name": "Hypnotic Curio",
+      "typeLine": "Large Cluster Jewel",
+      "baseType": "Large Cluster Jewel",
+      "identified": true,
+      "ilvl": 81,
+      "requirements": [
+        { "name": "Level", "values": [["60", 0]], "displayMode": 0 }
+      ],
+      "explicitMods": [
+        "Added Small Passive Skills also grant: 2% increased Damage",
+        "1 Added Passive Skill is Bloodscent",
+        "1 Added Passive Skill is Smite the Weak"
+      ],
+      "enchantMods": [
+        "Adds 8 Passive Skills",
+        "2 Added Passive Skills are Jewel Sockets",
+        "Added Small Passive Skills grant: Axe Attacks deal 12% increased Damage with Hits and Ailments\nAdded Small Passive Skills grant: Sword Attacks deal 12% increased Damage with Hits and Ailments"
+      ],
+      "descrText": "Place into an allocated Large Jewel Socket on the Passive Skill Tree. Added passives do not interact with jewel radiuses. Right click to remove from the Socket.",
+      "frameType": 2,
+      "x": 10,
+      "y": 4,
+      "inventoryId": "Stash8"
+    },
+    {
+      "verified": false,
+      "w": 2,
+      "h": 2,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Armours/Gloves/FingerlessSilkGloves.png?v=8ef9d6c01a770301713fd41e41b1a3be&w=2&h=2&scale=1",
+      "league": "Standard",
+      "id": "71a2f26274ff8fa54e6502c48d941b12733263219c801735a216792357fc5fa0",
+      "influences": { "hunter": true },
+      "sockets": [
+        { "group": 0, "attr": "G", "sColour": "W" },
+        { "group": 0, "attr": "G", "sColour": "W" },
+        { "group": 0, "attr": "I", "sColour": "B" },
+        { "group": 0, "attr": "G", "sColour": "W" }
+      ],
+      "name": "Eagle Touch",
+      "typeLine": "Fingerless Silk Gloves",
+      "baseType": "Fingerless Silk Gloves",
+      "identified": true,
+      "ilvl": 85,
+      "properties": [
+        {
+          "name": "Quality",
+          "values": [["+28%", 1]],
+          "displayMode": 0,
+          "type": 6
+        },
+        {
+          "name": "Energy Shield",
+          "values": [["176", 1]],
+          "displayMode": 0,
+          "type": 18
+        }
+      ],
+      "requirements": [
+        { "name": "Level", "values": [["70", 0]], "displayMode": 0 },
+        {
+          "name": "Str",
+          "values": [["22", 0]],
+          "displayMode": 1,
+          "suffix": "(gem)"
+        },
+        { "name": "Int", "values": [["95", 0]], "displayMode": 1 }
+      ],
+      "implicitMods": ["16% increased Spell Damage"],
+      "explicitMods": [
+        "14% increased Attack Speed",
+        "100% increased Energy Shield",
+        "+47% to Cold Resistance",
+        "+48% to Lightning Resistance",
+        "10% chance to Unnerve Enemies for 4 seconds on Hit",
+        "50% increased Damage with Hits against Chilled Enemies"
+      ],
+      "craftedMods": ["+34 to maximum Energy Shield"],
+      "enchantMods": ["Trigger Word of Light when you take a Critical Strike"],
+      "frameType": 2,
+      "x": 0,
+      "y": 4,
+      "inventoryId": "Stash8",
+      "socketedItems": [
+        {
+          "verified": false,
+          "w": 1,
+          "h": 1,
+          "icon": "https://web.poecdn.com/image/Art/2DItems/Gems/VaalGems/VaalRighteousFire.png?v=2e9f6bb958dd82b562e64d657130d2a0&w=1&h=1&scale=1",
+          "support": false,
+          "id": "6104c7a74e7ea4f70c2a23b414b2e560044d7835f41ed1a34104462a34d3a161",
+          "name": "",
+          "typeLine": "Vaal Righteous Fire",
+          "baseType": "Vaal Righteous Fire",
+          "identified": true,
+          "ilvl": 0,
+          "corrupted": true,
+          "properties": [
+            {
+              "name": "Vaal, Spell, AoE, Fire, Duration",
+              "values": [],
+              "displayMode": 0
+            },
+            {
+              "name": "Level",
+              "values": [["2", 0]],
+              "displayMode": 0,
+              "type": 5
+            },
+            {
+              "name": "Cooldown Time",
+              "values": [["0.30 sec", 0]],
+              "displayMode": 0
+            },
+            {
+              "name": "Cast Time",
+              "values": [["Instant", 0]],
+              "displayMode": 0
+            }
+          ],
+          "requirements": [
+            { "name": "Level", "values": [["20", 0]], "displayMode": 0 },
+            { "name": "Str", "values": [["22", 0]], "displayMode": 1 },
+            { "name": "Int", "values": [["31", 0]], "displayMode": 1 }
+          ],
+          "additionalProperties": [
+            {
+              "name": "Experience",
+              "values": [["95714/95714", 0]],
+              "displayMode": 2,
+              "progress": 1,
+              "type": 20
+            }
+          ],
+          "nextLevelRequirements": [
+            { "name": "Level", "values": [["24", 0]], "displayMode": 0 },
+            { "name": "Str", "values": [["25", 0]], "displayMode": 1 },
+            { "name": "Int", "values": [["37", 0]], "displayMode": 1 }
+          ],
+          "secDescrText": "Engulfs you in magical fire that rapidly burns you and nearby enemies. Your spell damage is substantially increased while under this effect. The effect ends when you have 1 life remaining.",
+          "explicitMods": [
+            "Deals 50.2 Base Fire Damage per second",
+            "Deals 20% of your Maximum Life as Base Fire Damage per second",
+            "Deals 20% of your Maximum Energy Shield as Base Fire Damage per second",
+            "You Burn for 90% of your Maximum Life per second as Fire Damage",
+            "You Burn for 70% of your Maximum Energy Shield per second as Fire Damage",
+            "Grants 21% more Spell Damage"
+          ],
+          "descrText": "Place into an item socket of the right colour to gain this skill. Right click to remove from a socket.",
+          "frameType": 4,
+          "socket": 0,
+          "colour": "I",
+          "hybrid": {
+            "isVaalGem": true,
+            "baseTypeName": "Righteous Fire",
+            "properties": [
+              {
+                "name": "Cooldown Time",
+                "values": [["0.50 sec", 0]],
+                "displayMode": 0
+              },
+              {
+                "name": "Souls Per Use",
+                "values": [["40", 0]],
+                "displayMode": 0
+              },
+              {
+                "name": "Can Store {0} Use",
+                "values": [["1", 0]],
+                "displayMode": 3
+              },
+              {
+                "name": "Soul Gain Prevention",
+                "values": [["6 sec", 0]],
+                "displayMode": 0
+              },
+              {
+                "name": "Cast Time",
+                "values": [["Instant", 0]],
+                "displayMode": 0
+              }
+            ],
+            "explicitMods": [
+              "Base duration is 4.00 seconds",
+              "Sacrifices 60% of your total Energy Shield and Life\nDeals 81% of Sacrificed Energy Shield and Life as Fire Damage per second",
+              "Modifiers to Skill Effect Duration also apply to this Skill's Soul Gain Prevention",
+              "Grants 10% more Spell Damage"
+            ],
+            "secDescrText": "Sacrifices a portion of your Life and Energy Shield to engulf you in magical fire that rapidly burns nearby enemies for a duration. Your spell damage is increased while under this effect."
+          }
+        },
+        {
+          "verified": false,
+          "w": 1,
+          "h": 1,
+          "icon": "https://web.poecdn.com/image/Art/2DItems/Gems/Support/ArcaneSurge.png?v=33183556e332f88b91747e5c789d2d46&w=1&h=1&scale=1",
+          "support": true,
+          "id": "f959cabd29cccda41252f8412bd254515f3a6e7b24c9c3aaa0c721f6b2ed26aa",
+          "name": "",
+          "typeLine": "Arcane Surge Support",
+          "baseType": "Arcane Surge Support",
+          "identified": true,
+          "ilvl": 0,
+          "properties": [
+            {
+              "name": "Support, Spell, Duration",
+              "values": [],
+              "displayMode": 0
+            },
+            {
+              "name": "Level",
+              "values": [["4", 0]],
+              "displayMode": 0,
+              "type": 5
+            },
+            {
+              "name": "Cost & Reservation Multiplier",
+              "values": [["130%", 0]],
+              "displayMode": 0
+            }
+          ],
+          "requirements": [
+            { "name": "Level", "values": [["7", 0]], "displayMode": 0 },
+            { "name": "Int", "values": [["16", 0]], "displayMode": 1 }
+          ],
+          "additionalProperties": [
+            {
+              "name": "Experience",
+              "values": [["6667/6667", 0]],
+              "displayMode": 2,
+              "progress": 1,
+              "type": 20
+            }
+          ],
+          "nextLevelRequirements": [
+            { "name": "Level", "values": [["11", 0]], "displayMode": 0 },
+            { "name": "Int", "values": [["22", 0]], "displayMode": 1 }
+          ],
+          "secDescrText": "Each supported spell will track how much mana you spend on it, granting a buff when the total mana spent reaches a threshold. Cannot support skills used by totems, traps, or mines.",
+          "explicitMods": [
+            "Gain Arcane Surge after Spending a total of 19 Mana with a Supported Skill",
+            "Arcane Surge grants 12% more Spell Damage\nArcane Surge grants 11% increased Cast Speed\nArcane Surge grants 0.5% of Mana Regenerated per second",
+            "Arcane Surge lasts 4 seconds",
+            "Supported Skills deal 11% more Spell Damage while you have Arcane Surge"
+          ],
+          "descrText": "This is a Support Gem. It does not grant a bonus to your character, but to skills in sockets connected to it. Place into an item socket connected to a socket containing the Active Skill Gem you wish to augment. Right click to remove from a socket.",
+          "frameType": 4,
+          "socket": 2,
+          "colour": "I"
+        }
+      ]
+    },
+    {
+      "verified": false,
+      "w": 1,
+      "h": 1,
+      "icon": "https://web.poecdn.com/image/Art/2DItems/Currency/Classic/Torment.png?v=83c94ae67faac44c9cbe8743ab49380f&w=1&h=1&scale=1",
+      "league": "Standard",
+      "id": "262bff097f7071fdc0b3b438fc40f7e87aea3710e87f9a6128b63006479a2c67",
+      "name": "",
+      "typeLine": "Torment Leaguestone of Wealth",
+      "baseType": "Torment Leaguestone",
+      "identified": true,
+      "ilvl": 7,
+      "corrupted": true,
+      "properties": [
+        {
+          "name": "Currently has {0} of {1} Charges",
+          "values": [
+            ["5", 0],
+            ["5", 0]
+          ],
+          "displayMode": 3
+        },
+        {
+          "name": "Can only be used in Areas with Monster Level {0} or below",
+          "values": [["25", 0]],
+          "displayMode": 3
+        }
+      ],
+      "implicitMods": ["Next Area will contain a Tormented Spirit"],
+      "explicitMods": [
+        "Tormented Spirits in next Area will drop 4 additional Rare Items"
+      ],
+      "descrText": "Right-click to open your Legacy Panel and place a Leaguestone in an empty slot. It will apply to the next new area you enter.",
+      "frameType": 1,
+      "x": 5,
+      "y": 5,
+      "inventoryId": "Stash8"
+    }
+  ]
+}
