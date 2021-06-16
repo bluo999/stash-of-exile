@@ -7,10 +7,10 @@ from functools import partial
 from typing import List
 
 from PyQt5.QtCore import QThread
+from PyQt5.QtWidgets import QTextEdit, QStatusBar
 
 from consts import STATUS_TIMEOUT
 from item import Item
-from mainwidget import Ui_MainWindow
 
 
 def _retrieves(items: List[Item]):
@@ -31,15 +31,17 @@ def _retrieves(items: List[Item]):
         item.downloaded = True
 
 
-def _download_finished(ui: Ui_MainWindow):
-    ui.statusbar.showMessage('Image downloading finished', STATUS_TIMEOUT)
+def _download_finished(statusbar: QStatusBar):
+    statusbar.showMessage('Image downloading finished', STATUS_TIMEOUT)
 
 
 class DownloadThread(QThread):
-    def __init__(self, ui: Ui_MainWindow, items: List[Item]):
-        super(DownloadThread, self).__init__(ui.tooltipImage)
+    def __init__(
+        self, tooltipImage: QTextEdit, statusbar: QStatusBar, items: List[Item]
+    ):
+        super(DownloadThread, self).__init__(tooltipImage)
         self.items = items
-        self.finished.connect(partial(_download_finished, ui))
+        self.finished.connect(partial(_download_finished, statusbar))
 
     def run(self):
         _retrieves(self.items)

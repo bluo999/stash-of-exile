@@ -3,41 +3,14 @@ import json
 from functools import partial
 from typing import Callable, Dict, List
 
-from PyQt5.QtCore import QItemSelection
-from PyQt5.QtGui import QColor, QStandardItem, QStandardItemModel
-from PyQt5.QtWidgets import QComboBox, QLineEdit, QWidget
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from consts import COLORS
 from item import Item
 from gameData import CATEGORIES, FILTER_RARITIES
-from mainwidget import Ui_MainWindow
 from thread import DownloadThread
 
 _jsons = ['../assets/tab1.json', '../assets/tab2.json']
-
-
-def _updateTooltip(ui: Ui_MainWindow, items: List[Item], selected: QItemSelection):
-    if len(selected.indexes()) == 0:
-        # Occurs when filters result in nothing selected
-        ui.tooltip.setText('')
-        ui.tooltipImage.setText('')
-    else:
-        row = selected.indexes()[0].row()
-        ui.tooltip.setHtml(items[row].getTooltip())
-        ui.tooltipImage.setHtml(f'<img src="{items[row].filePath}" />')
-
-
-def _filterRows(
-    ui: Ui_MainWindow,
-    items: List[Item],
-    FILTERS: Dict[QWidget, Callable[[QWidget, Item], bool]],
-):
-    for i, item in enumerate(items):
-        ui.tableView.showRow(i)
-        for elem, filterFunc in FILTERS.items():
-            if not filterFunc(elem, item):
-                ui.tableView.hideRow(i)
-                break
 
 
 def _filterRarity(elem, item):
@@ -55,75 +28,202 @@ def _filterRarity(elem, item):
     return False
 
 
-def _setupFilters(ui: Ui_MainWindow, items: List[Item]):
-    # Setup filters
-    FILTERS: Dict[QWidget, Callable[[QWidget, Item], bool]] = {
-        ui.filterName: lambda elem, item: elem.text().lower() in item.name.lower(),
-        ui.filterCategory: lambda elem, item: (
-            elem.currentText() == 'Any' or item.category == elem.currentText()
-        ),
-        ui.filterRarity: _filterRarity,
-    }
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow: QtWidgets.QMainWindow):
+        MainWindow.setObjectName('MainWindow')
+        MainWindow.resize(1280, 720)
 
-    for elem in FILTERS.keys():
-        signal = None
-        if type(elem) is QLineEdit:
-            signal = elem.textChanged
-        elif type(elem) is QComboBox:
-            signal = elem.currentIndexChanged
+        # A font by Jos Buivenga (exljbris) -> www.exljbris.com
+        QtGui.QFontDatabase.addApplicationFont("../assets/FontinSmallCaps.ttf")
+        with open('styles.qss', 'r') as f:
+            MainWindow.setStyleSheet(f.read())
 
-        signal.connect(partial(_filterRows, ui, items, FILTERS))
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.groupBox)
+        self.formLayout = QtWidgets.QFormLayout()
+        self.label = QtWidgets.QLabel(self.groupBox)
+        self.formLayout.setWidget(
+            2, QtWidgets.QFormLayout.ItemRole.LabelRole, self.label
+        )
+        self.filterCategory = QtWidgets.QComboBox(self.groupBox)
+        self.formLayout.setWidget(
+            2, QtWidgets.QFormLayout.ItemRole.FieldRole, self.filterCategory
+        )
+        self.label_2 = QtWidgets.QLabel(self.groupBox)
+        self.formLayout.setWidget(
+            4, QtWidgets.QFormLayout.ItemRole.LabelRole, self.label_2
+        )
+        self.group = QtWidgets.QHBoxLayout()
+        self.lineEdit_5 = QtWidgets.QLineEdit(self.groupBox)
+        self.group.addWidget(self.lineEdit_5)
+        self.lineEdit = QtWidgets.QLineEdit(self.groupBox)
+        self.group.addWidget(self.lineEdit)
+        self.formLayout.setLayout(
+            4, QtWidgets.QFormLayout.ItemRole.FieldRole, self.group
+        )
+        self.filterRarity = QtWidgets.QComboBox(self.groupBox)
+        self.formLayout.setWidget(
+            3, QtWidgets.QFormLayout.ItemRole.FieldRole, self.filterRarity
+        )
+        self.label_4 = QtWidgets.QLabel(self.groupBox)
+        self.formLayout.setWidget(
+            3, QtWidgets.QFormLayout.ItemRole.LabelRole, self.label_4
+        )
+        self.filterName = QtWidgets.QLineEdit(self.groupBox)
+        self.formLayout.setWidget(
+            0, QtWidgets.QFormLayout.ItemRole.FieldRole, self.filterName
+        )
+        self.label_3 = QtWidgets.QLabel(self.groupBox)
+        self.formLayout.setWidget(
+            0, QtWidgets.QFormLayout.ItemRole.LabelRole, self.label_3
+        )
+        self.verticalLayout_2.addLayout(self.formLayout)
+        self.verticalLayout.addWidget(self.groupBox)
 
-    # Add items to combo boxes (dropdown)
-    ui.filterCategory.addItems(CATEGORIES)
-    ui.filterRarity.addItems(FILTER_RARITIES)
+        self.tooltip = QtWidgets.QTextEdit(self.centralwidget)
+        self.tooltip.setReadOnly(True)
+        self.tooltip.setFont(QtGui.QFont("Fontin SmallCaps", 12))
 
+        self.verticalLayout.addWidget(self.tooltip)
+        self.tooltipImage = QtWidgets.QTextEdit(self.centralwidget)
+        self.tooltipImage.setReadOnly(True)
+        self.verticalLayout.addWidget(self.tooltipImage)
+        self.horizontalLayout.addLayout(self.verticalLayout)
 
-def dynamicBuild(ui: Ui_MainWindow):
-    items = []
-    for i, tab in enumerate(_jsons):
-        # Open each tab
-        with open(tab) as f:
-            data = json.load(f)
-            # Add each item
-            for item in data['items']:
-                items.append(Item(item, i))
-                # Add socketed items
-                if item.get('socketedItems') is not None:
-                    for socketedItem in item['socketedItems']:
-                        items.append(Item(socketedItem, i))
-    items.sort()
+        self.tableView = QtWidgets.QTableView(self.centralwidget)
+        self.tableView.setMinimumSize(QtCore.QSize(200, 0))
+        self.tableView.setMouseTracking(True)
+        self.tableView.setSizeAdjustPolicy(
+            QtWidgets.QAbstractScrollArea.AdjustToContents
+        )
+        self.tableView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.tableView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.tableView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.tableView.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
+        self.tableView.setHorizontalScrollMode(
+            QtWidgets.QAbstractItemView.ScrollPerPixel
+        )
+        self.tableView.setShowGrid(False)
+        self.tableView.setSortingEnabled(True)
+        self.tableView.setWordWrap(False)
 
-    # Start downloading images
-    ui.statusbar.showMessage('Downloading images')
-    thread = DownloadThread(ui, items)
-    thread.start()
+        self.horizontalLayout.addWidget(self.tableView)
+        self.horizontalLayout.setStretch(0, 1)
+        self.horizontalLayout.setStretch(1, 3)
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1280, 21))
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        MainWindow.setStatusBar(self.statusbar)
 
-    # Model with rows, columns
-    model = QStandardItemModel(len(items), len(Item.PROPERTY_FUNCS))
-    model.setHorizontalHeaderLabels(Item.PROPERTY_FUNCS.keys())
-    for j, propFunc in enumerate(Item.PROPERTY_FUNCS.values()):
+        self._retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        self._dynamicBuild()
+
+    def _retranslateUi(self, MainWindow: QtWidgets.QMainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate('MainWindow', 'Stash Of Exile'))
+        self.groupBox.setTitle(_translate('MainWindow', 'Filters'))
+        self.label.setText(_translate('MainWindow', 'Category:'))
+        self.label_2.setText(_translate('MainWindow', 'Item Level:'))
+        self.label_4.setText(_translate('MainWindow', 'Rarity:'))
+        self.label_3.setText(_translate('MainWindow', 'Name:'))
+
+    def _dynamicBuild(self):
+        items = []
+        for i, tab in enumerate(_jsons):
+            # Open each tab
+            with open(tab) as f:
+                data = json.load(f)
+                # Add each item
+                for item in data['items']:
+                    items.append(Item(item, i))
+                    # Add socketed items
+                    if item.get('socketedItems') is not None:
+                        for socketedItem in item['socketedItems']:
+                            items.append(Item(socketedItem, i))
+        items.sort()
+
+        # Start downloading images
+        self.statusbar.showMessage('Downloading images')
+        thread = DownloadThread(self.tooltipImage, self.statusbar, items)
+        thread.start()
+
+        # Model with rows, columns
+        model = QtGui.QStandardItemModel(len(items), len(Item.PROPERTY_FUNCS))
+        model.setHorizontalHeaderLabels(Item.PROPERTY_FUNCS.keys())
+        for j, propFunc in enumerate(Item.PROPERTY_FUNCS.values()):
+            for i, item in enumerate(items):
+                qitem = QtGui.QStandardItem(propFunc(item))
+                # Only color the name
+                if j == 0:
+                    qitem.setForeground(QtGui.QColor(COLORS[item.rarity]))
+                model.setItem(i, j, qitem)
+
+        self.tableView.setModel(model)
+
+        self._setupFilters(items)
+
+        # Connect selection to update tooltip
+        self.tableView.selectionModel().selectionChanged.connect(
+            partial(self._updateTooltip, items)
+        )
+
+        # Hide vertical header
+        self.tableView.verticalHeader().hide()
+
+        # Sizing
+        self.tableView.resizeRowsToContents()
+        rowHeight = self.tableView.verticalHeader().sectionSize(0)
+        self.tableView.verticalHeader().setDefaultSectionSize(rowHeight)
+        self.tableView.resizeColumnsToContents()
+
+    def _updateTooltip(self, items: List[Item], selected: QtCore.QItemSelection):
+        if len(selected.indexes()) == 0:
+            # Occurs when filters result in nothing selected
+            self.tooltip.setText('')
+            self.tooltipImage.setText('')
+        else:
+            row = selected.indexes()[0].row()
+            self.tooltip.setHtml(items[row].getTooltip())
+            self.tooltipImage.setHtml(f'<img src="{items[row].filePath}" />')
+
+    def _filterRows(
+        self,
+        items: List[Item],
+        FILTERS: Dict[QtWidgets.QWidget, Callable[[QtWidgets.QWidget, Item], bool]],
+    ):
         for i, item in enumerate(items):
-            qitem = QStandardItem(propFunc(item))
-            # Only color the name
-            if j == 0:
-                qitem.setForeground(QColor(COLORS[item.rarity]))
-            model.setItem(i, j, qitem)
+            self.tableView.showRow(i)
+            for elem, filterFunc in FILTERS.items():
+                if not filterFunc(elem, item):
+                    self.tableView.hideRow(i)
+                    break
 
-    ui.tableView.setModel(model)
+    def _setupFilters(self, items: List[Item]):
+        FILTERS: Dict[QtWidgets.QWidget, Callable[[QtWidgets.QWidget, Item], bool]] = {
+            self.filterName: lambda elem, item: elem.text().lower()
+            in item.name.lower(),
+            self.filterCategory: lambda elem, item: (
+                elem.currentText() == 'Any' or item.category == elem.currentText()
+            ),
+            self.filterRarity: _filterRarity,
+        }
 
-    _setupFilters(ui, items)
+        for elem in FILTERS.keys():
+            signal = None
+            if type(elem) is QtWidgets.QLineEdit:
+                signal = elem.textChanged
+            elif type(elem) is QtWidgets.QComboBox:
+                signal = elem.currentIndexChanged
 
-    # Connect selection to update tooltip
-    ui.tableView.selectionModel().selectionChanged.connect(
-        partial(_updateTooltip, ui, items)
-    )
+            signal.connect(partial(self._filterRows, items, FILTERS))
 
-    # Hide vertical header
-    ui.tableView.verticalHeader().hide()
-
-    # Sizing
-    ui.tableView.resizeRowsToContents()
-    rowHeight = ui.tableView.verticalHeader().sectionSize(0)
-    ui.tableView.verticalHeader().setDefaultSectionSize(rowHeight)
-    ui.tableView.resizeColumnsToContents()
+        # Add items to combo boxes (dropdown)
+        self.filterCategory.addItems(CATEGORIES)
+        self.filterRarity.addItems(FILTER_RARITIES)

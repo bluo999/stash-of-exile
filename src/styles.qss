@@ -1,0 +1,12 @@
+QTableView {
+	color: white;
+	background-color: #242424;
+}
+
+QTextEdit {
+	background-color: black;
+}
+
+/* QLabel {
+	font-family: Fontin SmallCaps;
+} */
