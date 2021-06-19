@@ -1,6 +1,6 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
-from consts import SPAN_TEMPLATE, COLORS
+from consts import HEADER_TEMPLATE, SPAN_TEMPLATE, COLORS
 from gameData import CATEGORIES, FRAGMENTS, RARITIES
 from requirement import Requirement
 from property import Property
@@ -32,12 +32,34 @@ def _listMods(mods: List[str], color: str) -> str:
             mods[i] = mods[i][:index]
 
     # Add mods on separate lines
-    text = '<p>'
+    text = ''
     for i, mod in enumerate(mods):
         text += SPAN_TEMPLATE.format(COLORS[color], mod)
         if i < len(mods) - 1:
             text += '<br />'
-    text += '</p>'
+
+    return text
+
+
+def _listMods(modLists: List[Tuple[List[str], str]]) -> str:
+    if len(modLists[0]) == 0:
+        return ""
+
+    # Split mods with \n
+    for (mods, _) in modLists:
+        for i in range(len(mods)):
+            while '\n' in mods[i]:
+                index = mods[i].index('\n')
+                mods.insert(i + 1, mods[i][index + 1 :])
+                mods[i] = mods[i][:index]
+
+    # Add mods on separate lines
+    text = ''
+    for i, (mods, color) in enumerate(modLists):
+        for j, mod in enumerate(mods):
+            text += SPAN_TEMPLATE.format(COLORS[color], mod)
+            if i < len(modLists) - 1 or j < len(mods) - 1:
+                text += '<br />'
 
     return text
 
@@ -88,7 +110,7 @@ class Item:
         self.visible = True
         self.tabNum = tabNum
 
-        self.tooltip = None
+        self.tooltip = []
 
         self.setCategory(itemJson)
 
@@ -177,59 +199,93 @@ class Item:
             self.category = 'Captured Beast'
             return
 
-    def getTooltip(self) -> str:
-        if self.tooltip is not None:
+    def getTooltip(self) -> List[str]:
+        if len(self.tooltip) > 0:
             return self.tooltip
 
+        self.tooltip = []
+
+        # Image
+        self.tooltip.append(f'<img src="{self.filePath}" />')
+
+        # Header
         header = SPAN_TEMPLATE.format(
             COLORS[self.rarity], self.name.replace(', ', '<br />')
         )
-        tooltip = (
-            f'<h3 style="text-align: center; padding: 0px; margin: 0px;">{header}</h3>'
-        )
-        tooltip += '<center>'
+        self.tooltip.append(HEADER_TEMPLATE.format(header))
+
+        # Description
+        tooltip = ''
 
         # Prophecy text
         if self.prophecy is not None:
-            tooltip += f'<p>{SPAN_TEMPLATE.format(COLORS["white"], self.prophecy)}</p>'
+            tooltip += f'{SPAN_TEMPLATE.format(COLORS["white"], self.prophecy)}'
 
         # Properties
         if len(self.properties) > 0:
-            tooltip += '<p>'
             for i, prop in enumerate(self.properties):
                 tooltip += prop.description()
                 if i < len(self.properties) - 1:
                     tooltip += '<br />'
-            tooltip += '</p>'
 
         # Utility mods (flasks)
-        tooltip += _listMods(self.utility, 'magic')
+        mods = _listMods([(self.utility, 'magic')])
+        if len(mods) > 0:
+            tooltip += '<br />' + mods
+
+        if len(tooltip) > 0:
+            self.tooltip.append(tooltip)
+            tooltip = ''
 
         # Requirements
         if len(self.requirements) > 0:
-            tooltip += '<p>' + SPAN_TEMPLATE.format('grey', 'Requires')
+            tooltip += SPAN_TEMPLATE.format('grey', 'Requires')
             for i, req in enumerate(self.requirements):
                 if i > 0:
                     tooltip += ','
                 tooltip += ' ' + req.description()
-            tooltip += '</p>'
+            print(tooltip)
+            self.tooltip.append(tooltip)
+            tooltip = ''
 
         # Gem secondary description
         if self.gem is not None:
-            tooltip += f'<p>{SPAN_TEMPLATE.format(COLORS["gem"], self.gem)}</p>'
+            tooltip += f'{SPAN_TEMPLATE.format(COLORS["gem"], self.gem)}'
+            self.tooltip.append(tooltip)
+            tooltip = ''
 
         # Metamorph, itemized beast item level
         if 'Metamorph' in self.icon or 'BestiaryOrb' in self.icon:
             tooltip += SPAN_TEMPLATE.format(
                 COLORS['grey'], 'Item Level: '
             ) + SPAN_TEMPLATE.format(COLORS['white'], self.ilvl)
+            self.tooltip.append(tooltip)
+            tooltip = ''
 
         # Mods
-        tooltip += _listMods(self.enchanted, 'craft')
-        tooltip += _listMods(self.implicit, 'magic')
-        tooltip += _listMods(self.fractured, 'currency')
-        tooltip += _listMods(self.explicit, 'magic')
-        tooltip += _listMods(self.crafted, 'craft')
+        mods = _listMods([(self.enchanted, 'craft')])
+        tooltip += mods
+        if len(mods) != 0:
+            self.tooltip.append(tooltip)
+            tooltip = ''
+
+        mods = _listMods([(self.implicit, 'magic')])
+        tooltip += mods
+        if len(mods) != 0:
+            self.tooltip.append(tooltip)
+            tooltip = ''
+
+        mods = _listMods(
+            [
+                (self.fractured, 'currency'),
+                (self.explicit, 'magic'),
+                (self.crafted, 'craft'),
+            ]
+        )
+        tooltip += mods
+        if len(mods) != 0:
+            self.tooltip.append(tooltip)
+            tooltip = ''
 
         # Tags
         tooltip += _listTag(self.split, 'Split', 'magic')
@@ -243,9 +299,8 @@ class Item:
 
         # Skin transfer
 
-        tooltip += '</center>'
-
-        self.tooltip = tooltip
+        if len(tooltip) > 0:
+            self.tooltip.append(f'<center>{tooltip}</center>')
 
         return self.tooltip
 

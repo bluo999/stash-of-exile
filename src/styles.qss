@@ -7,6 +7,6 @@ QTextEdit {
 	background-color: black;
 }
 
-/* QLabel {
-	font-family: Fontin SmallCaps;
-} */
+[objectName^="tooltipImage"] {
+	background-color: black;
+}

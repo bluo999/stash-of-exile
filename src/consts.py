@@ -3,6 +3,24 @@ STATUS_TIMEOUT = 5000
 
 SPAN_TEMPLATE = """<span style="color:{}">{}</span>"""
 
+HEADER_TEMPLATE = """
+<h3 style="
+    font-weight: normal;
+    text-align: center;
+    padding: 0px;
+    margin: 0px;">
+    {}
+</h3>"""
+
+TOOLTIP_TEMPLATE = """
+<div style="
+    height: 100%;
+    background-repeat: no-repeat;
+    background-image: url({});">
+</div>"""
+
+SEPARATOR_TEMPLATE = """<img src="{}" width="{}" />"""
+
 COLORS = {
     # Generic colors
     'white': 'white',

@@ -5,7 +5,13 @@ from typing import Callable, Dict, List
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from consts import COLORS
+from consts import (
+    COLORS,
+    HEADER_TEMPLATE,
+    SEPARATOR_TEMPLATE,
+    SPAN_TEMPLATE,
+    TOOLTIP_TEMPLATE,
+)
 from item import Item
 from gameData import CATEGORIES, FILTER_RARITIES
 from thread import DownloadThread
@@ -34,7 +40,7 @@ class Ui_MainWindow(object):
         MainWindow.resize(1280, 720)
 
         # A font by Jos Buivenga (exljbris) -> www.exljbris.com
-        QtGui.QFontDatabase.addApplicationFont("../assets/FontinSmallCaps.ttf")
+        QtGui.QFontDatabase.addApplicationFont('../assets/FontinSmallCaps.ttf')
         with open('styles.qss', 'r') as f:
             MainWindow.setStyleSheet(f.read())
 
@@ -52,18 +58,7 @@ class Ui_MainWindow(object):
         self.formLayout.setWidget(
             2, QtWidgets.QFormLayout.ItemRole.FieldRole, self.filterCategory
         )
-        self.label_2 = QtWidgets.QLabel(self.groupBox)
-        self.formLayout.setWidget(
-            4, QtWidgets.QFormLayout.ItemRole.LabelRole, self.label_2
-        )
-        self.group = QtWidgets.QHBoxLayout()
-        self.lineEdit_5 = QtWidgets.QLineEdit(self.groupBox)
-        self.group.addWidget(self.lineEdit_5)
-        self.lineEdit = QtWidgets.QLineEdit(self.groupBox)
-        self.group.addWidget(self.lineEdit)
-        self.formLayout.setLayout(
-            4, QtWidgets.QFormLayout.ItemRole.FieldRole, self.group
-        )
+
         self.filterRarity = QtWidgets.QComboBox(self.groupBox)
         self.formLayout.setWidget(
             3, QtWidgets.QFormLayout.ItemRole.FieldRole, self.filterRarity
@@ -85,12 +80,22 @@ class Ui_MainWindow(object):
 
         self.tooltip = QtWidgets.QTextEdit(self.centralwidget)
         self.tooltip.setReadOnly(True)
-        self.tooltip.setFont(QtGui.QFont("Fontin SmallCaps", 12))
+        self.tooltip.setFont(QtGui.QFont('Fontin SmallCaps', 12))
+        self.tooltip.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.tooltip.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        self.tooltip.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOn
+        )
 
-        self.verticalLayout.addWidget(self.tooltip)
-        self.tooltipImage = QtWidgets.QTextEdit(self.centralwidget)
-        self.tooltipImage.setReadOnly(True)
+        self.tooltipImage = QtWidgets.QLabel(self.centralwidget)
+        self.tooltipImage.setObjectName('tooltipImage')
+        self.tooltipImage.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.tooltipImage.hide()
         self.verticalLayout.addWidget(self.tooltipImage)
+        self.verticalLayout.addWidget(self.tooltip)
+
         self.horizontalLayout.addLayout(self.verticalLayout)
 
         self.tableView = QtWidgets.QTableView(self.centralwidget)
@@ -130,7 +135,6 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate('MainWindow', 'Stash Of Exile'))
         self.groupBox.setTitle(_translate('MainWindow', 'Filters'))
         self.label.setText(_translate('MainWindow', 'Category:'))
-        self.label_2.setText(_translate('MainWindow', 'Item Level:'))
         self.label_4.setText(_translate('MainWindow', 'Rarity:'))
         self.label_3.setText(_translate('MainWindow', 'Name:'))
 
@@ -190,8 +194,21 @@ class Ui_MainWindow(object):
             self.tooltipImage.setText('')
         else:
             row = selected.indexes()[0].row()
-            self.tooltip.setHtml(items[row].getTooltip())
-            self.tooltipImage.setHtml(f'<img src="{items[row].filePath}" />')
+            item = items[row]
+
+            self.tooltip.setHtml("")
+            sections = item.getTooltip()
+            width = self.tooltip.width() - self.tooltip.verticalScrollBar().width()
+            for i, html in enumerate(sections):
+                self.tooltip.append(html)
+                self.tooltip.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+                if i != len(sections) - 1:
+                    self.tooltip.append(
+                        SEPARATOR_TEMPLATE.format("../assets/SeparatorWhite.png", width)
+                    )
+
+            self.tooltip.moveCursor(QtGui.QTextCursor.MoveOperation.Start)
+            self.tooltipImage.setPixmap(QtGui.QPixmap(item.filePath))
 
     def _filterRows(
         self,
