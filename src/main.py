@@ -112,7 +112,7 @@ class Ui_MainWindow(object):
             QtWidgets.QAbstractItemView.ScrollPerPixel
         )
         self.tableView.setShowGrid(False)
-        self.tableView.setSortingEnabled(True)
+        # self.tableView.setSortingEnabled(True)
         self.tableView.setWordWrap(False)
 
         self.horizontalLayout.addWidget(self.tableView)
