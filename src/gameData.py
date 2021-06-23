@@ -1,3 +1,4 @@
+# API rarity number to named rarity
 RARITIES = {
     0: 'normal',
     1: 'magic',
@@ -10,8 +11,7 @@ RARITIES = {
     9: 'foil',
 }
 
-FILTER_RARITIES = ['Any', 'Normal', 'Magic', 'Rare', 'Unique', 'Foil', 'Any Non-Unique']
-
+# Keywords in fragment items
 FRAGMENTS = [
     'Sacrifice',
     'Key',
@@ -26,6 +26,10 @@ FRAGMENTS = [
     'Lure',
 ]
 
+# Selectable rarities for rarity filter
+FILTER_RARITIES = ['Any', 'Normal', 'Magic', 'Rare', 'Unique', 'Foil', 'Any Non-Unique']
+
+# Selectable categories for category filter
 CATEGORIES = [
     'Any',
     'Bow',

@@ -5,18 +5,14 @@ from typing import Callable, Dict, List
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from consts import (
-    COLORS,
-    HEADER_TEMPLATE,
-    SEPARATOR_TEMPLATE,
-    SPAN_TEMPLATE,
-    TOOLTIP_TEMPLATE,
-)
+from consts import COLORS, SEPARATOR_TEMPLATE
 from item import Item
 from gameData import CATEGORIES, FILTER_RARITIES
 from thread import DownloadThread
 
 _jsons = ['../assets/tab1.json', '../assets/tab2.json']
+
+FilterFunction = Callable[[QtWidgets.QWidget, Item], bool]
 
 
 def _filterRarity(elem, item):
@@ -164,13 +160,13 @@ class Ui_MainWindow(object):
         for j, propFunc in enumerate(Item.PROPERTY_FUNCS.values()):
             for i, item in enumerate(items):
                 qitem = QtGui.QStandardItem(propFunc(item))
-                # Only color the name
+                # Color the name by rarity
                 if j == 0:
                     qitem.setForeground(QtGui.QColor(COLORS[item.rarity]))
                 model.setItem(i, j, qitem)
-
         self.tableView.setModel(model)
 
+        # Attach filters to widgets
         self._setupFilters(items)
 
         # Connect selection to update tooltip
@@ -196,42 +192,47 @@ class Ui_MainWindow(object):
             row = selected.indexes()[0].row()
             item = items[row]
 
-            self.tooltip.setHtml("")
+            self.tooltip.setHtml('')
             sections = item.getTooltip()
             width = self.tooltip.width() - self.tooltip.verticalScrollBar().width()
+
+            # Construct tooltip from sections
             for i, html in enumerate(sections):
                 self.tooltip.append(html)
                 self.tooltip.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                 if i != len(sections) - 1:
                     self.tooltip.append(
-                        SEPARATOR_TEMPLATE.format("../assets/SeparatorWhite.png", width)
+                        SEPARATOR_TEMPLATE.format('../assets/SeparatorWhite.png', width)
                     )
 
+            # Reset scroll to top
             self.tooltip.moveCursor(QtGui.QTextCursor.MoveOperation.Start)
+            # Set tooltip image
             self.tooltipImage.setPixmap(QtGui.QPixmap(item.filePath))
 
     def _filterRows(
-        self,
-        items: List[Item],
-        FILTERS: Dict[QtWidgets.QWidget, Callable[[QtWidgets.QWidget, Item], bool]],
+        self, items: List[Item], FILTERS: Dict[QtWidgets.QWidget, FilterFunction]
     ):
         for i, item in enumerate(items):
-            self.tableView.showRow(i)
-            for elem, filterFunc in FILTERS.items():
-                if not filterFunc(elem, item):
-                    self.tableView.hideRow(i)
-                    break
+            if any(not filterFunc(elem, item) for elem, filterFunc in FILTERS.items()):
+                self.tableView.hideRow(i)
+            else:
+                self.tableView.showRow(i)
 
     def _setupFilters(self, items: List[Item]):
-        FILTERS: Dict[QtWidgets.QWidget, Callable[[QtWidgets.QWidget, Item], bool]] = {
-            self.filterName: lambda elem, item: elem.text().lower()
-            in item.name.lower(),
+        # Key: widget that filter applies to
+        # Value: FilterFunction (takes in element and item, returns whether to show the item)
+        FILTERS: Dict[QtWidgets.QWidget, FilterFunction] = {
+            self.filterName: lambda elem, item: (
+                elem.text().lower() in item.name.lower()
+            ),
             self.filterCategory: lambda elem, item: (
                 elem.currentText() == 'Any' or item.category == elem.currentText()
             ),
             self.filterRarity: _filterRarity,
         }
 
+        # Connect filter function with the widget
         for elem in FILTERS.keys():
             signal = None
             if type(elem) is QtWidgets.QLineEdit:

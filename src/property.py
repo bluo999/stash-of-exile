@@ -28,11 +28,13 @@ class Property:
         obj = insertValues(name, self.values)
 
         if obj['inserted'] or len(self.values) == 0 or self.values[0][0] == '':
+            # Property without label
             self.tooltip = SPAN_TEMPLATE.format(COLORS['grey'], obj['text'])
         else:
+            # Property with label
             color = COLORS[VALNUM_TO_COLOR[self.values[0][1]]]
-            self.tooltip = SPAN_TEMPLATE.format(
-                COLORS['grey'], obj['text'] + ': '
-            ) + SPAN_TEMPLATE.format(color, self.values[0][0])
+            label = SPAN_TEMPLATE.format(COLORS['grey'], obj['text'] + ': ')
+            value = SPAN_TEMPLATE.format(color, self.values[0][0])
+            self.tooltip = label + value
 
         return self.tooltip

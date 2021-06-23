@@ -21,6 +21,7 @@ def _frameTypeToRarity(frameType: int) -> str:
 
 
 def _listMods(modLists: List[Tuple[List[str], str]]) -> str:
+    # Get rid of any empty mod list
     filtModLists = [(mods, color) for (mods, color) in modLists if len(mods) > 0]
 
     if len(filtModLists) == 0:
@@ -46,16 +47,17 @@ def _listMods(modLists: List[Tuple[List[str], str]]) -> str:
 
 
 def _listTags(tagInfo: List[Tuple[bool, str, str]]) -> str:
-    tagList = [
+    # Get rid of inactive tags
+    formattedTags = [
         SPAN_TEMPLATE.format(COLORS[color], tagStr)
         for (tagActive, tagStr, color) in tagInfo
         if tagActive
     ]
 
     text = ''
-    for i, tag in enumerate(tagList):
+    for i, tag in enumerate(formattedTags):
         text += tag
-        if i < len(tagList) - 1:
+        if i < len(formattedTags) - 1:
             text += '<br />'
 
     return text
@@ -154,6 +156,8 @@ class Item:
         if self.rarity == 'currency':
             self.category = 'Currency'
             return
+
+        # Add currency to ignore when searching in icon name
         categories.append('Currency')
 
         # Gem
@@ -180,6 +184,7 @@ class Item:
                 self.category = cat
                 return
 
+        # Alternate names in icon name
         if 'Hat' in itemJson['icon']:
             self.category = 'Helmet'
             return
@@ -288,9 +293,9 @@ class Item:
 
     def getItemLevelTooltip(self) -> str:
         if 'Metamorph' in self.icon or 'BestiaryOrb' in self.icon:
-            return SPAN_TEMPLATE.format(
-                COLORS['grey'], 'Item Level: '
-            ) + SPAN_TEMPLATE.format(COLORS['white'], self.ilvl)
+            label = SPAN_TEMPLATE.format(COLORS['grey'], 'Item Level: ')
+            value = SPAN_TEMPLATE.format(COLORS['white'], self.ilvl)
+            return label + value
 
         return ''
 
@@ -298,24 +303,24 @@ class Item:
         if self.experience is not None:
             exp = self.experience[0]['values'][0][0]
             index = exp.index('/')
-            currentExp = '{:,}'.format(int(exp[0:index]))
-            maxExp = '{:,}'.format(int(exp[index + 1 :]))
-            return SPAN_TEMPLATE.format(
-                COLORS['grey'], 'Experience: '
-            ) + SPAN_TEMPLATE.format(COLORS['white'], f'{currentExp}/{maxExp}')
+            currentExp = int(exp[0:index])
+            maxExp = int(exp[index + 1 :])
+            label = SPAN_TEMPLATE.format(COLORS['grey'], 'Experience: ')
+            value = SPAN_TEMPLATE.format(COLORS['white'], f'{currentExp:,}/{maxExp:,}')
+            return label + value
 
         return ''
 
     def getIncubatorTooltip(self) -> str:
         if self.incubator is not None:
-            progress = '{:,}'.format(int(self.incubator['progress']))
-            total = '{:,}'.format(int(self.incubator['total']))
+            progress = int(self.incubator['progress'])
+            total = int(self.incubator['total'])
             name = self.incubator['name']
             level = self.incubator['level']
             return (
                 SPAN_TEMPLATE.format(COLORS['craft'], f'Incubating {name}')
                 + '<br />'
-                + SPAN_TEMPLATE.format(COLORS['white'], f'{progress}/{total}')
+                + SPAN_TEMPLATE.format(COLORS['white'], f'{progress:,}/{total:,}')
                 + SPAN_TEMPLATE.format(COLORS['grey'], f' level {level}+ monster kills')
             )
 

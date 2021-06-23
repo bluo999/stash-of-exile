@@ -1,8 +1,10 @@
 # Milliseconds for status bar to timeout
 STATUS_TIMEOUT = 5000
 
+# Template to color tooltips
 SPAN_TEMPLATE = """<span style="color:{}">{}</span>"""
 
+# Template for item name headers
 HEADER_TEMPLATE = """
 <h3 style="
     font-weight: normal;
@@ -12,15 +14,10 @@ HEADER_TEMPLATE = """
     {}
 </h3>"""
 
-TOOLTIP_TEMPLATE = """
-<div style="
-    height: 100%;
-    background-repeat: no-repeat;
-    background-image: url({});">
-</div>"""
-
+# Template for item tooltip separator
 SEPARATOR_TEMPLATE = """<img src="{}" width="{}" />"""
 
+# Named color/type to color or hex
 COLORS = {
     # Generic colors
     'white': 'white',
@@ -41,4 +38,5 @@ COLORS = {
     'fire': '#710000',
 }
 
+# API value to named color/type
 VALNUM_TO_COLOR = {0: 'white', 1: 'magic', 4: 'fire'}

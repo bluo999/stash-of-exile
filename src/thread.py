@@ -14,19 +14,22 @@ from item import Item
 
 
 def _retrieves(items: List[Item]):
+    # Download images for each item
     for item in items:
         if item.downloaded:
             continue
 
+        # Extract filePath from web url
         if item.filePath == '':
             searchObj = re.search(r'\/([^.]+\.png)', item.icon)
             item.filePath = f'../cache{searchObj.group()}'
-        filePath = item.filePath
 
-        directory = os.path.dirname(filePath)
-        if not os.path.exists(filePath):
-            print('Downloading image to', filePath)
+        directory = os.path.dirname(item.filePath)
+        if not os.path.exists(item.filePath):
+            print('Downloading image to', item.filePath)
+            # Create directories
             pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
+            # Download image
             urllib.request.urlretrieve(item.icon, item.filePath)
         item.downloaded = True
 
