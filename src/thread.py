@@ -39,10 +39,8 @@ def _download_finished(statusbar: QStatusBar):
 
 
 class DownloadThread(QThread):
-    def __init__(
-        self, tooltipImage: QTextEdit, statusbar: QStatusBar, items: List[Item]
-    ):
-        super(DownloadThread, self).__init__(tooltipImage)
+    def __init__(self, statusbar: QStatusBar, items: List[Item]):
+        super(DownloadThread, self).__init__(statusbar)
         self.items = items
         self.finished.connect(partial(_download_finished, statusbar))
 

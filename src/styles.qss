@@ -6,7 +6,3 @@ QTableView {
 QTextEdit {
 	background-color: black;
 }
-
-[objectName^="tooltipImage"] {
-	background-color: black;
-}

@@ -85,13 +85,6 @@ class Ui_MainWindow(object):
             QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOn
         )
 
-        self.tooltipImage = QtWidgets.QLabel(self.centralwidget)
-        self.tooltipImage.setObjectName('tooltipImage')
-        self.tooltipImage.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.tooltipImage.hide()
-        self.verticalLayout.addWidget(self.tooltipImage)
-        self.verticalLayout.addWidget(self.tooltip)
-
         self.horizontalLayout.addLayout(self.verticalLayout)
 
         self.tableView = QtWidgets.QTableView(self.centralwidget)
@@ -111,9 +104,11 @@ class Ui_MainWindow(object):
         # self.tableView.setSortingEnabled(True)
         self.tableView.setWordWrap(False)
 
+        self.horizontalLayout.addWidget(self.tooltip)
         self.horizontalLayout.addWidget(self.tableView)
         self.horizontalLayout.setStretch(0, 1)
-        self.horizontalLayout.setStretch(1, 3)
+        self.horizontalLayout.setStretch(1, 2)
+        self.horizontalLayout.setStretch(2, 3)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1280, 21))
@@ -151,7 +146,7 @@ class Ui_MainWindow(object):
 
         # Start downloading images
         self.statusbar.showMessage('Downloading images')
-        thread = DownloadThread(self.tooltipImage, self.statusbar, items)
+        thread = DownloadThread(self.statusbar, items)
         thread.start()
 
         # Model with rows, columns
@@ -187,7 +182,6 @@ class Ui_MainWindow(object):
         if len(selected.indexes()) == 0:
             # Occurs when filters result in nothing selected
             self.tooltip.setText('')
-            self.tooltipImage.setText('')
         else:
             row = selected.indexes()[0].row()
             item = items[row]
@@ -207,8 +201,6 @@ class Ui_MainWindow(object):
 
             # Reset scroll to top
             self.tooltip.moveCursor(QtGui.QTextCursor.MoveOperation.Start)
-            # Set tooltip image
-            self.tooltipImage.setPixmap(QtGui.QPixmap(item.filePath))
 
     def _filterRows(
         self, items: List[Item], FILTERS: Dict[QtWidgets.QWidget, FilterFunction]
