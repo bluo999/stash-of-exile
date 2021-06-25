@@ -232,7 +232,8 @@ class Ui_MainWindow(object):
             elif type(elem) is QtWidgets.QComboBox:
                 signal = elem.currentIndexChanged
 
-            signal.connect(partial(self._filterRows, items, FILTERS))
+            if signal is not None:
+                signal.connect(partial(self._filterRows, items, FILTERS))
 
         # Add items to combo boxes (dropdown)
         self.filterCategory.addItems(CATEGORIES)

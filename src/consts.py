@@ -12,7 +12,8 @@ HEADER_TEMPLATE = """
     padding: 0px;
     margin: 0px;">
     {}
-</h3>"""
+</h3>
+"""
 
 # Template for item tooltip separator
 SEPARATOR_TEMPLATE = """<img src="{}" width="{}" />"""

@@ -20,6 +20,13 @@ def _frameTypeToRarity(frameType: int) -> str:
     return RARITIES.get(frameType, 'normal')
 
 
+def _influenceFunction(item: 'Item') -> str:
+    ret = ''
+    for infl in item.influences:
+        ret += infl[0]
+    return ret.upper()
+
+
 def _listMods(modLists: List[Tuple[List[str], str]]) -> str:
     # Get rid of any empty mod list
     filtModLists = [(mods, color) for (mods, color) in modLists if len(mods) > 0]
@@ -246,10 +253,15 @@ class Item:
         return self.tooltip
 
     def getHeaderTooltip(self) -> str:
-        header = SPAN_TEMPLATE.format(
+        influence_icons = ''
+        for infl in self.influences:
+            influence_icons += f'<img src="../assets/{infl}.png" />'
+
+        name = SPAN_TEMPLATE.format(
             COLORS[self.rarity], self.name.replace(', ', '<br />')
         )
-        return HEADER_TEMPLATE.format(header)
+
+        return influence_icons + HEADER_TEMPLATE.format(name)
 
     def getProphecyTooltip(self) -> str:
         if self.prophecy is not None:
@@ -339,4 +351,5 @@ class Item:
         'Bench': lambda item: 'Bench' if item.crafted else '',
         'Ench': lambda item: 'Ench' if item.enchanted else '',
         'Frac': lambda item: 'Frac' if item.fractured else '',
+        'Influence': _influenceFunction,
     }
