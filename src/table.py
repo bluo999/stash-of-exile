@@ -1,6 +1,8 @@
 import json
 import sys
 
+from typing import Callable
+
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, QVariant, Qt
 from PyQt5.QtGui import QColor, QPainter
 from PyQt5.QtWidgets import QItemDelegate, QStyleOption
@@ -9,7 +11,8 @@ from consts import COLORS
 from item import Item
 
 
-def _propertyFunction(prop: str):
+def _propertyFunction(prop: str) -> Callable[['Item'], str]:
+    """Returns the function that returns a specific property given an item."""
     def f(item: 'Item') -> str:
         filtProps = [x for x in item.properties if x.name == prop]
         if len(filtProps) != 0:
@@ -20,6 +23,8 @@ def _propertyFunction(prop: str):
 
 
 def _influenceFunction(item: 'Item') -> str:
+    """Given an item return an influence string, which is a list of
+    capital letters for each influence."""
     ret = ''
     for infl in item.influences:
         ret += infl[0]
@@ -27,6 +32,10 @@ def _influenceFunction(item: 'Item') -> str:
 
 
 class TableModel(QAbstractTableModel):
+    """Custom table model used to store, filter, and sort Items."""
+    
+    # Keys: name of the header
+    # Values: function that computes the value
     PROPERTY_FUNCS = {
         'Name': lambda item: item.name,
         'Tab': lambda item: str(item.tabNum),
@@ -44,6 +53,7 @@ class TableModel(QAbstractTableModel):
     }
 
     def __init__(self, parent=None):
+        """Initialize the table model."""
         QAbstractTableModel.__init__(self, parent)
         self.items = []
         self.currentItems = []
@@ -52,9 +62,11 @@ class TableModel(QAbstractTableModel):
         self.setFilter()
 
     def rowCount(self, index):
+        """Returns the current number of current rows (excluding filtered)."""
         return len(self.currentItems)
 
     def columnCount(self, index):
+        """Returns the number of columns / properties."""
         return len(self.propertyFuncs)
 
     def insertRows(self, row, items):
