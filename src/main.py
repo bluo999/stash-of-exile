@@ -8,6 +8,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from consts import COLORS, SEPARATOR_TEMPLATE
 from item import Item
 from gameData import CATEGORIES, FILTER_RARITIES
+from table import TableModel
 from thread import DownloadThread
 
 _jsons = ['../assets/tab1.json', '../assets/tab2.json']
@@ -101,8 +102,12 @@ class Ui_MainWindow(object):
             QtWidgets.QAbstractItemView.ScrollPerPixel
         )
         self.tableView.setShowGrid(False)
-        # self.tableView.setSortingEnabled(True)
         self.tableView.setWordWrap(False)
+        self.tableView.setSortingEnabled(True)
+
+        # Custom Model
+        self.model = TableModel()
+        self.tableView.setModel(self.model)
 
         self.horizontalLayout.addWidget(self.tooltip)
         self.horizontalLayout.addWidget(self.tableView)
@@ -143,23 +148,12 @@ class Ui_MainWindow(object):
                         for socketedItem in item['socketedItems']:
                             items.append(Item(socketedItem, i))
         items.sort()
+        self.model.insertRows(0, items)
 
         # Start downloading images
         self.statusbar.showMessage('Downloading images')
         thread = DownloadThread(self.statusbar, items)
         thread.start()
-
-        # Model with rows, columns
-        model = QtGui.QStandardItemModel(len(items), len(Item.PROPERTY_FUNCS))
-        model.setHorizontalHeaderLabels(Item.PROPERTY_FUNCS.keys())
-        for j, propFunc in enumerate(Item.PROPERTY_FUNCS.values()):
-            for i, item in enumerate(items):
-                qitem = QtGui.QStandardItem(propFunc(item))
-                # Color the name by rarity
-                if j == 0:
-                    qitem.setForeground(QtGui.QColor(COLORS[item.rarity]))
-                model.setItem(i, j, qitem)
-        self.tableView.setModel(model)
 
         # Attach filters to widgets
         self._setupFilters(items)
@@ -168,9 +162,6 @@ class Ui_MainWindow(object):
         self.tableView.selectionModel().selectionChanged.connect(
             partial(self._updateTooltip, items)
         )
-
-        # Hide vertical header
-        self.tableView.verticalHeader().hide()
 
         # Sizing
         self.tableView.resizeRowsToContents()
@@ -224,16 +215,16 @@ class Ui_MainWindow(object):
             self.filterRarity: _filterRarity,
         }
 
-        # Connect filter function with the widget
-        for elem in FILTERS.keys():
-            signal = None
-            if type(elem) is QtWidgets.QLineEdit:
-                signal = elem.textChanged
-            elif type(elem) is QtWidgets.QComboBox:
-                signal = elem.currentIndexChanged
+        # # Connect filter function with the widget
+        # for elem in FILTERS.keys():
+        #     signal = None
+        #     if type(elem) is QtWidgets.QLineEdit:
+        #         signal = elem.textChanged
+        #     elif type(elem) is QtWidgets.QComboBox:
+        #         signal = elem.currentIndexChanged
 
-            if signal is not None:
-                signal.connect(partial(self._filterRows, items, FILTERS))
+        #     if signal is not None:
+        #         signal.connect(partial(self._filterRows, items, FILTERS))
 
         # Add items to combo boxes (dropdown)
         self.filterCategory.addItems(CATEGORIES)

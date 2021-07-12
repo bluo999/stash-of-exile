@@ -6,25 +6,8 @@ from requirement import Requirement
 from property import Property
 
 
-def _propertyFunction(prop: str):
-    def f(item: 'Item') -> str:
-        filtProps = [x for x in item.properties if x.name == prop]
-        if len(filtProps) != 0:
-            return filtProps[0].values[0][0]
-        return ''
-
-    return f
-
-
 def _frameTypeToRarity(frameType: int) -> str:
     return RARITIES.get(frameType, 'normal')
-
-
-def _influenceFunction(item: 'Item') -> str:
-    ret = ''
-    for infl in item.influences:
-        ret += infl[0]
-    return ret.upper()
 
 
 def _listMods(modLists: List[Tuple[List[str], str]]) -> str:
@@ -245,7 +228,7 @@ class Item:
             self.getGemExperienceTooltip(),
             # Incubator info
             self.getIncubatorTooltip(),
-            # Skin transfer
+            # Skin transfers
             _listMods([(self.cosmetic, 'currency')]),
         ]
         self.tooltip = [group for group in self.tooltip if len(group) > 0]
@@ -337,19 +320,3 @@ class Item:
             )
 
         return ''
-
-    PROPERTY_FUNCS = {
-        'Name': lambda item: item.name,
-        'Tab': lambda item: str(item.tabNum),
-        'Stack': _propertyFunction('Stack Size'),
-        'iLvl': lambda item: str(item.ilvl) if item.ilvl != 0 else '',
-        'Quality': _propertyFunction('Quality'),
-        'Split': lambda item: 'Split' if item.split else '',
-        'Corr': lambda item: 'Corr' if item.corrupted else '',
-        'Mir': lambda item: 'Mir' if item.mirrored else '',
-        'Unid': lambda item: 'Unid' if item.unidentified else '',
-        'Bench': lambda item: 'Bench' if item.crafted else '',
-        'Ench': lambda item: 'Ench' if item.enchanted else '',
-        'Frac': lambda item: 'Frac' if item.fractured else '',
-        'Influence': _influenceFunction,
-    }

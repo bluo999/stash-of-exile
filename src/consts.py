@@ -21,10 +21,11 @@ SEPARATOR_TEMPLATE = """<img src="{}" width="{}" />"""
 # Named color/type to color or hex
 COLORS = {
     # Generic colors
-    'white': 'white',
+    'white': '#ffffff',
     'grey': '#777777',
+    'darkgrey': '#242424',
     # Item rarities
-    'normal': 'white',
+    'normal': '#ffffff',
     'magic': '#8888ff',
     'rare': '#ffff77',
     'unique': '#af6021',
@@ -40,4 +41,4 @@ COLORS = {
 }
 
 # API value to named color/type
-VALNUM_TO_COLOR = {0: 'white', 1: 'magic', 4: 'fire'}
+VALNUM_TO_COLOR = {0: 'white', 1: 'magic', 4: 'fire', 16: 'white'}
