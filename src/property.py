@@ -4,13 +4,17 @@ from util import insertValues
 from consts import COLORS, SPAN_TEMPLATE, VALNUM_TO_COLOR
 
 
+# TODO: Add multiline values (The Feared)
 class Property:
-    def __init__(self, propInfo):
+    """Class to represent an item property."""
+
+    def __init__(self, propInfo) -> None:
         self.name = propInfo.get('name')
         self.values = propInfo.get('values')
         self.tooltip = None
 
     def description(self) -> str:
+        """Get colorized description used in the properties tooltip."""
         if self.tooltip is not None:
             return self.tooltip
 

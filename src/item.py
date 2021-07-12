@@ -6,11 +6,11 @@ from requirement import Requirement
 from property import Property
 
 
-def _frameTypeToRarity(frameType: int) -> str:
-    return RARITIES.get(frameType, 'normal')
-
-
 def _listMods(modLists: List[Tuple[List[str], str]]) -> str:
+    """
+    Given a list of mod lists, returns a single complete
+    line separated, colored string of mods.
+    """
     # Get rid of any empty mod list
     filtModLists = [(mods, color) for (mods, color) in modLists if len(mods) > 0]
 
@@ -37,6 +37,10 @@ def _listMods(modLists: List[Tuple[List[str], str]]) -> str:
 
 
 def _listTags(tagInfo: List[Tuple[bool, str, str]]) -> str:
+    """
+    Given a list of tags, returns a single complete
+    line separate, colored string of tags.
+    """
     # Get rid of inactive tags
     formattedTags = [
         SPAN_TEMPLATE.format(COLORS[color], tagStr)
@@ -54,7 +58,10 @@ def _listTags(tagInfo: List[Tuple[bool, str, str]]) -> str:
 
 
 class Item:
-    def __init__(self, itemJson: Dict[str, Any], tabNum: int):
+    """Class to represent an Item."""
+
+    def __init__(self, itemJson: Dict[str, Any], tabNum: int) -> None:
+        """Initializes every field that is needed, given the API JSON of the item."""
         self.name = (
             itemJson['typeLine']
             if itemJson['name'] == ''
@@ -86,7 +93,7 @@ class Item:
         self.fracturedTag = itemJson.get('fractured', False)
 
         self.ilvl = itemJson.get("ilvl")
-        self.rarity = _frameTypeToRarity(itemJson['frameType'])
+        self.rarity = RARITIES.get(itemJson['frameType'], 'normal')
 
         self.sockets = itemJson.get("sockets")
 
@@ -95,13 +102,13 @@ class Item:
 
         self.tooltip = []
 
-        self.setCategory(itemJson)
+        self.category = self.getCategory(itemJson)
 
         self.icon = itemJson["icon"]
         self.filePath = ''
         self.downloaded = False
 
-    def __lt__(self, other):
+    def __lt__(self, other: 'Item') -> bool:
         """Default ordering for Items."""
         if self.tabNum < other.tabNum:
             return True
@@ -110,10 +117,12 @@ class Item:
 
         return self.name < other.name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def setCategory(self, itemJson: Dict[str, Any]):
+    def getCategory(self, itemJson: Dict[str, Any]) -> str:
+        """Determines and returns an item's category
+        based on its other properties."""
         # From basetype
         categories = [
             'Quiver',
@@ -131,61 +140,56 @@ class Item:
         ]
         for cat in categories:
             if cat in itemJson['baseType']:
-                self.category = cat
-                return
+                return cat
 
         # Fragments
         for frag in FRAGMENTS:
             if frag in itemJson['baseType']:
-                self.category = 'Map Fragment'
+                return 'Map Fragment'
 
         # Rarity
         if self.rarity == 'divination':
-            self.category = 'Divination Card'
-            return
+            return 'Divination Card'
         if self.rarity == 'currency':
-            self.category = 'Currency'
-            return
+            return 'Currency'
 
         # Add currency to ignore when searching in icon name
         categories.append('Currency')
 
         # Gem
         if itemJson.get('support') is not None:
-            self.category = 'Support Gem' if itemJson['support'] else 'Skill Gem'
-            return
+            return 'Support Gem' if itemJson['support'] else 'Skill Gem'
 
         # Property
         if itemJson.get('properties') is not None:
             cat = itemJson['properties'][0]['name']
             if cat == 'Abyss':
-                self.category = 'Abyss Jewel'
-                return
+                return 'Abyss Jewel'
 
             if cat in CATEGORIES:
-                self.category = cat
-                return
+                return cat
 
         # Search in icon name
         categories = [cat for cat in CATEGORIES if cat not in categories]
         for cat in categories:
             # Remove spaces
             if cat.replace(' ', '') in itemJson['icon']:
-                self.category = cat
-                return
+                return cat
 
         # Alternate names in icon name
         if 'Hat' in itemJson['icon']:
-            self.category = 'Helmet'
-            return
+            return 'Helmet'
         if 'Metamorph' in itemJson['icon']:
-            self.category = 'Metamorph Sample'
-            return
+            return 'Metamorph Sample'
         if 'BestiaryOrb' in itemJson['icon']:
-            self.category = 'Captured Beast'
-            return
+            return 'Captured Beast'
+
+        # TODO: add exception
+        return ''
 
     def getTooltip(self) -> List[str]:
+        """Returns a list of strings, with each representing
+        a single section of the entire tooltip."""
         if len(self.tooltip) > 0:
             return self.tooltip
 
@@ -236,6 +240,8 @@ class Item:
         return self.tooltip
 
     def getHeaderTooltip(self) -> str:
+        """Returns the header tooltip, including
+        influence icons and a colorized name."""
         influence_icons = ''
         for infl in self.influences:
             influence_icons += f'<img src="../assets/{infl}.png" />'
@@ -247,12 +253,14 @@ class Item:
         return influence_icons + HEADER_TEMPLATE.format(name)
 
     def getProphecyTooltip(self) -> str:
+        """Returns the colorized prophecy tooltip."""
         if self.prophecy is not None:
             return SPAN_TEMPLATE.format(COLORS['white'], self.prophecy)
 
         return ''
 
     def getPropertyTooltip(self) -> str:
+        """Returns the colorized, line separated properties tooltip."""
         tooltip = ''
         if len(self.properties) > 0:
             for i, prop in enumerate(self.properties):
@@ -263,6 +271,7 @@ class Item:
         return tooltip
 
     def getUtilityTooltip(self) -> str:
+        """Returns the colorized, line separated utility mods tooltip."""
         mods = _listMods([(self.utility, 'magic')])
         if len(mods) > 0:
             return '<br />' + mods
@@ -270,6 +279,7 @@ class Item:
         return ''
 
     def getRequirementTooltip(self) -> str:
+        """Returns the colorized, line separated requirements tooltip."""
         tooltip = ''
         if len(self.requirements) > 0:
             tooltip += SPAN_TEMPLATE.format('grey', 'Requires')
@@ -281,12 +291,15 @@ class Item:
         return tooltip
 
     def getGemSecondaryTooltip(self) -> str:
+        """Returns the colorized, line separated gem description tooltip."""
         if self.gem is not None:
             return SPAN_TEMPLATE.format(COLORS['gem'], self.gem)
 
         return ''
 
     def getItemLevelTooltip(self) -> str:
+        """Returns the colorized item level tooltip
+        for organs and bestiary orbs."""
         if 'Metamorph' in self.icon or 'BestiaryOrb' in self.icon:
             label = SPAN_TEMPLATE.format(COLORS['grey'], 'Item Level: ')
             value = SPAN_TEMPLATE.format(COLORS['white'], self.ilvl)
@@ -295,6 +308,7 @@ class Item:
         return ''
 
     def getGemExperienceTooltip(self) -> str:
+        """Returns the colorized gem experience tooltip."""
         if self.experience is not None:
             exp = self.experience[0]['values'][0][0]
             index = exp.index('/')
@@ -307,6 +321,7 @@ class Item:
         return ''
 
     def getIncubatorTooltip(self) -> str:
+        """Returns the colorized, line separated incubator tooltip."""
         if self.incubator is not None:
             progress = int(self.incubator['progress'])
             total = int(self.incubator['total'])

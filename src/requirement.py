@@ -5,12 +5,15 @@ from consts import COLORS, SPAN_TEMPLATE, VALNUM_TO_COLOR
 
 
 class Requirement:
+    """Class to represent an item requirement."""
+
     def __init__(self, reqInfo: Dict[str, Any]):
         self.name = reqInfo['name']
         self.values = reqInfo['values']
         self.tooltip = None
 
     def description(self) -> str:
+        """Get colorized description used in the requirements tooltip."""
         if self.tooltip is not None:
             return self.tooltip
 

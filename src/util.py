@@ -4,6 +4,8 @@ from consts import COLORS, SPAN_TEMPLATE, VALNUM_TO_COLOR
 
 
 def insertValues(text: str, values: List[Any]) -> Dict[str, Any]:
+    """Inserts the colorized values into
+    description text provided by the API."""
     obj = {}
     obj['text'] = text
     obj['inserted'] = False

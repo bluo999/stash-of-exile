@@ -17,6 +17,7 @@ FilterFunction = Callable[[QtWidgets.QWidget, Item], bool]
 
 
 def _filterRarity(elem, item):
+    """Filter function that determines rarity."""
     if elem.currentText() == 'Any':
         return True
     if item.rarity.lower() == elem.currentText().lower():
@@ -32,7 +33,10 @@ def _filterRarity(elem, item):
 
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow: QtWidgets.QMainWindow):
+    """Custom Main Window."""
+
+    def staticBuild(self, MainWindow: QtWidgets.QMainWindow) -> None:
+        """Setup the static base UI, including properties and widgets."""
         MainWindow.setObjectName('MainWindow')
         MainWindow.resize(1280, 720)
 
@@ -121,20 +125,21 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         MainWindow.setStatusBar(self.statusbar)
 
-        self._retranslateUi(MainWindow)
+        self._nameUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
         self._dynamicBuild()
 
-    def _retranslateUi(self, MainWindow: QtWidgets.QMainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate('MainWindow', 'Stash Of Exile'))
-        self.groupBox.setTitle(_translate('MainWindow', 'Filters'))
-        self.label.setText(_translate('MainWindow', 'Category:'))
-        self.label_4.setText(_translate('MainWindow', 'Rarity:'))
-        self.label_3.setText(_translate('MainWindow', 'Name:'))
+    def _nameUi(self, MainWindow: QtWidgets.QMainWindow) -> None:
+        """Name the UI elements, including window title and labels."""
+        MainWindow.setWindowTitle('Stash Of Exile')
+        self.groupBox.setTitle('Filters')
+        self.label.setText('Category:')
+        self.label_4.setText('Rarity:')
+        self.label_3.setText('Name:')
 
-    def _dynamicBuild(self):
+    def _dynamicBuild(self) -> None:
+        """Setup the items, download their images, and setup the table."""
         items = []
         for i, tab in enumerate(_jsons):
             # Open each tab
@@ -169,7 +174,10 @@ class Ui_MainWindow(object):
         self.tableView.verticalHeader().setDefaultSectionSize(rowHeight)
         self.tableView.resizeColumnsToContents()
 
-    def _updateTooltip(self, items: List[Item], selected: QtCore.QItemSelection):
+    def _updateTooltip(
+        self, items: List[Item], selected: QtCore.QItemSelection
+    ) -> None:
+        """Update item tooltip, triggered when a row is clicked."""
         if len(selected.indexes()) == 0:
             # Occurs when filters result in nothing selected
             self.tooltip.setText('')
@@ -195,14 +203,16 @@ class Ui_MainWindow(object):
 
     def _filterRows(
         self, items: List[Item], FILTERS: Dict[QtWidgets.QWidget, FilterFunction]
-    ):
+    ) -> None:
+        """Iterate through item list, showing or hiding each depending on the filters."""
         for i, item in enumerate(items):
             if any(not filterFunc(elem, item) for elem, filterFunc in FILTERS.items()):
                 self.tableView.hideRow(i)
             else:
                 self.tableView.showRow(i)
 
-    def _setupFilters(self, items: List[Item]):
+    def _setupFilters(self, items: List[Item]) -> None:
+        """Initialize filters and link to widgets."""
         # Key: widget that filter applies to
         # Value: FilterFunction (takes in element and item, returns whether to show the item)
         FILTERS: Dict[QtWidgets.QWidget, FilterFunction] = {
