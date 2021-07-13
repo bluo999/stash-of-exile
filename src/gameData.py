@@ -28,8 +28,8 @@ FRAGMENTS = [
 
 # Selectable options for ComboBox filters
 COMBO_ITEMS = {
-    'Category': ['Any', 'Normal', 'Magic', 'Rare', 'Unique', 'Foil', 'Any Non-Unique'],
-    'Rarity': [
+    'Rarity': ['Any', 'Normal', 'Magic', 'Rare', 'Unique', 'Foil', 'Any Non-Unique'],
+    'Category': [
         'Any',
         'Bow',
         'Claw',

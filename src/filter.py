@@ -33,7 +33,7 @@ def _filterRarity(elem: QWidget, item: Item) -> bool:
     assert isinstance(elem, QComboBox)
     if elem.currentText() == 'Any':
         return True
-    if item.rarity.lower() == elem.currentText().lower():
+    if item.rarity == elem.currentText().lower():
         return True
     if elem.currentText() == 'Any Non-Unique' and item.rarity not in ['unique', 'foil']:
         return True

@@ -2,7 +2,9 @@ from typing import Callable, Dict, List
 
 from PyQt6.QtCore import QAbstractTableModel, QModelIndex, QObject, QVariant, Qt
 from PyQt6.QtGui import QColor
+from PyQt6.QtWidgets import QTableView, QWidget
 from consts import COLORS
+from filter import FILTERS
 
 from item import Item
 
@@ -51,14 +53,14 @@ class TableModel(QAbstractTableModel):
         'Influence': _influenceFunction,
     }
 
-    def __init__(self, parent: QObject) -> None:
+    def __init__(self, tableView: QTableView, parent: QObject) -> None:
         """Initialize the table model."""
         QAbstractTableModel.__init__(self, parent)
         self.items: List[Item] = []
         self.currentItems: List[Item] = []
         self.propertyFuncs = [func for (_, func) in TableModel.PROPERTY_FUNCS.items()]
         self.headers = list(TableModel.PROPERTY_FUNCS.keys())
-        self.setFilter()
+        self.tableView = tableView
 
     def rowCount(self, parent: QModelIndex) -> int:
         """Returns the current number of current rows (excluding filtered)."""
@@ -103,11 +105,21 @@ class TableModel(QAbstractTableModel):
         ):
             return QVariant(self.headers[section])
 
-    def setFilter(self, searchText: str = "") -> None:
+    def setWidgets(self, widgets: List[QWidget]) -> None:
+        self.widgets = widgets
+
+    def applyFilters(self) -> None:
         """Apply a filter based on several search parameters,
         updating the current items and layout."""
         self.currentItems = [
-            item for item in self.items if searchText.lower() in item.name.lower()
+            item
+            for item in self.items
+            if all(
+                filter.filterFunc(widget, item)
+                for (filter, widget) in zip(FILTERS, self.widgets)
+            )
         ]
+
         # pyright: reportFunctionMemberAccess=false
+        self.tableView.clearSelection()
         self.layoutChanged.emit()

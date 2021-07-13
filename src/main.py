@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QMainWindow,
     QMenuBar,
     QStatusBar,
@@ -36,6 +37,7 @@ class Ui_MainWindow(object):
     """Custom Main Window."""
 
     def __init__(self, MainWindow: QMainWindow) -> None:
+        """Initialize the UI."""
         self._staticBuild(MainWindow)
         self._dynamicBuildFilters()
         self._dynamicBuildTable()
@@ -94,7 +96,7 @@ class Ui_MainWindow(object):
         self.tableView.setSortingEnabled(True)
 
         # Custom Table Model
-        self.model = TableModel(MainWindow)
+        self.model = TableModel(self.tableView, parent=MainWindow)
         self.tableView.setModel(self.model)
 
         # Add to main layout and set stretch ratios
@@ -126,9 +128,10 @@ class Ui_MainWindow(object):
             self.filterFormLayout.setWidget(i, QFormLayout.ItemRole.LabelRole, label)
             self.filterFormLayout.setWidget(i, QFormLayout.ItemRole.FieldRole, widget)
 
+        self.model.setWidgets(self.widgets)
+
     def _dynamicBuildTable(self) -> None:
         """Setup the items, download their images, and setup the table."""
-
         items: List[Item] = []
         for i, tab in enumerate(_jsons):
             # Open each tab
@@ -155,7 +158,7 @@ class Ui_MainWindow(object):
         # Connect selection to update tooltip
         # pyright: reportFunctionMemberAccess=false
         self.tableView.selectionModel().selectionChanged.connect(
-            partial(self._updateTooltip, items)
+            partial(self._updateTooltip, self.model)
         )
 
         # Sizing
@@ -171,14 +174,11 @@ class Ui_MainWindow(object):
         for filter, label in zip(FILTERS, self.labels):
             label.setText(f'{filter.name}:')
 
-    def _updateTooltip(self, items: List[Item], selected: QItemSelection) -> None:
+    def _updateTooltip(self, model: TableModel, selected: QItemSelection) -> None:
         """Update item tooltip, triggered when a row is clicked."""
-        if len(selected.indexes()) == 0:
-            # Occurs when filters result in nothing selected
-            self.tooltip.setText('')
-        else:
+        if len(selected.indexes()) > 0:
             row = selected.indexes()[0].row()
-            item = items[row]
+            item = model.currentItems[row]
 
             self.tooltip.setHtml('')
             sections = item.getTooltip()
@@ -196,29 +196,17 @@ class Ui_MainWindow(object):
             # Reset scroll to top
             self.tooltip.moveCursor(QTextCursor.MoveOperation.Start)
 
-    def _filterRows(self, items: List[Item]) -> None:
-        """Iterate through item list, showing or hiding each depending on the filters."""
-        for i, (item, widget) in enumerate(zip(items, self.widgets)):
-            if any(not filter.filterFunc(widget, item) for filter in FILTERS):
-                self.tableView.hideRow(i)
-            else:
-                self.tableView.showRow(i)
-
     def _setupFilters(self, items: List[Item]) -> None:
         """Initialize filters and link to widgets."""
-        # Key: widget that filter applies to
-        # Value: FilterFunction (takes in element and item, returns whether to show the item)
+        for filter, widget in zip(FILTERS, self.widgets):
+            signal = None
+            if isinstance(widget, QLineEdit):
+                signal = widget.textChanged
+            elif isinstance(widget, QComboBox):
+                signal = widget.currentIndexChanged
 
-        # # Connect filter function with the widget
-        # for elem in FILTERS.keys():
-        #     signal = None
-        #     if type(elem) is QtWidgets.QLineEdit:
-        #         signal = elem.textChanged
-        #     elif type(elem) is QtWidgets.QComboBox:
-        #         signal = elem.currentIndexChanged
-
-        #     if signal is not None:
-        #         signal.connect(partial(self._filterRows, items, FILTERS))
+            if signal is not None:
+                signal.connect(self.model.applyFilters)
 
         # Add items to combo boxes (dropdown)
         for filter, widget in zip(FILTERS, self.widgets):
