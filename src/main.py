@@ -3,7 +3,7 @@ import json
 from functools import partial
 from typing import List
 from PyQt6.QtCore import QItemSelection, QRect, QSize, Qt
-from PyQt6.QtGui import QFont, QFontDatabase, QTextCursor
+from PyQt6.QtGui import QFont, QFontDatabase, QIntValidator, QTextCursor
 
 from PyQt6.QtWidgets import (
     QAbstractItemView,
@@ -24,7 +24,7 @@ from PyQt6.QtWidgets import (
 )
 
 from consts import SEPARATOR_TEMPLATE
-from filter import FILTERS
+from filter import DuoFilter, FILTERS, Filter
 from item import Item
 from gameData import COMBO_ITEMS
 from table import TableModel
@@ -116,17 +116,39 @@ class Ui_MainWindow(object):
         self.statusbar = QStatusBar(MainWindow)
         MainWindow.setStatusBar(self.statusbar)
 
+        # Int validator
+        self.intValidator = QIntValidator()
+
     def _dynamicBuildFilters(self) -> None:
         """Setup the filter widgets and labels."""
         self.labels: List[QLabel] = []
-        self.widgets: List[QWidget] = []
+        self.widgets: List[List[QWidget]] = []
         for i, filter in enumerate(FILTERS):
             label = QLabel(self.filterGroupBox)
             self.labels.append(label)
-            widget = filter.widget()
-            self.widgets.append(widget)
             self.filterFormLayout.setWidget(i, QFormLayout.ItemRole.LabelRole, label)
-            self.filterFormLayout.setWidget(i, QFormLayout.ItemRole.FieldRole, widget)
+            if isinstance(filter, Filter):
+                widget = filter.widget()
+                self.widgets.append([widget])
+                self.filterFormLayout.setWidget(
+                    i, QFormLayout.ItemRole.FieldRole, widget
+                )
+            else:
+                assert isinstance(filter, DuoFilter)
+                layout = QHBoxLayout()
+                widget1 = filter.widget()
+                widget2 = filter.widget()
+                layout.addWidget(widget1)
+                layout.addWidget(widget2)
+                self.widgets.append([widget1, widget2])
+                self.filterFormLayout.setLayout(
+                    i, QFormLayout.ItemRole.FieldRole, layout
+                )
+
+            for widget in self.widgets[-1]:
+                if filter.widget == QLineEdit:
+                    assert isinstance(widget, QLineEdit)
+                    widget.setValidator(self.intValidator)
 
         self.model.setWidgets(self.widgets)
 
@@ -198,19 +220,21 @@ class Ui_MainWindow(object):
 
     def _setupFilters(self, items: List[Item]) -> None:
         """Initialize filters and link to widgets."""
-        for filter, widget in zip(FILTERS, self.widgets):
+        for filter, widgets in zip(FILTERS, self.widgets):
             signal = None
-            if isinstance(widget, QLineEdit):
-                signal = widget.textChanged
-            elif isinstance(widget, QComboBox):
-                signal = widget.currentIndexChanged
+            for widget in widgets:
+                if isinstance(widget, QLineEdit):
+                    signal = widget.textChanged
+                elif isinstance(widget, QComboBox):
+                    signal = widget.currentIndexChanged
 
-            if signal is not None:
-                signal.connect(self.model.applyFilters)
+                if signal is not None:
+                    signal.connect(self.model.applyFilters)
 
         # Add items to combo boxes (dropdown)
-        for filter, widget in zip(FILTERS, self.widgets):
+        for filter, widgets in zip(FILTERS, self.widgets):
             options = COMBO_ITEMS.get(filter.name)
             if options is not None:
+                widget = widgets[0]
                 assert isinstance(widget, QComboBox)
                 widget.addItems(options)

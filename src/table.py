@@ -6,21 +6,7 @@ from PyQt6.QtWidgets import QTableView, QWidget
 from consts import COLORS
 from filter import FILTERS
 
-from item import Item
-
-
-def _propertyFunction(prop: str) -> Callable[['Item'], str]:
-    """Returns the function that returns a specific property given an item."""
-
-    def f(item: 'Item') -> str:
-        filtProps = [x for x in item.properties if x.name == prop]
-        if len(filtProps) != 0:
-            val = filtProps[0].values[0][0]
-            assert isinstance(val, str)
-            return val
-        return ''
-
-    return f
+from item import Item, propertyFunction
 
 
 def _influenceFunction(item: 'Item') -> str:
@@ -40,9 +26,9 @@ class TableModel(QAbstractTableModel):
     PROPERTY_FUNCS: Dict[str, Callable[[Item], str]] = {
         'Name': lambda item: item.name,
         'Tab': lambda item: str(item.tabNum),
-        'Stack': _propertyFunction('Stack Size'),
+        'Stack': propertyFunction('Stack Size'),
         'iLvl': lambda item: str(item.ilvl) if item.ilvl != 0 else '',
-        'Quality': _propertyFunction('Quality'),
+        'Quality': propertyFunction('Quality'),
         'Split': lambda item: 'Split' if item.split else '',
         'Corr': lambda item: 'Corr' if item.corrupted else '',
         'Mir': lambda item: 'Mir' if item.mirrored else '',
@@ -105,7 +91,7 @@ class TableModel(QAbstractTableModel):
         ):
             return QVariant(self.headers[section])
 
-    def setWidgets(self, widgets: List[QWidget]) -> None:
+    def setWidgets(self, widgets: List[List[QWidget]]) -> None:
         self.widgets = widgets
 
     def applyFilters(self) -> None:
@@ -115,8 +101,8 @@ class TableModel(QAbstractTableModel):
             item
             for item in self.items
             if all(
-                filter.filterFunc(widget, item)
-                for (filter, widget) in zip(FILTERS, self.widgets)
+                filter.filterFunc(item, *widgets)
+                for (filter, widgets) in zip(FILTERS, self.widgets)
             )
         ]
 

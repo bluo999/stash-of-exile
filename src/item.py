@@ -1,9 +1,23 @@
-from typing import Any, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 
 from consts import HEADER_TEMPLATE, SPAN_TEMPLATE, COLORS
 from gameData import COMBO_ITEMS, FRAGMENTS, RARITIES
 from requirement import Requirement
 from property import Property
+
+
+def propertyFunction(prop: str) -> Callable[['Item'], str]:
+    """Returns the function that returns a specific property given an item."""
+
+    def f(item: 'Item') -> str:
+        filtProps = [x for x in item.properties if x.name == prop]
+        if len(filtProps) != 0:
+            val = filtProps[0].values[0][0]
+            assert isinstance(val, str)
+            return val
+        return ''
+
+    return f
 
 
 def _listMods(modLists: List[Tuple[List[str], str]]) -> str:

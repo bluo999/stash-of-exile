@@ -1,6 +1,5 @@
-from util import ValInfo, insertValues
-
 from consts import COLORS, SPAN_TEMPLATE, VALNUM_TO_COLOR
+from util import ValInfo, insertValues
 
 
 # TODO: Add multiline values (The Feared)
