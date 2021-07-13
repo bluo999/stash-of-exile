@@ -6,8 +6,8 @@ import urllib.request
 from functools import partial
 from typing import List
 
-from PyQt5.QtCore import QThread
-from PyQt5.QtWidgets import QTextEdit, QStatusBar
+from PyQt6.QtCore import QThread
+from PyQt6.QtWidgets import QStatusBar
 
 from consts import STATUS_TIMEOUT
 from item import Item
@@ -46,6 +46,7 @@ class DownloadThread(QThread):
     def __init__(self, statusbar: QStatusBar, items: List[Item]) -> None:
         QThread.__init__(self, statusbar)
         self.items = items
+        # pyright: reportFunctionMemberAccess=false
         self.finished.connect(partial(_download_finished, statusbar))
 
     def run(self) -> None:

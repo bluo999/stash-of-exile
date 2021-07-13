@@ -1,19 +1,33 @@
-from typing import Any, Dict, List
+from typing import List, TypedDict, Union
 
 from consts import COLORS, SPAN_TEMPLATE, VALNUM_TO_COLOR
 
 
-def insertValues(text: str, values: List[Any]) -> Dict[str, Any]:
+class ModifiedStr(TypedDict):
+    """Class to represent a string and whether it has been modified."""
+
+    text: str
+    inserted: bool
+
+
+class ValInfo(TypedDict):
+    """Class to represent a property or requirement from the API."""
+
+    name: str
+    vals: List[List[Union[str, int]]]
+
+
+def insertValues(text: str, values: List[List[Union[str, int]]]) -> ModifiedStr:
     """Inserts the colorized values into
     description text provided by the API."""
-    obj = {}
-    obj['text'] = text
-    obj['inserted'] = False
+    obj: ModifiedStr = {'text': text, 'inserted': False}
 
     while '{' in obj['text']:
         index = obj['text'].index('{')
         valIndex = int(obj['text'][index + 1])
-        color = COLORS[VALNUM_TO_COLOR[values[valIndex][1]]]
+        valNum = values[valIndex][1]
+        assert isinstance(valNum, int)
+        color = COLORS[VALNUM_TO_COLOR[valNum]]
         obj['text'] = (
             obj['text'][:index]
             + SPAN_TEMPLATE.format(color, values[valIndex][0])

@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Tuple
 
 from consts import HEADER_TEMPLATE, SPAN_TEMPLATE, COLORS
-from gameData import CATEGORIES, FRAGMENTS, RARITIES
+from gameData import COMBO_ITEMS, FRAGMENTS, RARITIES
 from requirement import Requirement
 from property import Property
 
@@ -26,7 +26,7 @@ def _listMods(modLists: List[Tuple[List[str], str]]) -> str:
                 mods[i] = mods[i][:index]
 
     # Add mods on separate lines
-    text = ''
+    text: str = ''
     for i, (mods, color) in enumerate(filtModLists):
         for j, mod in enumerate(mods):
             text += SPAN_TEMPLATE.format(COLORS[color], mod)
@@ -70,8 +70,14 @@ class Item:
 
         self.influences = list(itemJson.get('influences', {}).keys())
 
-        self.properties = [Property(p) for p in itemJson.get('properties', [])]
-        self.requirements = [Requirement(r) for r in itemJson.get('requirements', [])]
+        self.properties = [
+            Property({'name': p['name'], 'vals': p['values']})
+            for p in itemJson.get('properties', [])
+        ]
+        self.requirements = [
+            Requirement({'name': r['name'], 'vals': r['values']})
+            for r in itemJson.get('requirements', [])
+        ]
 
         self.implicit = itemJson.get('implicitMods', [])
         self.utility = itemJson.get('utilityMods', [])
@@ -166,11 +172,11 @@ class Item:
             if cat == 'Abyss':
                 return 'Abyss Jewel'
 
-            if cat in CATEGORIES:
+            if cat in COMBO_ITEMS['Category']:
                 return cat
 
         # Search in icon name
-        categories = [cat for cat in CATEGORIES if cat not in categories]
+        categories = [cat for cat in COMBO_ITEMS['Category'] if cat not in categories]
         for cat in categories:
             # Remove spaces
             if cat.replace(' ', '') in itemJson['icon']:

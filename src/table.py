@@ -1,11 +1,7 @@
-import json
-import sys
+from typing import Callable, Dict, List
 
-from typing import Callable
-
-from PyQt5.QtCore import QAbstractTableModel, QModelIndex, QVariant, Qt
-from PyQt5.QtGui import QColor, QPainter
-from PyQt5.QtWidgets import QItemDelegate, QStyleOption
+from PyQt6.QtCore import QAbstractTableModel, QModelIndex, QObject, QVariant, Qt
+from PyQt6.QtGui import QColor
 from consts import COLORS
 
 from item import Item
@@ -13,10 +9,13 @@ from item import Item
 
 def _propertyFunction(prop: str) -> Callable[['Item'], str]:
     """Returns the function that returns a specific property given an item."""
+
     def f(item: 'Item') -> str:
         filtProps = [x for x in item.properties if x.name == prop]
         if len(filtProps) != 0:
-            return filtProps[0].values[0][0]
+            val = filtProps[0].values[0][0]
+            assert isinstance(val, str)
+            return val
         return ''
 
     return f
@@ -33,10 +32,10 @@ def _influenceFunction(item: 'Item') -> str:
 
 class TableModel(QAbstractTableModel):
     """Custom table model used to store, filter, and sort Items."""
-    
+
     # Keys: name of the header
     # Values: function that computes the value
-    PROPERTY_FUNCS = {
+    PROPERTY_FUNCS: Dict[str, Callable[[Item], str]] = {
         'Name': lambda item: item.name,
         'Tab': lambda item: str(item.tabNum),
         'Stack': _propertyFunction('Stack Size'),
@@ -52,55 +51,63 @@ class TableModel(QAbstractTableModel):
         'Influence': _influenceFunction,
     }
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: QObject) -> None:
         """Initialize the table model."""
         QAbstractTableModel.__init__(self, parent)
-        self.items = []
-        self.currentItems = []
+        self.items: List[Item] = []
+        self.currentItems: List[Item] = []
         self.propertyFuncs = [func for (_, func) in TableModel.PROPERTY_FUNCS.items()]
         self.headers = list(TableModel.PROPERTY_FUNCS.keys())
         self.setFilter()
 
-    def rowCount(self, index):
+    def rowCount(self, parent: QModelIndex) -> int:
         """Returns the current number of current rows (excluding filtered)."""
         return len(self.currentItems)
 
-    def columnCount(self, index):
+    def columnCount(self, parent: QModelIndex) -> int:
         """Returns the number of columns / properties."""
         return len(self.propertyFuncs)
 
-    def insertRows(self, row, items):
-        self.beginInsertRows(QModelIndex(), row, row + len(items))
+    def insertItems(self, items: List[Item]) -> None:
+        """Inserts a list of items into the table."""
+        self.beginInsertRows(QModelIndex(), 0, len(items))
         self.items.extend(items)
+        self.currentItems.extend(items)
         self.endInsertRows()
 
-    def data(self, index: QModelIndex, role=Qt.ItemDataRole.DisplayRole):
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole):
+        """Returns the data stored under the given
+        role for the item referred to by the index."""
         row = index.row()
         column = index.column()
 
         if role == Qt.ItemDataRole.DisplayRole:
             return self.propertyFuncs[column](self.currentItems[row])
-        elif role == Qt.ItemDataRole.TextColorRole:
+        elif role == Qt.ItemDataRole.ForegroundRole:
             if column == 0:
                 rarity = self.currentItems[row].rarity
                 return QColor(COLORS[rarity])
             else:
                 return QColor(COLORS['white'])
-        elif role == Qt.ItemDataRole.BackgroundColorRole:
+        elif role == Qt.ItemDataRole.BackgroundRole:
             return QColor(COLORS['darkgrey'])
 
-    def headerData(self, section, orientation, role):
+    def headerData(
+        self, section: int, orientation: Qt.Orientation, role: int
+    ) -> object:
+        """Returns the data for the given role and section
+        in the header with the specified orientation."""
         if (
             role == Qt.ItemDataRole.DisplayRole
             and orientation == Qt.Orientation.Horizontal
         ):
             return QVariant(self.headers[section])
 
-    def setFilter(self, searchText=None):
-        if searchText is None:
-            self.currentItems = self.items
-        else:
-            self.currentItems = [
-                item for item in self.items if searchText.lower() in item.name.lower()
-            ]
+    def setFilter(self, searchText: str = "") -> None:
+        """Apply a filter based on several search parameters,
+        updating the current items and layout."""
+        self.currentItems = [
+            item for item in self.items if searchText.lower() in item.name.lower()
+        ]
+        # pyright: reportFunctionMemberAccess=false
         self.layoutChanged.emit()

@@ -1,5 +1,4 @@
-from typing import Any, Dict
-from util import insertValues
+from util import ValInfo, insertValues
 
 from consts import COLORS, SPAN_TEMPLATE, VALNUM_TO_COLOR
 
@@ -7,9 +6,9 @@ from consts import COLORS, SPAN_TEMPLATE, VALNUM_TO_COLOR
 class Requirement:
     """Class to represent an item requirement."""
 
-    def __init__(self, reqInfo: Dict[str, Any]):
+    def __init__(self, reqInfo: ValInfo):
         self.name = reqInfo['name']
-        self.values = reqInfo['values']
+        self.values = reqInfo['vals']
         self.tooltip = None
 
     def description(self) -> str:
@@ -23,7 +22,9 @@ class Requirement:
         if obj['inserted']:
             self.tooltip = name
         else:
-            color = COLORS[VALNUM_TO_COLOR[self.values[0][1]]]
+            valnum = self.values[0][1]
+            assert isinstance(valnum, int)
+            color = COLORS[VALNUM_TO_COLOR[valnum]]
             value = SPAN_TEMPLATE.format(color, self.values[0][0])
 
             # "Level 20" vs "100 Str"

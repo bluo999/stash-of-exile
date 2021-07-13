@@ -1,5 +1,4 @@
-from typing import Any, Dict
-from util import insertValues
+from util import ValInfo, insertValues
 
 from consts import COLORS, SPAN_TEMPLATE, VALNUM_TO_COLOR
 
@@ -8,9 +7,9 @@ from consts import COLORS, SPAN_TEMPLATE, VALNUM_TO_COLOR
 class Property:
     """Class to represent an item property."""
 
-    def __init__(self, propInfo) -> None:
+    def __init__(self, propInfo: ValInfo) -> None:
         self.name = propInfo.get('name')
-        self.values = propInfo.get('values')
+        self.values = propInfo.get('vals')
         self.tooltip = None
 
     def description(self) -> str:
@@ -36,7 +35,9 @@ class Property:
             self.tooltip = SPAN_TEMPLATE.format(COLORS['grey'], obj['text'])
         else:
             # Property with label
-            color = COLORS[VALNUM_TO_COLOR[self.values[0][1]]]
+            valnum = self.values[0][1]
+            assert isinstance(valnum, int)
+            color = COLORS[VALNUM_TO_COLOR[valnum]]
             label = SPAN_TEMPLATE.format(COLORS['grey'], obj['text'] + ': ')
             value = SPAN_TEMPLATE.format(color, self.values[0][0])
             self.tooltip = label + value
