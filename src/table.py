@@ -44,7 +44,7 @@ class TableModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.items: List[Item] = []
         self.currentItems: List[Item] = []
-        self.propertyFuncs = [func for (_, func) in TableModel.PROPERTY_FUNCS.items()]
+        self.propertyFuncs = [func for _, func in TableModel.PROPERTY_FUNCS.items()]
         self.headers = list(TableModel.PROPERTY_FUNCS.keys())
         self.tableView = tableView
 
@@ -73,6 +73,7 @@ class TableModel(QAbstractTableModel):
             return self.propertyFuncs[column](self.currentItems[row])
         elif role == Qt.ItemDataRole.ForegroundRole:
             if column == 0:
+                # Color item name based on rarity
                 rarity = self.currentItems[row].rarity
                 return QColor(COLORS[rarity])
             else:
@@ -97,16 +98,14 @@ class TableModel(QAbstractTableModel):
     def applyFilters(self) -> None:
         """Apply a filter based on several search parameters,
         updating the current items and layout."""
+        zipped = zip(FILTERS, self.widgets)
+        # Items that pass every filter
         self.currentItems = [
             item
             for item in self.items
-            if all(
-                filter.filterFunc(item, *widgets)
-                for (filter, widgets) in zip(FILTERS, self.widgets)
-            )
+            if all(filter.filterFunc(item, *widgets) for filter, widgets in zipped)
         ]
 
         self.tableView.clearSelection()
 
-        # pyright: reportFunctionMemberAccess=false
-        self.layoutChanged.emit()
+        self.layoutChanged.emit() # type: ignore

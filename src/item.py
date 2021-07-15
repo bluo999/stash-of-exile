@@ -26,7 +26,7 @@ def _listMods(modLists: List[Tuple[List[str], str]]) -> str:
     line separated, colored string of mods.
     """
     # Get rid of any empty mod list
-    filtModLists = [(mods, color) for (mods, color) in modLists if len(mods) > 0]
+    filtModLists = [(mods, color) for mods, color in modLists if len(mods) > 0]
 
     if len(filtModLists) == 0:
         return ''
@@ -37,6 +37,7 @@ def _listMods(modLists: List[Tuple[List[str], str]]) -> str:
         length = len(mods)
         while i < length:
             while '\n' in mods[i]:
+                # If there is a \n, split into two elements # and move to the second element
                 index = mods[i].index('\n')
                 mods.insert(i + 1, mods[i][index + 1 :])
                 mods[i] = mods[i][:index]
@@ -62,11 +63,12 @@ def _listTags(tagInfo: List[Tuple[bool, str, str]]) -> str:
     # Get rid of inactive tags
     formattedTags = [
         SPAN_TEMPLATE.format(COLORS[color], tagStr)
-        for (tagActive, tagStr, color) in tagInfo
+        for tagActive, tagStr, color in tagInfo
         if tagActive
     ]
 
-    text = ''
+    # Add tags on separate lines
+    text: str = ''
     for i, tag in enumerate(formattedTags):
         text += tag
         if i < len(formattedTags) - 1:
@@ -238,26 +240,26 @@ class Item:
             # Image
             f'<img src="{self.filePath}" />',
             # Item name (header)
-            self.getHeaderTooltip(),
+            self._getHeaderTooltip(),
             # Prophecy, properties, utility mods
-            self.getProphecyTooltip()
-            + self.getPropertyTooltip()
-            + self.getUtilityTooltip(),
+            self._getProphecyTooltip()
+            + self._getPropertyTooltip()
+            + self._getUtilityTooltip(),
             # Requirements
-            self.getRequirementTooltip(),
+            self._getRequirementTooltip(),
             # Gem secondary description
-            self.getGemSecondaryTooltip(),
+            self._getGemSecondaryTooltip(),
             # Item level (metamorph, bestiary orb)
-            self.getItemLevelTooltip(),
+            self._getItemLevelTooltip(),
             # Mods
             _listMods([(self.enchanted, 'craft')]),
             _listMods([(self.implicit, 'magic')]),
             # Mods and Tags
             f'{mods}<br />{tags}' if len(mods) > 0 and len(tags) > 0 else mods + tags,
             # Gem experience
-            self.getGemExperienceTooltip(),
+            self._getGemExperienceTooltip(),
             # Incubator info
-            self.getIncubatorTooltip(),
+            self._getIncubatorTooltip(),
             # Skin transfers
             _listMods([(self.cosmetic, 'currency')]),
         ]
@@ -265,7 +267,7 @@ class Item:
 
         return self.tooltip
 
-    def getHeaderTooltip(self) -> str:
+    def _getHeaderTooltip(self) -> str:
         """Returns the header tooltip, including
         influence icons and a colorized name."""
         influence_icons = ''
@@ -278,14 +280,14 @@ class Item:
 
         return influence_icons + HEADER_TEMPLATE.format(name)
 
-    def getProphecyTooltip(self) -> str:
+    def _getProphecyTooltip(self) -> str:
         """Returns the colorized prophecy tooltip."""
         if self.prophecy is not None:
             return SPAN_TEMPLATE.format(COLORS['white'], self.prophecy)
 
         return ''
 
-    def getPropertyTooltip(self) -> str:
+    def _getPropertyTooltip(self) -> str:
         """Returns the colorized, line separated properties tooltip."""
         tooltip = ''
         if len(self.properties) > 0:
@@ -296,7 +298,7 @@ class Item:
 
         return tooltip
 
-    def getUtilityTooltip(self) -> str:
+    def _getUtilityTooltip(self) -> str:
         """Returns the colorized, line separated utility mods tooltip."""
         mods = _listMods([(self.utility, 'magic')])
         if len(mods) > 0:
@@ -304,7 +306,7 @@ class Item:
 
         return ''
 
-    def getRequirementTooltip(self) -> str:
+    def _getRequirementTooltip(self) -> str:
         """Returns the colorized, line separated requirements tooltip."""
         tooltip = ''
         if len(self.requirements) > 0:
@@ -316,14 +318,14 @@ class Item:
 
         return tooltip
 
-    def getGemSecondaryTooltip(self) -> str:
+    def _getGemSecondaryTooltip(self) -> str:
         """Returns the colorized, line separated gem description tooltip."""
         if self.gem is not None:
             return SPAN_TEMPLATE.format(COLORS['gem'], self.gem)
 
         return ''
 
-    def getItemLevelTooltip(self) -> str:
+    def _getItemLevelTooltip(self) -> str:
         """Returns the colorized item level tooltip
         for organs and bestiary orbs."""
         if 'Metamorph' in self.icon or 'BestiaryOrb' in self.icon:
@@ -333,7 +335,7 @@ class Item:
 
         return ''
 
-    def getGemExperienceTooltip(self) -> str:
+    def _getGemExperienceTooltip(self) -> str:
         """Returns the colorized gem experience tooltip."""
         if self.experience is not None:
             exp = self.experience[0]['values'][0][0]
@@ -346,7 +348,7 @@ class Item:
 
         return ''
 
-    def getIncubatorTooltip(self) -> str:
+    def _getIncubatorTooltip(self) -> str:
         """Returns the colorized, line separated incubator tooltip."""
         if self.incubator is not None:
             progress = int(self.incubator['progress'])

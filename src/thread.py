@@ -46,8 +46,7 @@ class DownloadThread(QThread):
     def __init__(self, statusbar: QStatusBar, items: List[Item]) -> None:
         QThread.__init__(self, statusbar)
         self.items = items
-        # pyright: reportFunctionMemberAccess=false
-        self.finished.connect(partial(_download_finished, statusbar))
+        self.finished.connect(partial(_download_finished, statusbar)) # type: ignore
 
     def run(self) -> None:
         _retrieves(self.items)

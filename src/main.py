@@ -77,35 +77,29 @@ class Ui_MainWindow(object):
         self.tooltip.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
 
         # Item Table
-        self.tableView = QTableView()
-        self.tableView.setMinimumSize(QSize(200, 0))
-        self.tableView.setMouseTracking(True)
-        self.tableView.setSizeAdjustPolicy(
+        self.table = QTableView()
+        self.table.setMinimumSize(QSize(200, 0))
+        self.table.setMouseTracking(True)
+        self.table.setSizeAdjustPolicy(
             QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents
         )
-        self.tableView.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.tableView.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        self.tableView.setSelectionBehavior(
-            QAbstractItemView.SelectionBehavior.SelectRows
-        )
-        self.tableView.setVerticalScrollMode(
-            QAbstractItemView.ScrollMode.ScrollPerPixel
-        )
-        self.tableView.setHorizontalScrollMode(
-            QAbstractItemView.ScrollMode.ScrollPerPixel
-        )
-        self.tableView.setShowGrid(False)
-        self.tableView.setWordWrap(False)
-        self.tableView.setSortingEnabled(True)
+        self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.table.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.table.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.table.setShowGrid(False)
+        self.table.setWordWrap(False)
+        self.table.setSortingEnabled(True)
 
         # Custom Table Model
-        self.model = TableModel(self.tableView, parent=MainWindow)
-        self.tableView.setModel(self.model)
+        self.model = TableModel(self.table, parent=MainWindow)
+        self.table.setModel(self.model)
 
         # Add to main layout and set stretch ratios
         self.mainHorizontalLayout.addLayout(self.filter)
         self.mainHorizontalLayout.addWidget(self.tooltip)
-        self.mainHorizontalLayout.addWidget(self.tableView)
+        self.mainHorizontalLayout.addWidget(self.table)
         self.mainHorizontalLayout.setStretch(0, 1)
         self.mainHorizontalLayout.setStretch(1, 2)
         self.mainHorizontalLayout.setStretch(2, 3)
@@ -132,21 +126,24 @@ class Ui_MainWindow(object):
             self.labels.append(label)
             self.filterFormLayout.setWidget(i, QFormLayout.ItemRole.LabelRole, label)
 
-            # Widgets
+            # Widget layout
             layout = QHBoxLayout()
             widgets: List[QWidget] = []
+            # Create widgets based on the number of arguments filterFunc takes in
             for _ in range(len(signature(filter.filterFunc).parameters) - 1):
+                # Create widget object
                 widget = filter.widget()
                 widgets.append(widget)
                 layout.addWidget(widget)
                 if filter.widget == QLineEdit and filter.numericOnly:
                     assert isinstance(widget, QLineEdit)
                     widget.setValidator(self.intValidator)
-            layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
+            layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
             self.widgets.append(widgets)
             self.filterFormLayout.setLayout(i, QFormLayout.ItemRole.FieldRole, layout)
 
+        # Send widgets to model
         self.model.setWidgets(self.widgets)
 
     def _dynamicBuildTable(self) -> None:
@@ -172,51 +169,56 @@ class Ui_MainWindow(object):
         thread.start()
 
         # Connect selection to update tooltip
-        self.tableView.selectionModel().selectionChanged.connect(
-            # pyright: reportFunctionMemberAccess=false
+        self.table.selectionModel().selectionChanged.connect(  # type: ignore
             partial(self._updateTooltip, self.model)
         )
 
         # Sizing
-        self.tableView.resizeRowsToContents()
-        rowHeight = self.tableView.verticalHeader().sectionSize(0)
-        self.tableView.verticalHeader().setDefaultSectionSize(rowHeight)
-        self.tableView.resizeColumnsToContents()
+        self.table.resizeRowsToContents()
+        rowHeight = self.table.verticalHeader().sectionSize(0)
+        self.table.verticalHeader().setDefaultSectionSize(rowHeight)
+        self.table.resizeColumnsToContents()
 
     def _nameUi(self, MainWindow: QMainWindow) -> None:
         """Name the UI elements, including window title and labels."""
         MainWindow.setWindowTitle('Stash Of Exile')
         self.filterGroupBox.setTitle('Filters')
+
+        # Name filters
         for filter, label in zip(FILTERS, self.labels):
             label.setText(f'{filter.name}:')
 
     def _updateTooltip(self, model: TableModel, selected: QItemSelection) -> None:
         """Update item tooltip, triggered when a row is clicked."""
-        if len(selected.indexes()) > 0:
-            row = selected.indexes()[0].row()
-            item = model.currentItems[row]
+        if len(selected.indexes()) == 0:
+            # Nothing selected
+            return
 
-            self.tooltip.setHtml('')
-            sections = item.getTooltip()
-            width = self.tooltip.width() - self.tooltip.verticalScrollBar().width()
+        row = selected.indexes()[0].row()
+        item = model.currentItems[row]
 
-            # Construct tooltip from sections
-            for i, html in enumerate(sections):
-                self.tooltip.append(html)
-                self.tooltip.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                if i != len(sections) - 1:
-                    self.tooltip.append(
-                        SEPARATOR_TEMPLATE.format('../assets/SeparatorWhite.png', width)
-                    )
+        self.tooltip.setHtml('')
+        sections = item.getTooltip()
+        width = self.tooltip.width() - self.tooltip.verticalScrollBar().width()
 
-            # Reset scroll to top
-            self.tooltip.moveCursor(QTextCursor.MoveOperation.Start)
+        # Construct tooltip from sections
+        for i, html in enumerate(sections):
+            self.tooltip.append(html)
+            self.tooltip.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            if i != len(sections) - 1:
+                self.tooltip.append(
+                    SEPARATOR_TEMPLATE.format('../assets/SeparatorWhite.png', width)
+                )
+
+        # Reset scroll to top
+        self.tooltip.moveCursor(QTextCursor.MoveOperation.Start)
 
     def _setupFilters(self) -> None:
         """Initialize filters and link to widgets."""
         for filter, widgets in zip(FILTERS, self.widgets):
             signal = None
             for widget in widgets:
+                # Get signal based on widget type
                 if isinstance(widget, QLineEdit):
                     signal = widget.textChanged
                 elif isinstance(widget, QComboBox):
@@ -225,8 +227,7 @@ class Ui_MainWindow(object):
                     signal = widget.stateChanged
 
                 if signal is not None:
-                    # pyright: reportFunctionMemberAccess=false
-                    signal.connect(self.model.applyFilters)
+                    signal.connect(self.model.applyFilters)  # type: ignore
 
         # Add items to combo boxes (dropdown)
         for filter, widgets in zip(FILTERS, self.widgets):

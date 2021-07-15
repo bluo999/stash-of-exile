@@ -76,10 +76,13 @@ def _filterDuoNumeric(
         topStr = elem2.text()
         field: Num = procFunc(vars(item).get(fieldStr))
         if field is None:
+            # Field isn't set
             return False
         elif field == defaultVal and (len(botStr) > 0 or len(topStr) > 0):
+            # Field is empty
             return False
         else:
+            # Field is between two inputs
             bot = convFunc(botStr) if botStr.isnumeric() else minVal
             top = convFunc(topStr) if topStr.isnumeric() else maxVal
             return bot <= field <= top
@@ -92,6 +95,7 @@ def _getFilterQuality() -> FilterFunction:
     defaultVal = 0
 
     def procFunc(ilvlStr: str) -> int:
+        # quality regex: +num%
         z = re.search(r'\+(\d+)%', ilvlStr)
         if z is not None:
             return int(z.group(1))
