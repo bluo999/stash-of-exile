@@ -1,6 +1,7 @@
 import json
 
 from functools import partial
+from inspect import signature
 from typing import List
 from PyQt6.QtCore import QItemSelection, QRect, QSize, Qt
 from PyQt6.QtGui import QFont, QFontDatabase, QIntValidator, QTextCursor
@@ -24,7 +25,7 @@ from PyQt6.QtWidgets import (
 )
 
 from consts import SEPARATOR_TEMPLATE
-from filter import DuoFilter, FILTERS, Filter
+from filter import FILTERS
 from item import Item
 from gameData import COMBO_ITEMS
 from table import TableModel
@@ -124,31 +125,26 @@ class Ui_MainWindow(object):
         self.labels: List[QLabel] = []
         self.widgets: List[List[QWidget]] = []
         for i, filter in enumerate(FILTERS):
+            # Label
             label = QLabel(self.filterGroupBox)
             self.labels.append(label)
             self.filterFormLayout.setWidget(i, QFormLayout.ItemRole.LabelRole, label)
-            if isinstance(filter, Filter):
-                widget = filter.widget()
-                self.widgets.append([widget])
-                self.filterFormLayout.setWidget(
-                    i, QFormLayout.ItemRole.FieldRole, widget
-                )
-            else:
-                assert isinstance(filter, DuoFilter)
-                layout = QHBoxLayout()
-                widget1 = filter.widget()
-                widget2 = filter.widget()
-                layout.addWidget(widget1)
-                layout.addWidget(widget2)
-                self.widgets.append([widget1, widget2])
-                self.filterFormLayout.setLayout(
-                    i, QFormLayout.ItemRole.FieldRole, layout
-                )
 
-            for widget in self.widgets[-1]:
-                if filter.widget == QLineEdit:
+            # Widgets
+            layout = QHBoxLayout()
+            widgets: List[QWidget] = []
+            for _ in range(len(signature(filter.filterFunc).parameters) - 1):
+                widget = filter.widget()
+                widgets.append(widget)
+                layout.addWidget(widget)
+                if filter.widget == QLineEdit and filter.numericOnly:
                     assert isinstance(widget, QLineEdit)
                     widget.setValidator(self.intValidator)
+
+            self.widgets.append(widgets)
+            self.filterFormLayout.setLayout(
+                i, QFormLayout.ItemRole.FieldRole, layout
+            )
 
         self.model.setWidgets(self.widgets)
 
@@ -178,8 +174,8 @@ class Ui_MainWindow(object):
         self._setupFilters(items)
 
         # Connect selection to update tooltip
-        # pyright: reportFunctionMemberAccess=false
         self.tableView.selectionModel().selectionChanged.connect(
+        # pyright: reportFunctionMemberAccess=false
             partial(self._updateTooltip, self.model)
         )
 
@@ -229,6 +225,7 @@ class Ui_MainWindow(object):
                     signal = widget.currentIndexChanged
 
                 if signal is not None:
+                    # pyright: reportFunctionMemberAccess=false
                     signal.connect(self.model.applyFilters)
 
         # Add items to combo boxes (dropdown)

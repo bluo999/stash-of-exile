@@ -8,43 +8,39 @@ from PyQt6.QtWidgets import QComboBox, QLineEdit, QWidget
 from item import Item, propertyFunction
 from property import Property
 
-FilterFunction = Callable[[Item, QWidget], bool]
-DuoFilterFunction = Callable[[Item, QWidget, QWidget], bool]
+FilterFunction = Callable[..., bool]
 Num = Union[int, float]
 
 
 @dataclass
 class Filter:
+    """Class to represent an item filter.
+    
+    Args:
+        name: Label name.
+        widget: Widget type of filter.
+        filterFunc: Filter function.
+        numericOnly: Whether to restrict QLineEdit to numbers only.
+    """
     name: str
     widget: Type[QWidget]
     filterFunc: FilterFunction
     numericOnly: bool
 
 
-@dataclass
-class DuoFilter:
-    name: str
-    widget: Type[QWidget]
-    filterFunc: DuoFilterFunction
-    numericOnly: bool
-
-
-def _filterName(item: Item, elem: QWidget) -> bool:
+def _filterName(item: Item, elem: QLineEdit) -> bool:
     """Filter function that uses name."""
-    assert isinstance(elem, QLineEdit)
     return elem.text().lower() in item.name.lower()
 
 
 def _filterCategory(item: Item, elem: QWidget) -> bool:
     """Filter function that uses category."""
-    assert isinstance(elem, QComboBox)
     text = elem.currentText()
     return text == 'Any' or text == item.category
 
 
-def _filterRarity(item: Item, elem: QWidget) -> bool:
+def _filterRarity(item: Item, elem: QComboBox) -> bool:
     """Filter function that uses rarity."""
-    assert isinstance(elem, QComboBox)
     if elem.currentText() == 'Any':
         return True
     if item.rarity == elem.currentText().lower():
@@ -62,14 +58,21 @@ def _filterDuoNumeric(
     maxVal: Num,
     convFunc: Callable[[str], Num],
     procFunc: Callable[[Any], Num],
-) -> DuoFilterFunction:
-    """Returns a generic duo filter function that checks Noneness
-    and whether the field is between the two QLineEdit values."""
+) -> FilterFunction:
+    """Returns a generic double QLineEdit filter function that checks Noneness
+    and whether the field is between the two input values.
+    
+    Args:
+        fieldStr: Field of item JSON to get value from.
+        defaultVal: Default value of processed field.
+        minVal: Minimum value of processed field.
+        maxVal: Maximum value of processed field.
+        convFunc: Function to convert string to number (int or float).
+        procFunc: Function to process field.
+    """
 
-    def filter(item: Item, elem: QWidget, elem2: QWidget) -> bool:
-        assert isinstance(elem, QLineEdit)
-        assert isinstance(elem2, QLineEdit)
-        botStr = elem.text()
+    def filter(item: Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
+        botStr = elem1.text()
         topStr = elem2.text()
         field: Num = procFunc(vars(item).get(fieldStr))
         if field is None:
@@ -84,7 +87,7 @@ def _filterDuoNumeric(
     return filter
 
 
-def _filterQuality(item: Item, elem: QWidget, elem2: QWidget) -> bool:
+def _filterQuality(item: Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
     """Filter function that uses quality."""
     defaultVal = 0
 
@@ -97,19 +100,19 @@ def _filterQuality(item: Item, elem: QWidget, elem2: QWidget) -> bool:
             return defaultVal
 
     return _filterDuoNumeric('properties', defaultVal, 0, 100, int, procFunc)(
-        item, elem, elem2
+        item, elem1, elem2
     )
 
 
-def _filterItemLevel(item: Item, elem: QWidget, elem2: QWidget) -> bool:
+def _filterItemLevel(item: Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
     """Filter function that uses item level."""
-    return _filterDuoNumeric('ilvl', 0, 0, 100, int, lambda x: x)(item, elem, elem2)
+    return _filterDuoNumeric('ilvl', 0, 0, 100, int, lambda x: x)(item, elem1, elem2)
 
 
 FILTERS = [
     Filter('Name', QLineEdit, _filterName, False),
     Filter('Category', QComboBox, _filterCategory, False),
     Filter('Rarity', QComboBox, _filterRarity, False),
-    DuoFilter('Quality', QLineEdit, _filterQuality, True),
-    DuoFilter('Item Level', QLineEdit, _filterItemLevel, True),
+    Filter('Quality', QLineEdit, _filterQuality, True),
+    Filter('Item Level', QLineEdit, _filterItemLevel, True),
 ]

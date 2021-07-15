@@ -106,6 +106,7 @@ class TableModel(QAbstractTableModel):
             )
         ]
 
-        # pyright: reportFunctionMemberAccess=false
         self.tableView.clearSelection()
+
+        # pyright: reportFunctionMemberAccess=false
         self.layoutChanged.emit()
