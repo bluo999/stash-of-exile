@@ -1,12 +1,11 @@
 import re
 
-from typing import Any, Callable, List, Type, Union
+from typing import Any, Callable, Type, Union
 from dataclasses import dataclass
 
-from PyQt6.QtWidgets import QComboBox, QLineEdit, QWidget
+from PyQt6.QtWidgets import QCheckBox, QComboBox, QLineEdit, QWidget
 
-from item import Item, propertyFunction
-from property import Property
+from item import Item
 
 FilterFunction = Callable[..., bool]
 Num = Union[int, float]
@@ -22,6 +21,7 @@ class Filter:
         filterFunc: Filter function.
         numericOnly: Whether to restrict QLineEdit to numbers only.
     """
+
     name: str
     widget: Type[QWidget]
     filterFunc: FilterFunction
@@ -87,32 +87,35 @@ def _filterDuoNumeric(
     return filter
 
 
-def _filterQuality(item: Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
-    """Filter function that uses quality."""
+def _getFilterQuality() -> FilterFunction:
+    """Returns a filter function that uses quality."""
     defaultVal = 0
 
-    def procFunc(props: List[Property]) -> int:
-        ilvlStr = propertyFunction('Quality')(item)
+    def procFunc(ilvlStr: str) -> int:
         z = re.search(r'\+(\d+)%', ilvlStr)
         if z is not None:
             return int(z.group(1))
         else:
             return defaultVal
 
-    return _filterDuoNumeric('properties', defaultVal, 0, 100, int, procFunc)(
-        item, elem1, elem2
-    )
+    return _filterDuoNumeric('quality', defaultVal, 0, 100, int, procFunc)
 
 
-def _filterItemLevel(item: Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
-    """Filter function that uses item level."""
-    return _filterDuoNumeric('ilvl', 0, 0, 100, int, lambda x: x)(item, elem1, elem2)
+def _getFilterItemLevel() -> FilterFunction:
+    """Returns a filter function that uses item level."""
+    return _filterDuoNumeric('ilvl', 0, 0, 100, int, lambda x: x)
+
+
+def _filterInfluences(item: Item, elem: QCheckBox) -> bool:
+    """Filter function that uses influence."""
+    return (not elem.isChecked()) or len(item.influences) > 0
 
 
 FILTERS = [
     Filter('Name', QLineEdit, _filterName, False),
     Filter('Category', QComboBox, _filterCategory, False),
     Filter('Rarity', QComboBox, _filterRarity, False),
-    Filter('Quality', QLineEdit, _filterQuality, True),
-    Filter('Item Level', QLineEdit, _filterItemLevel, True),
+    Filter('Quality', QLineEdit, _getFilterQuality(), True),
+    Filter('Item Level', QLineEdit, _getFilterItemLevel(), True),
+    Filter('Influenced', QCheckBox, _filterInfluences, False),
 ]

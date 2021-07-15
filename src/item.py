@@ -32,12 +32,16 @@ def _listMods(modLists: List[Tuple[List[str], str]]) -> str:
         return ''
 
     # Split mods with \n
-    for (mods, _) in filtModLists:
-        for i in range(len(mods)):
+    for mods, _ in filtModLists:
+        i = 0
+        length = len(mods)
+        while i < length:
             while '\n' in mods[i]:
                 index = mods[i].index('\n')
                 mods.insert(i + 1, mods[i][index + 1 :])
                 mods[i] = mods[i][:index]
+                length += 1
+            i += 1
 
     # Add mods on separate lines
     text: str = ''
@@ -112,7 +116,7 @@ class Item:
         self.mirrored = itemJson.get('mirrored', False)
         self.fracturedTag = itemJson.get('fractured', False)
 
-        self.ilvl = itemJson.get("ilvl")
+        self.ilvl = itemJson.get('ilvl')
         self.rarity = RARITIES.get(itemJson['frameType'], 'normal')
 
         self.sockets = itemJson.get("sockets")
@@ -124,9 +128,11 @@ class Item:
 
         self.category = self.getCategory(itemJson)
 
-        self.icon = itemJson["icon"]
+        self.icon = itemJson['icon']
         self.filePath = ''
         self.downloaded = False
+
+        self.quality = propertyFunction('Quality')(self)
 
     def __lt__(self, other: 'Item') -> bool:
         """Default ordering for Items."""

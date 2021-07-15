@@ -28,7 +28,7 @@ class TableModel(QAbstractTableModel):
         'Tab': lambda item: str(item.tabNum),
         'Stack': propertyFunction('Stack Size'),
         'iLvl': lambda item: str(item.ilvl) if item.ilvl != 0 else '',
-        'Quality': propertyFunction('Quality'),
+        'Quality': lambda item: item.quality,
         'Split': lambda item: 'Split' if item.split else '',
         'Corr': lambda item: 'Corr' if item.corrupted else '',
         'Mir': lambda item: 'Mir' if item.mirrored else '',

@@ -9,6 +9,7 @@ from PyQt6.QtGui import QFont, QFontDatabase, QIntValidator, QTextCursor
 from PyQt6.QtWidgets import (
     QAbstractItemView,
     QAbstractScrollArea,
+    QCheckBox,
     QComboBox,
     QFormLayout,
     QGroupBox,
@@ -41,6 +42,7 @@ class Ui_MainWindow(object):
         """Initialize the UI."""
         self._staticBuild(MainWindow)
         self._dynamicBuildFilters()
+        self._setupFilters()
         self._dynamicBuildTable()
         self._nameUi(MainWindow)
 
@@ -140,11 +142,10 @@ class Ui_MainWindow(object):
                 if filter.widget == QLineEdit and filter.numericOnly:
                     assert isinstance(widget, QLineEdit)
                     widget.setValidator(self.intValidator)
+            layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
             self.widgets.append(widgets)
-            self.filterFormLayout.setLayout(
-                i, QFormLayout.ItemRole.FieldRole, layout
-            )
+            self.filterFormLayout.setLayout(i, QFormLayout.ItemRole.FieldRole, layout)
 
         self.model.setWidgets(self.widgets)
 
@@ -170,12 +171,9 @@ class Ui_MainWindow(object):
         thread = DownloadThread(self.statusbar, items)
         thread.start()
 
-        # Attach filters to widgets
-        self._setupFilters(items)
-
         # Connect selection to update tooltip
         self.tableView.selectionModel().selectionChanged.connect(
-        # pyright: reportFunctionMemberAccess=false
+            # pyright: reportFunctionMemberAccess=false
             partial(self._updateTooltip, self.model)
         )
 
@@ -214,7 +212,7 @@ class Ui_MainWindow(object):
             # Reset scroll to top
             self.tooltip.moveCursor(QTextCursor.MoveOperation.Start)
 
-    def _setupFilters(self, items: List[Item]) -> None:
+    def _setupFilters(self) -> None:
         """Initialize filters and link to widgets."""
         for filter, widgets in zip(FILTERS, self.widgets):
             signal = None
@@ -223,6 +221,8 @@ class Ui_MainWindow(object):
                     signal = widget.textChanged
                 elif isinstance(widget, QComboBox):
                     signal = widget.currentIndexChanged
+                elif isinstance(widget, QCheckBox):
+                    signal = widget.stateChanged
 
                 if signal is not None:
                     # pyright: reportFunctionMemberAccess=false
