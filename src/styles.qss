@@ -1,3 +1,18 @@
 QTextEdit {
 	background-color: black;
 }
+
+QGroupBox {
+	border: 1px solid gray;
+	margin-top: 8px;
+	padding: 6px;
+}
+
+QGroupBox::title {
+	top: -8px;
+	left: 10px;
+}
+
+QLabel#ErrorText {
+	color: red;
+}

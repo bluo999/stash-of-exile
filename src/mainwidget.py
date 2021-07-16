@@ -3,8 +3,8 @@ import json
 from functools import partial
 from inspect import signature
 from typing import List
-from PyQt6.QtCore import QItemSelection, QRect, QSize, Qt
-from PyQt6.QtGui import QFont, QFontDatabase, QIntValidator, QTextCursor
+from PyQt6.QtCore import QItemSelection, QSize, Qt
+from PyQt6.QtGui import QFont, QIntValidator, QTextCursor
 
 from PyQt6.QtWidgets import (
     QAbstractItemView,
@@ -17,7 +17,6 @@ from PyQt6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMainWindow,
-    QMenuBar,
     QStatusBar,
     QTableView,
     QTextEdit,
@@ -28,37 +27,29 @@ from PyQt6.QtWidgets import (
 from consts import SEPARATOR_TEMPLATE
 from filter import FILTERS
 from item import Item
-from gameData import COMBO_ITEMS
+from gamedata import COMBO_ITEMS
 from table import TableModel
 from thread import DownloadThread
 
 _jsons = ['../assets/tab1.json', '../assets/tab2.json']
 
 
-class Ui_MainWindow(object):
-    """Custom Main Window."""
+class MainWidget(QWidget):
+    """Main Widget for the filter, tooltip, and table view."""
 
-    def __init__(self, MainWindow: QMainWindow) -> None:
+    def __init__(self, parent: QMainWindow) -> None:
         """Initialize the UI."""
-        self._staticBuild(MainWindow)
+        QWidget.__init__(self, parent)
+        self._staticBuild()
         self._dynamicBuildFilters()
         self._setupFilters()
         self._dynamicBuildTable()
-        self._nameUi(MainWindow)
+        self._nameUi()
 
-    def _staticBuild(self, MainWindow: QMainWindow) -> None:
+    def _staticBuild(self) -> None:
         """Setup the static base UI, including properties and widgets."""
-        MainWindow.resize(1280, 720)
-
-        # A font by Jos Buivenga (exljbris) -> www.exljbris.com
-        QFontDatabase.addApplicationFont('../assets/FontinSmallCaps.ttf')
-        with open('styles.qss', 'r') as f:
-            MainWindow.setStyleSheet(f.read())
-
         # Main Area
-        self.centralWidget = QWidget(MainWindow)
-        MainWindow.setCentralWidget(self.centralWidget)
-        self.mainHorizontalLayout = QHBoxLayout(self.centralWidget)
+        self.mainHorizontalLayout = QHBoxLayout(self)
 
         # Filter Area
         self.filter = QVBoxLayout()
@@ -93,7 +84,7 @@ class Ui_MainWindow(object):
         self.table.setSortingEnabled(True)
 
         # Custom Table Model
-        self.model = TableModel(self.table, parent=MainWindow)
+        self.model = TableModel(self.table, parent=self)
         self.table.setModel(self.model)
 
         # Add to main layout and set stretch ratios
@@ -103,15 +94,6 @@ class Ui_MainWindow(object):
         self.mainHorizontalLayout.setStretch(0, 1)
         self.mainHorizontalLayout.setStretch(1, 2)
         self.mainHorizontalLayout.setStretch(2, 3)
-
-        # Menu bar
-        self.menubar = QMenuBar(MainWindow)
-        self.menubar.setGeometry(QRect(0, 0, 1280, 21))
-        MainWindow.setMenuBar(self.menubar)
-
-        # Status bar
-        self.statusbar = QStatusBar(MainWindow)
-        MainWindow.setStatusBar(self.statusbar)
 
         # Int validator
         self.intValidator = QIntValidator()
@@ -164,8 +146,9 @@ class Ui_MainWindow(object):
         self.model.insertItems(items)
 
         # Start downloading images
-        self.statusbar.showMessage('Downloading images')
-        thread = DownloadThread(self.statusbar, items)
+        statusBar: QStatusBar = self.parent().statusBar()
+        statusBar.showMessage('Downloading images')
+        thread = DownloadThread(statusBar, items)
         thread.start()
 
         # Connect selection to update tooltip
@@ -179,9 +162,8 @@ class Ui_MainWindow(object):
         self.table.verticalHeader().setDefaultSectionSize(rowHeight)
         self.table.resizeColumnsToContents()
 
-    def _nameUi(self, MainWindow: QMainWindow) -> None:
+    def _nameUi(self) -> None:
         """Name the UI elements, including window title and labels."""
-        MainWindow.setWindowTitle('Stash Of Exile')
         self.filterGroupBox.setTitle('Filters')
 
         # Name filters

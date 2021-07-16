@@ -98,14 +98,16 @@ class TableModel(QAbstractTableModel):
     def applyFilters(self) -> None:
         """Apply a filter based on several search parameters,
         updating the current items and layout."""
-        zipped = zip(FILTERS, self.widgets)
         # Items that pass every filter
         self.currentItems = [
             item
             for item in self.items
-            if all(filter.filterFunc(item, *widgets) for filter, widgets in zipped)
+            if all(
+                filter.filterFunc(item, *widgets)
+                for (filter, widgets) in zip(FILTERS, self.widgets)
+            )
         ]
 
         self.tableView.clearSelection()
 
-        self.layoutChanged.emit() # type: ignore
+        self.layoutChanged.emit()  # type: ignore

@@ -1,3 +1,7 @@
 src/__pycache__/
+.qt_for_python/
+
 cache/
+*.pkl
+*.ui
 

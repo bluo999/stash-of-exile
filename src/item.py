@@ -1,7 +1,7 @@
 from typing import Any, Callable, Dict, List, Tuple
 
 from consts import HEADER_TEMPLATE, SPAN_TEMPLATE, COLORS
-from gameData import COMBO_ITEMS, FRAGMENTS, RARITIES
+from gamedata import COMBO_ITEMS, FRAGMENTS, RARITIES
 from requirement import Requirement
 from property import Property
 
