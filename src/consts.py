@@ -44,3 +44,6 @@ COLORS = {
 
 # API value to named color/type
 VALNUM_TO_COLOR = {0: 'white', 1: 'magic', 4: 'fire', 16: 'white'}
+
+# HTTPS request headers
+HEADERS = {'User-Agent': 'stash_of_exile/0.1.0 (contact:brianluo999@gmail.com)'}

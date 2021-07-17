@@ -2,7 +2,7 @@ import json
 
 from functools import partial
 from inspect import signature
-from typing import List
+from typing import List, TYPE_CHECKING
 from PyQt6.QtCore import QItemSelection, QSize, Qt
 from PyQt6.QtGui import QFont, QIntValidator, QTextCursor
 
@@ -16,7 +16,6 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QMainWindow,
     QStatusBar,
     QTableView,
     QTextEdit,
@@ -31,20 +30,61 @@ from gamedata import COMBO_ITEMS
 from table import TableModel
 from thread import DownloadThread
 
+if TYPE_CHECKING:
+    from mainwindow import MainWindow
+
+
 _jsons = ['../assets/tab1.json', '../assets/tab2.json']
 
 
 class MainWidget(QWidget):
     """Main Widget for the filter, tooltip, and table view."""
 
-    def __init__(self, parent: QMainWindow) -> None:
+    def __init__(self, mainWindow: 'MainWindow') -> None:
         """Initialize the UI."""
-        QWidget.__init__(self, parent)
+        QWidget.__init__(self)
+        self.mainWindow = mainWindow
         self._staticBuild()
         self._dynamicBuildFilters()
         self._setupFilters()
-        self._dynamicBuildTable()
         self._nameUi()
+
+    def onShow(self):
+        pass
+
+    def buildTable(self) -> None:
+        """Setup the items, download their images, and setup the table."""
+        items: List[Item] = []
+        for i, tab in enumerate(_jsons):
+            # Open each tab
+            with open(tab) as f:
+                data = json.load(f)
+                # Add each item
+                for item in data['items']:
+                    items.append(Item(item, i))
+                    # Add socketed items
+                    if item.get('socketedItems') is not None:
+                        for socketedItem in item['socketedItems']:
+                            items.append(Item(socketedItem, i))
+        items.sort()
+        self.model.insertItems(items)
+
+        # Start downloading images
+        statusBar: QStatusBar = self.parent().statusBar()
+        statusBar.showMessage('Downloading images')
+        thread = DownloadThread(statusBar, items)
+        thread.start()
+
+        # Connect selection to update tooltip
+        self.table.selectionModel().selectionChanged.connect(
+            partial(self._updateTooltip, self.model)
+        )
+
+        # Sizing
+        self.table.resizeRowsToContents()
+        rowHeight = self.table.verticalHeader().sectionSize(0)
+        self.table.verticalHeader().setDefaultSectionSize(rowHeight)
+        self.table.resizeColumnsToContents()
 
     def _staticBuild(self) -> None:
         """Setup the static base UI, including properties and widgets."""
@@ -128,40 +168,6 @@ class MainWidget(QWidget):
         # Send widgets to model
         self.model.setWidgets(self.widgets)
 
-    def _dynamicBuildTable(self) -> None:
-        """Setup the items, download their images, and setup the table."""
-        items: List[Item] = []
-        for i, tab in enumerate(_jsons):
-            # Open each tab
-            with open(tab) as f:
-                data = json.load(f)
-                # Add each item
-                for item in data['items']:
-                    items.append(Item(item, i))
-                    # Add socketed items
-                    if item.get('socketedItems') is not None:
-                        for socketedItem in item['socketedItems']:
-                            items.append(Item(socketedItem, i))
-        items.sort()
-        self.model.insertItems(items)
-
-        # Start downloading images
-        statusBar: QStatusBar = self.parent().statusBar()
-        statusBar.showMessage('Downloading images')
-        thread = DownloadThread(statusBar, items)
-        thread.start()
-
-        # Connect selection to update tooltip
-        self.table.selectionModel().selectionChanged.connect(  # type: ignore
-            partial(self._updateTooltip, self.model)
-        )
-
-        # Sizing
-        self.table.resizeRowsToContents()
-        rowHeight = self.table.verticalHeader().sectionSize(0)
-        self.table.verticalHeader().setDefaultSectionSize(rowHeight)
-        self.table.resizeColumnsToContents()
-
     def _nameUi(self) -> None:
         """Name the UI elements, including window title and labels."""
         self.filterGroupBox.setTitle('Filters')
@@ -209,7 +215,7 @@ class MainWidget(QWidget):
                     signal = widget.stateChanged
 
                 if signal is not None:
-                    signal.connect(self.model.applyFilters)  # type: ignore
+                    signal.connect(self.model.applyFilters)
 
         # Add items to combo boxes (dropdown)
         for filter, widgets in zip(FILTERS, self.widgets):

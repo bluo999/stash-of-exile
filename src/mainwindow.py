@@ -1,9 +1,11 @@
+from typing import List
 from PyQt6.QtCore import QRect
 from PyQt6.QtGui import QFontDatabase
-from PyQt6.QtWidgets import QMainWindow, QMenuBar, QStatusBar
+from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QMenuBar, QStatusBar, QWidget
 
 from loginwidget import LoginWidget
 from mainwidget import MainWidget
+from tabswidget import TabsWidget
 
 
 class MainWindow(QMainWindow):
@@ -30,12 +32,35 @@ class MainWindow(QMainWindow):
         statusBar = QStatusBar(self)
         self.setStatusBar(statusBar)
 
-        self.loginWidget = LoginWidget(self)
-        self.setCentralWidget(self.loginWidget)
+        # Screen widgets
+        self.centerWidget = QWidget(self)
+        self.setCentralWidget(self.centerWidget)
+        self.centralLayout = QHBoxLayout(self.centerWidget)
 
+        self.loginWidget = LoginWidget(self)
+        self.tabsWidget = TabsWidget(self)
+        self.mainWidget = MainWidget(self)
+        self.widgets: List[QWidget] = [
+            self.loginWidget,
+            self.tabsWidget,
+            self.mainWidget,
+        ]
+        for widget in self.widgets:
+            self.centralLayout.addWidget(widget)
+
+        self.switchWidget(self.loginWidget)
+
+        # Show window
         self.show()
 
-    def login(self):
-        self.loginWidget.setDisabled(True)
-        self.mainWidget = MainWidget(self)
-        self.setCentralWidget(self.mainWidget)
+    def switchWidget(self, destWidget: QWidget, *args):
+        assert destWidget in self.widgets
+        for widget in self.widgets:
+            if widget == destWidget:
+                widget.setEnabled(True)
+                widget.show()
+            else:
+                widget.setDisabled(True)
+                widget.hide()
+
+        destWidget.onShow(*args)
