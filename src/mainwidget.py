@@ -50,9 +50,9 @@ class MainWidget(QWidget):
         self._nameUi()
 
     def onShow(self):
-        pass
+        self._buildTable()
 
-    def buildTable(self) -> None:
+    def _buildTable(self) -> None:
         """Setup the items, download their images, and setup the table."""
         items: List[Item] = []
         for i, tab in enumerate(_jsons):
@@ -70,7 +70,7 @@ class MainWidget(QWidget):
         self.model.insertItems(items)
 
         # Start downloading images
-        statusBar: QStatusBar = self.parent().statusBar()
+        statusBar: QStatusBar = self.mainWindow.statusBar()
         statusBar.showMessage('Downloading images')
         thread = DownloadThread(statusBar, items)
         thread.start()
