@@ -128,6 +128,9 @@ class LoginWidget(QWidget):
 
     def _getLeagues(self):
         """Get leagues by sending a GET to Path of Exile API."""
+        if self.leagueField.count() > 0:
+            return
+
         if os.path.isfile(LEAGUES_FILE):
             print('Found leagues file')
             leagues = pickle.load(open(LEAGUES_FILE, 'rb'))

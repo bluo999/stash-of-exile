@@ -1,10 +1,12 @@
 import os
 import pathlib
 import re
+import urllib.error
 import urllib.request
 
 from functools import partial
 from typing import List
+from urllib.error import HTTPError, URLError
 
 from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QStatusBar
@@ -31,7 +33,13 @@ def _retrieves(items: List[Item]) -> None:
             # Create directories
             pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
             # Download image
-            urllib.request.urlretrieve(item.icon, item.filePath)
+            try:
+                urllib.request.urlretrieve(item.icon, item.filePath)
+            except HTTPError as e:
+                print('HTTP error:', e.code)
+            except URLError as e:
+                print('URL error:', e.reason)
+
         item.downloaded = True
 
 
