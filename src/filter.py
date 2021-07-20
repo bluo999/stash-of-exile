@@ -2,6 +2,7 @@ import re
 
 from typing import Any, Callable, Type, Union
 from dataclasses import dataclass
+from PyQt6.QtGui import QDoubleValidator, QIntValidator, QValidator
 
 from PyQt6.QtWidgets import QCheckBox, QComboBox, QLineEdit, QWidget
 
@@ -25,7 +26,12 @@ class Filter:
     name: str
     widget: Type[QWidget]
     filterFunc: FilterFunction
-    numericOnly: bool
+    validator: Union[QValidator, None]
+
+    MIN_VAL = 0
+    MAX_VAL = 100000
+    IV = QIntValidator()
+    DV = QDoubleValidator()
 
 
 def _filterName(item: Item, elem: QLineEdit) -> bool:
@@ -41,23 +47,23 @@ def _filterCategory(item: Item, elem: QWidget) -> bool:
 
 def _filterRarity(item: Item, elem: QComboBox) -> bool:
     """Filter function that uses rarity."""
-    if elem.currentText() == 'Any':
+    text = elem.currentText()
+    if text == 'Any':
         return True
-    if item.rarity == elem.currentText().lower():
+    if item.rarity == text.lower():
         return True
-    if elem.currentText() == 'Any Non-Unique' and item.rarity not in ['unique', 'foil']:
+    if text == 'Any Non-Unique' and item.rarity not in ['unique', 'foil']:
         return True
 
     return False
 
 
-def _filterDuoNumeric(
+def _duoFiltNum(
     fieldStr: str,
-    defaultVal: Num,
-    minVal: Num,
-    maxVal: Num,
     convFunc: Callable[[str], Num],
-    procFunc: Callable[[Any], Num],
+    minVal: Num = Filter.MIN_VAL,
+    maxVal: Num = Filter.MAX_VAL,
+    defaultVal: Num = 0,
 ) -> FilterFunction:
     """Returns a generic double QLineEdit filter function that checks Noneness
     and whether the field is between the two input values.
@@ -68,46 +74,32 @@ def _filterDuoNumeric(
         minVal: Minimum value of processed field.
         maxVal: Maximum value of processed field.
         convFunc: Function to convert string to number (int or float).
-        procFunc: Function to process field.
     """
 
     def filter(item: Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
         botStr = elem1.text()
         topStr = elem2.text()
-        field: Num = procFunc(vars(item).get(fieldStr))
-        if field is None:
-            # Field isn't set
-            return False
-        elif field == defaultVal and (len(botStr) > 0 or len(topStr) > 0):
-            # Field is empty
+
+        if len(botStr) == 0 and len(topStr) == 0:
+            # Filter field is blank
+            return True
+
+        field = vars(item).get(fieldStr)
+        if field is None or field == defaultVal:
+            # Field is default value or not set
             return False
         else:
             # Field is between two inputs
-            bot = convFunc(botStr) if botStr.isnumeric() else minVal
-            top = convFunc(topStr) if topStr.isnumeric() else maxVal
+            bot = convFunc(botStr) if len(botStr) > 0 and botStr != '.' else minVal
+            top = convFunc(topStr) if len(topStr) > 0 and topStr != '.' else maxVal
             return bot <= field <= top
 
     return filter
 
 
-def _getFilterQuality() -> FilterFunction:
-    """Returns a filter function that uses quality."""
-    defaultVal = 0
-
-    def procFunc(ilvlStr: str) -> int:
-        # quality regex: +num%
-        z = re.search(r'\+(\d+)%', ilvlStr)
-        if z is not None:
-            return int(z.group(1))
-        else:
-            return defaultVal
-
-    return _filterDuoNumeric('quality', defaultVal, 0, 100, int, procFunc)
-
-
 def _getFilterItemLevel() -> FilterFunction:
     """Returns a filter function that uses item level."""
-    return _filterDuoNumeric('ilvl', 0, 0, 100, int, lambda x: x)
+    return _duoFiltNum('ilvl', int, maxVal=100)
 
 
 def _filterInfluences(item: Item, elem: QCheckBox) -> bool:
@@ -116,10 +108,16 @@ def _filterInfluences(item: Item, elem: QCheckBox) -> bool:
 
 
 FILTERS = [
-    Filter('Name', QLineEdit, _filterName, False),
-    Filter('Category', QComboBox, _filterCategory, False),
-    Filter('Rarity', QComboBox, _filterRarity, False),
-    Filter('Quality', QLineEdit, _getFilterQuality(), True),
-    Filter('Item Level', QLineEdit, _getFilterItemLevel(), True),
-    Filter('Influenced', QCheckBox, _filterInfluences, False),
+    Filter('Name', QLineEdit, _filterName, None),
+    Filter('Category', QComboBox, _filterCategory, None),
+    Filter('Rarity', QComboBox, _filterRarity, None),
+    Filter('Damage', QLineEdit, _duoFiltNum('damage', float), Filter.DV),
+    Filter('Attacks per Second', QLineEdit, _duoFiltNum('aps', float), Filter.DV),
+    Filter('Critical Chance', QLineEdit, _duoFiltNum('crit', float), Filter.DV),
+    Filter('Damage per Second', QLineEdit, _duoFiltNum('dps', float), Filter.DV),
+    Filter('Physical DPS', QLineEdit, _duoFiltNum('pdps', float), Filter.DV),
+    Filter('Elemental DPS', QLineEdit, _duoFiltNum('edps', float), Filter.DV),
+    Filter('Quality', QLineEdit, _duoFiltNum('qualityNum', int), Filter.IV),
+    Filter('Item Level', QLineEdit, _getFilterItemLevel(), Filter.IV),
+    Filter('Influenced', QCheckBox, _filterInfluences, None),
 ]

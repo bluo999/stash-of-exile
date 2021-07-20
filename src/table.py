@@ -95,7 +95,9 @@ class TableModel(QAbstractTableModel):
     def setWidgets(self, widgets: List[List[QWidget]]) -> None:
         self.widgets = widgets
 
-    def applyFilters(self) -> None:
+    def applyFilters(
+        self, index: int = 1, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder
+    ) -> None:
         """Apply a filter based on several search parameters,
         updating the current items and layout."""
         # Items that pass every filter
@@ -107,6 +109,12 @@ class TableModel(QAbstractTableModel):
                 for (filter, widgets) in zip(FILTERS, self.widgets)
             )
         ]
+
+        key = list(TableModel.PROPERTY_FUNCS.keys())[index]
+        sortFunc = TableModel.PROPERTY_FUNCS[key]
+        self.currentItems.sort(
+            key=sortFunc, reverse=order == Qt.SortOrder.DescendingOrder
+        )
 
         self.tableView.clearSelection()
 

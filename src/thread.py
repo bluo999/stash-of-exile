@@ -1,7 +1,6 @@
 import os
 import pathlib
 import re
-import urllib.error
 import urllib.request
 
 from functools import partial

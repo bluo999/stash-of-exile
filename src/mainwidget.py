@@ -4,7 +4,7 @@ from functools import partial
 from inspect import signature
 from typing import List, TYPE_CHECKING
 from PyQt6.QtCore import QItemSelection, QSize, Qt
-from PyQt6.QtGui import QFont, QIntValidator, QTextCursor
+from PyQt6.QtGui import QDoubleValidator, QFont, QIntValidator, QTextCursor
 
 from PyQt6.QtWidgets import (
     QAbstractItemView,
@@ -80,6 +80,13 @@ class MainWidget(QWidget):
             partial(self._updateTooltip, self.model)
         )
 
+        # Connect sort
+        self.table.horizontalHeader().sortIndicatorChanged.connect(
+            lambda logicalIndex, order: self.model.applyFilters(
+                index=logicalIndex, order=order
+            )
+        )
+
         # Sizing
         self.table.resizeRowsToContents()
         rowHeight = self.table.verticalHeader().sectionSize(0)
@@ -135,9 +142,6 @@ class MainWidget(QWidget):
         self.mainHorizontalLayout.setStretch(1, 2)
         self.mainHorizontalLayout.setStretch(2, 3)
 
-        # Int validator
-        self.intValidator = QIntValidator()
-
     def _dynamicBuildFilters(self) -> None:
         """Setup the filter widgets and labels."""
         self.labels: List[QLabel] = []
@@ -157,9 +161,9 @@ class MainWidget(QWidget):
                 widget = filter.widget()
                 widgets.append(widget)
                 layout.addWidget(widget)
-                if filter.widget == QLineEdit and filter.numericOnly:
+                if filter.widget == QLineEdit and filter.validator is not None:
                     assert isinstance(widget, QLineEdit)
-                    widget.setValidator(self.intValidator)
+                    widget.setValidator(filter.validator)
 
             layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
             self.widgets.append(widgets)
@@ -215,7 +219,13 @@ class MainWidget(QWidget):
                     signal = widget.stateChanged
 
                 if signal is not None:
-                    signal.connect(self.model.applyFilters)
+                    signal.connect(
+                        partial(
+                            self.model.applyFilters,
+                            index=1,
+                            order=Qt.SortOrder.AscendingOrder,
+                        )
+                    )
 
         # Add items to combo boxes (dropdown)
         for filter, widgets in zip(FILTERS, self.widgets):

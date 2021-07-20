@@ -1,3 +1,4 @@
+import re
 from typing import Any, Callable, Dict, List, Tuple
 
 from consts import HEADER_TEMPLATE, SPAN_TEMPLATE, COLORS
@@ -10,9 +11,9 @@ def propertyFunction(prop: str) -> Callable[['Item'], str]:
     """Returns the function that returns a specific property given an item."""
 
     def f(item: 'Item') -> str:
-        filtProps = [x for x in item.properties if x.name == prop]
-        if len(filtProps) != 0:
-            val = filtProps[0].values[0][0]
+        property = next((x for x in item.properties if x.name == prop), None)
+        if property is not None:
+            val = property.values[0][0]
             assert isinstance(val, str)
             return val
         return ''
@@ -134,7 +135,7 @@ class Item:
         self.filePath = ''
         self.downloaded = False
 
-        self.quality = propertyFunction('Quality')(self)
+        self._calculateProperties()
 
     def __lt__(self, other: 'Item') -> bool:
         """Default ordering for Items."""
@@ -266,6 +267,57 @@ class Item:
         self.tooltip = [group for group in self.tooltip if len(group) > 0]
 
         return self.tooltip
+
+    def _calculateProperties(self) -> None:
+        # Pre-formatted properties
+        self.quality = propertyFunction('Quality')(self)
+        z = re.search(r'\+(\d+)%', self.quality)  # quality regex: +num%
+        if z is not None:
+            self.qualityNum = int(z.group(1))
+
+        # Physical damage
+        z = re.search(
+            r'(\d+)-(\d+)', propertyFunction('Physical Damage')(self)
+        )  # range regex: num-num
+        physicalDamage = (
+            (float(z.group(1)) + float(z.group(2))) / 2.0 if z is not None else 0
+        )
+
+        # Chaos damage
+        z = re.search(r'(\d+)-(\d+)', propertyFunction('Chaos Damage')(self))
+        chaosDamage = (
+            (float(z.group(1)) + float(z.group(2))) / 2.0 if z is not None else 0
+        )
+
+        # Multiple elements damage
+        property = next(
+            (x for x in self.properties if x.name == 'Elemental Damage'), None
+        )
+        elementalDamage = 0
+        if property is not None:
+            for val in property.values:
+                assert isinstance(val[0], str)
+                z = re.search(r'(\d+)-(\d+)', val[0])
+                if z is not None:
+                    elementalDamage += (float(z.group(1)) + float(z.group(2))) / 2.0
+
+        # Total damage
+        self.damage = physicalDamage + chaosDamage + elementalDamage
+
+        # APS
+        aps = propertyFunction('Attacks per Second')(self)
+        self.aps = float(aps) if aps != '' else None
+
+        # Crit chance
+        z = re.search(
+            r'([0-9]{1,2}\.\d{2})%', propertyFunction('Critical Strike Chance')(self)
+        )
+        self.crit = float(z.group(1)) if z is not None else None
+
+        # Different DPS
+        self.dps = self.damage * self.aps if self.aps is not None else None
+        self.pdps = physicalDamage * self.aps if self.aps is not None else None
+        self.edps = elementalDamage * self.aps if self.aps is not None else None
 
     def _getHeaderTooltip(self) -> str:
         """Returns the header tooltip, including
