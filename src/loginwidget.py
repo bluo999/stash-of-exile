@@ -88,7 +88,7 @@ class LoginWidget(QWidget):
 
         # League Button
         self.leagueButton = QPushButton()
-        self.leagueButton.clicked.connect(self._getLeagues)
+        self.leagueButton.clicked.connect(self._getLeaguesAPI)
         self.buttonLayout.addWidget(self.leagueButton)
 
         # Login Button
@@ -103,7 +103,7 @@ class LoginWidget(QWidget):
         )
 
     def _dynamicBuild(self):
-        self._getLeagues()
+        self._getLeaguesCache()
 
     def _login(self):
         """Login with account name and POESESSID."""
@@ -126,29 +126,32 @@ class LoginWidget(QWidget):
             self.mainWindow.tabsWidget, league, account, poesessid
         )
 
-    def _getLeagues(self):
-        """Get leagues by sending a GET to Path of Exile API."""
-        if self.leagueField.count() > 0:
-            return
-
+    def _getLeaguesCache(self):
+        """Get leagues from the cache. If no cache is found,
+        then get leagues from API."""
         if os.path.isfile(LEAGUES_FILE):
             print('Found leagues file')
             leagues = pickle.load(open(LEAGUES_FILE, 'rb'))
             self._getLeaguesSuccess(leagues)
         else:
-            print('Sending GET request for leagues')
-            req = urllib.request.Request(URL_LEAGUES, headers=HEADERS)
-            r = urllib.request.urlopen(req)
-            status = r.getcode()
-            if status == HTTPStatus.OK:
-                leagues = json.loads(r.read())
-                pickle.dump(leagues, open(LEAGUES_FILE, 'wb'))
-                self._getLeaguesSuccess(leagues)
-            else:
-                self.errorText.setText(f'HTTP error {status}')
+            self._getLeaguesAPI()
+
+    def _getLeaguesAPI(self):
+        """Get leagues by sending a GET to Path of Exile API."""
+        print('Sending GET request for leagues')
+        req = urllib.request.Request(URL_LEAGUES, headers=HEADERS)
+        r = urllib.request.urlopen(req)
+        status = r.getcode()
+        if status == HTTPStatus.OK:
+            leagues = json.loads(r.read())
+            pickle.dump(leagues, open(LEAGUES_FILE, 'wb'))
+            self._getLeaguesSuccess(leagues)
+        else:
+            self.errorText.setText(f'HTTP error {status}')
 
     def _getLeaguesSuccess(self, leagues: List[Dict[str, str]]):
         """Populate leagues combo box given JSON."""
+        self.leagueField.clear()
         self.leagueField.addItems(league['id'] for league in leagues)
         self.loginButton.setEnabled(True)
 
