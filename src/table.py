@@ -100,6 +100,12 @@ class TableModel(QAbstractTableModel):
     ) -> None:
         """Apply a filter based on several search parameters,
         updating the current items and layout."""
+        # Previously selected item
+        selection = self.tableView.selectedIndexes()
+        selectedItem = (
+            self.currentItems[selection[0].row()] if len(selection) > 0 else None
+        )
+
         # Items that pass every filter
         self.currentItems = [
             item
@@ -116,6 +122,11 @@ class TableModel(QAbstractTableModel):
             key=sortFunc, reverse=order == Qt.SortOrder.DescendingOrder
         )
 
-        self.tableView.clearSelection()
+        # Clear selection if the item is filtered
+        if selectedItem is not None:
+            if selectedItem in self.currentItems:
+                self.tableView.selectRow(self.currentItems.index(selectedItem))
+            else:
+                self.tableView.clearSelection()
 
-        self.layoutChanged.emit()  # type: ignore
+        self.layoutChanged.emit()
