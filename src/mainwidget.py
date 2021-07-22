@@ -129,6 +129,7 @@ class MainWidget(QWidget):
         self.table.setShowGrid(False)
         self.table.setWordWrap(False)
         self.table.setSortingEnabled(True)
+        self.table.horizontalHeader().setSectionsMovable(True)
 
         # Custom Table Model
         self.model = TableModel(self.table, parent=self)
