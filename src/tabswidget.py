@@ -1,10 +1,3 @@
-from http import HTTPStatus
-import json
-import os
-import pickle
-import urllib.request
-
-from functools import partial
 from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import QSize, Qt
@@ -19,19 +12,10 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from consts import HEADERS
+from save import Account, SavedData
 
 if TYPE_CHECKING:
     from mainwindow import MainWindow
-
-
-URL_TABS = (
-    'https://pathofexile.com/character-window/get-stash-items?accountName={}&league={}'
-)
-URL_CHARACTERS = 'https://pathofexile.com/character-window/get-characters'
-
-NUM_TABS_FILE = '../num_tabs.pkl'
-CHARACTERS_FILE = '../characters.pkl'
 
 
 class TabsWidget(QWidget):
@@ -45,11 +29,15 @@ class TabsWidget(QWidget):
         self._dynamicBuild()
         self._nameUi()
 
-    def onShow(self, league, account, poesessid):
-        if self.treeWidget.topLevelItemCount() == 0:
-            self._importTabs(league, account, poesessid)
+    def onShow(self, savedData: SavedData, account: Account) -> None:
+        self.savedData = savedData
+        self.account = account
+        if self.treeWidget.topLevelItemCount() != 0:
+            return
 
-    def _staticBuild(self):
+        self._setupTree()
+
+    def _staticBuild(self) -> None:
         """Setup the static base UI, including properties and widgets."""
         # Main area
         self.loginBox = QWidget(self)
@@ -73,7 +61,7 @@ class TabsWidget(QWidget):
         self.buttonLayout = QHBoxLayout()
         self.verticalLayout.addLayout(self.buttonLayout)
 
-        # League Button
+        # Back Button
         self.backButton = QPushButton()
         self.backButton.clicked.connect(
             lambda _: self.mainWindow.switchWidget(self.mainWindow.loginWidget)
@@ -82,7 +70,6 @@ class TabsWidget(QWidget):
 
         # Import Button
         self.importButton = QPushButton()
-        self.importButton.setDisabled(True)
         self.importButton.clicked.connect(
             lambda _: self.mainWindow.switchWidget(self.mainWindow.mainWidget)
         )
@@ -93,56 +80,13 @@ class TabsWidget(QWidget):
             self.loginBox, 0, Qt.AlignmentFlag.AlignCenter
         )
 
-    def _dynamicBuild(self):
+    def _dynamicBuild(self) -> None:
         pass
 
-    def _importTabs(self, league, account, poesessid):
-        """Import number of tabs and character list."""
-        # Get number of tabs
-        if os.path.isfile(NUM_TABS_FILE):
-            print('Found num tabs file')
-            numTabs = pickle.load(open(NUM_TABS_FILE, 'rb'))
-        else:
-            print('Sending GET request for num tabs')
-            req = urllib.request.Request(
-                URL_TABS.format(account, league), headers=HEADERS
-            )
-            req.add_header('Cookie', f'POESESSID={poesessid}')
-            r = urllib.request.urlopen(req)
-            status = r.getcode()
-            if status == HTTPStatus.OK:
-                tabs = json.loads(r.read())
-                numTabs = tabs['numTabs']
-                pickle.dump(numTabs, open(NUM_TABS_FILE, 'wb'))
-            else:
-                self.errorText.setText(f'HTTP error {status}')
-                return
-
-        # Get character list
-        if os.path.isfile(CHARACTERS_FILE):
-            print('Found characters file')
-            characters = pickle.load(open(CHARACTERS_FILE, 'rb'))
-        else:
-            print('Sending GET request for characters')
-            req = urllib.request.Request(URL_CHARACTERS, headers=HEADERS)
-            req.add_header('Cookie', f'POESESSID={poesessid}')
-            r = urllib.request.urlopen(req)
-            status = r.getcode()
-            if status == HTTPStatus.OK:
-                characters = json.loads(r.read())
-                characters = [char for char in characters if char['league'] == league]
-                pickle.dump(characters, open(CHARACTERS_FILE, 'wb'))
-            else:
-                self.errorText.set(f'HTTP error {status}')
-                return
-
-        self.importButton.setEnabled(True)
-        self._setupTree(numTabs, characters)
-
-    def _setupTree(self, numTabs, characters):
-        # Setup tabs in tree widget
+    def _setupTree(self):
+        """Setup tabs in tree widget."""
         tabGroup = QTreeWidgetItem(self.treeWidget)
-        tabGroup.setText(0, f'Stash Tabs ({numTabs})')
+        tabGroup.setText(0, f'Stash Tabs ({self.account.tabsLength})')
         tabGroup.setFlags(
             tabGroup.flags()
             | Qt.ItemFlag.ItemIsAutoTristate
@@ -152,11 +96,11 @@ class TabsWidget(QWidget):
 
         # Setup characters in tree widget
         charGroup = QTreeWidgetItem(self.treeWidget)
-        charGroup.setText(0, f'Characters ({len(characters)})')
+        charGroup.setText(0, f'Characters ({len(self.account.characterNames)})')
         charGroup.setFlags(tabGroup.flags())
-        for char in characters:
+        for char in self.account.characterNames:
             charWidget = QTreeWidgetItem(charGroup)
-            charWidget.setText(0, char['name'])
+            charWidget.setText(0, char)
             charWidget.setFlags(charWidget.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             charWidget.setCheckState(0, Qt.CheckState.Checked)
 

@@ -1,3 +1,5 @@
+import os
+
 from typing import List
 from PyQt6.QtCore import QRect
 from PyQt6.QtGui import QFontDatabase
@@ -6,6 +8,8 @@ from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QMenuBar, QStatusBar, QWid
 from loginwidget import LoginWidget
 from mainwidget import MainWidget
 from tabswidget import TabsWidget
+
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 
 class MainWindow(QMainWindow):
@@ -20,7 +24,7 @@ class MainWindow(QMainWindow):
         QFontDatabase.addApplicationFont('../assets/FontinSmallCaps.ttf')
 
         # QSS file
-        with open('styles.qss', 'r') as f:
+        with open(os.path.join(__location__, 'styles.qss'), 'r') as f:
             self.setStyleSheet(f.read())
 
         # Menu bar
