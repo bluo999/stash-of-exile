@@ -1,3 +1,7 @@
+"""
+Constants that involve game data.
+"""
+
 # API rarity number to named rarity
 RARITIES = {
     0: 'normal',

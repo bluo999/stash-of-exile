@@ -1,14 +1,18 @@
+"""
+Defines parsing of properties.
+"""
+
 from consts import COLORS, SPAN_TEMPLATE, VALNUM_TO_COLOR
-from util import ValInfo, insertValues
+from util import ValInfo, insert_values
 
 
 # TODO: Add multiline values (The Feared)
 class Property:
     """Class to represent an item property."""
 
-    def __init__(self, propInfo: ValInfo) -> None:
-        self.name = propInfo.get('name')
-        self.values = propInfo.get('vals')
+    def __init__(self, prop_info: ValInfo) -> None:
+        self.name = prop_info.get('name')
+        self.values = prop_info.get('vals')
         self.tooltip = None
 
     def description(self) -> str:
@@ -27,7 +31,7 @@ class Property:
             )
 
         # Insert property arguments
-        obj = insertValues(name, self.values)
+        obj = insert_values(name, self.values)
 
         if obj['inserted'] or len(self.values) == 0 or self.values[0][0] == '':
             # Property without label

@@ -1,4 +1,8 @@
-from util import ValInfo, insertValues
+"""
+Defines parsing of requirements.
+"""
+
+from util import ValInfo, insert_values
 
 from consts import COLORS, SPAN_TEMPLATE, VALNUM_TO_COLOR
 
@@ -16,7 +20,7 @@ class Requirement:
         if self.tooltip is not None:
             return self.tooltip
 
-        obj = insertValues(self.name, self.values)
+        obj = insert_values(self.name, self.values)
         name = SPAN_TEMPLATE.format(COLORS['grey'], obj['text'])
 
         if obj['inserted']:

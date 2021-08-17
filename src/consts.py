@@ -1,4 +1,6 @@
-"""Constants that do not involve game data (found in gameData.py)."""
+"""
+Constants that do not involve game data (found in gameData.py).
+"""
 
 # Milliseconds for status bar to timeout
 STATUS_TIMEOUT = 5000

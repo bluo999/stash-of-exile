@@ -1,3 +1,7 @@
+"""
+Defines parsing of the item API and converting into a local object.
+"""
+
 import re
 from typing import Any, Callable, Dict, List, Tuple
 
@@ -7,33 +11,33 @@ from requirement import Requirement
 from property import Property
 
 
-def propertyFunction(prop: str) -> Callable[['Item'], str]:
+def property_function(prop_name: str) -> Callable[['Item'], str]:
     """Returns the function that returns a specific property given an item."""
 
-    def f(item: 'Item') -> str:
-        property = next((x for x in item.properties if x.name == prop), None)
-        if property is not None:
-            val = property.values[0][0]
+    def func(item: 'Item') -> str:
+        prop = next((x for x in item.properties if x.name == prop_name), None)
+        if prop is not None:
+            val = prop.values[0][0]
             assert isinstance(val, str)
             return val
         return ''
 
-    return f
+    return func
 
 
-def _listMods(modLists: List[Tuple[List[str], str]]) -> str:
+def _list_mods(mod_lists: List[Tuple[List[str], str]]) -> str:
     """
     Given a list of mod lists, returns a single complete
     line separated, colored string of mods.
     """
     # Get rid of any empty mod list
-    filtModLists = [(mods, color) for mods, color in modLists if len(mods) > 0]
+    filt_mod_lists = [(mods, color) for mods, color in mod_lists if len(mods) > 0]
 
-    if len(filtModLists) == 0:
+    if len(filt_mod_lists) == 0:
         return ''
 
     # Split mods with \n
-    for mods, _ in filtModLists:
+    for mods, _ in filt_mod_lists:
         i = 0
         length = len(mods)
         while i < length:
@@ -47,32 +51,32 @@ def _listMods(modLists: List[Tuple[List[str], str]]) -> str:
 
     # Add mods on separate lines
     text: str = ''
-    for i, (mods, color) in enumerate(filtModLists):
+    for i, (mods, color) in enumerate(filt_mod_lists):
         for j, mod in enumerate(mods):
             text += SPAN_TEMPLATE.format(COLORS[color], mod)
-            if i < len(filtModLists) - 1 or j < len(mods) - 1:
+            if i < len(filt_mod_lists) - 1 or j < len(mods) - 1:
                 text += '<br />'
 
     return text
 
 
-def _listTags(tagInfo: List[Tuple[bool, str, str]]) -> str:
+def _list_tags(tag_info: List[Tuple[bool, str, str]]) -> str:
     """
     Given a list of tags, returns a single complete
     line separate, colored string of tags.
     """
     # Get rid of inactive tags
-    formattedTags = [
+    formatted_tags = [
         SPAN_TEMPLATE.format(COLORS[color], tagStr)
-        for tagActive, tagStr, color in tagInfo
+        for tagActive, tagStr, color in tag_info
         if tagActive
     ]
 
     # Add tags on separate lines
     text: str = ''
-    for i, tag in enumerate(formattedTags):
+    for i, tag in enumerate(formatted_tags):
         text += tag
-        if i < len(formattedTags) - 1:
+        if i < len(formatted_tags) - 1:
             text += '<br />'
 
     return text
@@ -81,67 +85,67 @@ def _listTags(tagInfo: List[Tuple[bool, str, str]]) -> str:
 class Item:
     """Class to represent an Item."""
 
-    def __init__(self, itemJson: Dict[str, Any], tabNum: int) -> None:
+    def __init__(self, item_json: Dict[str, Any], tab_num: int) -> None:
         """Initializes every field that is needed, given the API JSON of the item."""
         self.name = (
-            itemJson['typeLine']
-            if itemJson['name'] == ''
-            else itemJson['name'] + ', ' + itemJson['baseType']
+            item_json['typeLine']
+            if item_json['name'] == ''
+            else item_json['name'] + ', ' + item_json['baseType']
         )
 
-        self.influences = list(itemJson.get('influences', {}).keys())
+        self.influences = list(item_json.get('influences', {}).keys())
 
         self.properties = [
             Property({'name': p['name'], 'vals': p['values']})
-            for p in itemJson.get('properties', [])
+            for p in item_json.get('properties', [])
         ]
         self.requirements = [
             Requirement({'name': r['name'], 'vals': r['values']})
-            for r in itemJson.get('requirements', [])
+            for r in item_json.get('requirements', [])
         ]
 
-        self.implicit = itemJson.get('implicitMods', [])
-        self.utility = itemJson.get('utilityMods', [])
-        self.fractured = itemJson.get('fracturedMods', [])
-        self.explicit = itemJson.get('explicitMods', [])
-        self.crafted = itemJson.get('craftedMods', [])
-        self.enchanted = itemJson.get('enchantMods', [])
-        self.cosmetic = itemJson.get('cosmeticMods', [])
+        self.implicit = item_json.get('implicitMods', [])
+        self.utility = item_json.get('utilityMods', [])
+        self.fractured = item_json.get('fracturedMods', [])
+        self.explicit = item_json.get('explicitMods', [])
+        self.crafted = item_json.get('craftedMods', [])
+        self.enchanted = item_json.get('enchantMods', [])
+        self.cosmetic = item_json.get('cosmeticMods', [])
 
-        self.incubator = itemJson.get('incubatedItem')
-        self.prophecy = itemJson.get('prophecyText')
-        self.gem = itemJson.get('secDescrText')
-        self.experience = itemJson.get('additionalProperties')
+        self.incubator = item_json.get('incubatedItem')
+        self.prophecy = item_json.get('prophecyText')
+        self.gem = item_json.get('secDescrText')
+        self.experience = item_json.get('additionalProperties')
 
-        self.split = itemJson.get('split', False)
-        self.corrupted = itemJson.get('corrupted', False)
-        self.unidentified = not itemJson.get('identified', False)
-        self.mirrored = itemJson.get('mirrored', False)
-        self.fracturedTag = itemJson.get('fractured', False)
+        self.split = item_json.get('split', False)
+        self.corrupted = item_json.get('corrupted', False)
+        self.unidentified = not item_json.get('identified', False)
+        self.mirrored = item_json.get('mirrored', False)
+        self.fractured_tag = item_json.get('fractured', False)
 
-        self.ilvl = itemJson.get('ilvl')
-        self.rarity = RARITIES.get(itemJson['frameType'], 'normal')
+        self.ilvl = item_json.get('ilvl')
+        self.rarity = RARITIES.get(item_json['frameType'], 'normal')
 
-        self.sockets = itemJson.get("sockets")
+        self.sockets = item_json.get("sockets")
 
         self.visible = True
-        self.tabNum = tabNum
-
+        self.tab_num = tab_num
         self.tooltip = []
 
-        self.category = self.getCategory(itemJson)
+        self.category = self.get_category(item_json)
 
-        self.icon = itemJson['icon']
-        self.filePath = ''
+        self.icon = item_json['icon']
+        self.file_path = ''
         self.downloaded = False
 
-        self._calculateProperties()
+        self._calculate_properties()
 
     def __lt__(self, other: 'Item') -> bool:
         """Default ordering for Items."""
-        if self.tabNum < other.tabNum:
+        if self.tab_num < other.tab_num:
             return True
-        elif self.tabNum > other.tabNum:
+
+        if self.tab_num > other.tab_num:
             return False
 
         return self.name < other.name
@@ -149,7 +153,7 @@ class Item:
     def __str__(self) -> str:
         return self.name
 
-    def getCategory(self, itemJson: Dict[str, Any]) -> str:
+    def get_category(self, item_json: Dict[str, Any]) -> str:
         """Determines and returns an item's category
         based on its other properties."""
         # From basetype
@@ -168,12 +172,12 @@ class Item:
             'Incubator',
         ]
         for cat in categories:
-            if cat in itemJson['baseType']:
+            if cat in item_json['baseType']:
                 return cat
 
         # Fragments
         for frag in FRAGMENTS:
-            if frag in itemJson['baseType']:
+            if frag in item_json['baseType']:
                 return 'Map Fragment'
 
         # Rarity
@@ -186,12 +190,12 @@ class Item:
         categories.append('Currency')
 
         # Gem
-        if itemJson.get('support') is not None:
-            return 'Support Gem' if itemJson['support'] else 'Skill Gem'
+        if item_json.get('support') is not None:
+            return 'Support Gem' if item_json['support'] else 'Skill Gem'
 
         # Property
-        if itemJson.get('properties') is not None:
-            cat = itemJson['properties'][0]['name']
+        if item_json.get('properties') is not None:
+            cat = item_json['properties'][0]['name']
             if cat == 'Abyss':
                 return 'Abyss Jewel'
 
@@ -202,34 +206,34 @@ class Item:
         categories = [cat for cat in COMBO_ITEMS['Category'] if cat not in categories]
         for cat in categories:
             # Remove spaces
-            if cat.replace(' ', '') in itemJson['icon']:
+            if cat.replace(' ', '') in item_json['icon']:
                 return cat
 
         # Alternate names in icon name
-        if 'Hat' in itemJson['icon']:
+        if 'Hat' in item_json['icon']:
             return 'Helmet'
-        if 'Metamorph' in itemJson['icon']:
+        if 'Metamorph' in item_json['icon']:
             return 'Metamorph Sample'
-        if 'BestiaryOrb' in itemJson['icon']:
+        if 'BestiaryOrb' in item_json['icon']:
             return 'Captured Beast'
 
         # TODO: add exception
         return ''
 
-    def getTooltip(self) -> List[str]:
+    def get_tooltip(self) -> List[str]:
         """Returns a list of strings, with each representing
         a single section of the entire tooltip."""
         if len(self.tooltip) > 0:
             return self.tooltip
 
-        mods = _listMods(
+        mods = _list_mods(
             [
                 (self.fractured, 'currency'),
                 (self.explicit, 'magic'),
                 (self.crafted, 'craft'),
             ]
         )
-        tags = _listTags(
+        tags = _list_tags(
             [
                 (self.split, 'Split', 'magic'),
                 (self.corrupted, 'Corrupted', 'red'),
@@ -239,87 +243,85 @@ class Item:
         )
         self.tooltip = [
             # Image
-            f'<img src="{self.filePath}" />',
+            f'<img src="{self.file_path}" />',
             # Item name (header)
-            self._getHeaderTooltip(),
+            self._get_header_tooltip(),
             # Prophecy, properties, utility mods
-            self._getProphecyTooltip()
-            + self._getPropertyTooltip()
-            + self._getUtilityTooltip(),
+            self._get_prophecy_tooltip()
+            + self._get_property_tooltip()
+            + self._get_utility_tooltip(),
             # Requirements
-            self._getRequirementTooltip(),
+            self._get_requirement_tooltip(),
             # Gem secondary description
-            self._getGemSecondaryTooltip(),
+            self._get_gem_secondary_tooltip(),
             # Item level (metamorph, bestiary orb)
-            self._getItemLevelTooltip(),
+            self._get_ilevel_tooltip(),
             # Mods
-            _listMods([(self.enchanted, 'craft')]),
-            _listMods([(self.implicit, 'magic')]),
+            _list_mods([(self.enchanted, 'craft')]),
+            _list_mods([(self.implicit, 'magic')]),
             # Mods and Tags
             f'{mods}<br />{tags}' if len(mods) > 0 and len(tags) > 0 else mods + tags,
             # Gem experience
-            self._getGemExperienceTooltip(),
+            self._get_gem_exp_tooltip(),
             # Incubator info
-            self._getIncubatorTooltip(),
+            self._get_incubator_tooltip(),
             # Skin transfers
-            _listMods([(self.cosmetic, 'currency')]),
+            _list_mods([(self.cosmetic, 'currency')]),
         ]
         self.tooltip = [group for group in self.tooltip if len(group) > 0]
 
         return self.tooltip
 
-    def _calculateProperties(self) -> None:
+    def _calculate_properties(self) -> None:
         # Pre-formatted properties
-        self.quality = propertyFunction('Quality')(self)
+        self.quality = property_function('Quality')(self)
         z = re.search(r'\+(\d+)%', self.quality)  # quality regex: +num%
         if z is not None:
-            self.qualityNum = int(z.group(1))
+            self.quality_num = int(z.group(1))
 
         # Physical damage
         z = re.search(
-            r'(\d+)-(\d+)', propertyFunction('Physical Damage')(self)
+            r'(\d+)-(\d+)', property_function('Physical Damage')(self)
         )  # range regex: num-num
-        physicalDamage = (
+        physical_damage = (
             (float(z.group(1)) + float(z.group(2))) / 2.0 if z is not None else 0
         )
 
         # Chaos damage
-        z = re.search(r'(\d+)-(\d+)', propertyFunction('Chaos Damage')(self))
-        chaosDamage = (
+        z = re.search(r'(\d+)-(\d+)', property_function('Chaos Damage')(self))
+        chaos_damage = (
             (float(z.group(1)) + float(z.group(2))) / 2.0 if z is not None else 0
         )
 
         # Multiple elements damage
-        property = next(
-            (x for x in self.properties if x.name == 'Elemental Damage'), None
-        )
-        elementalDamage = 0
-        if property is not None:
-            for val in property.values:
+        prop = next((x for x in self.properties if x.name == 'Elemental Damage'), None)
+        elemental_damage = 0
+        if prop is not None:
+            for val in prop.values:
                 assert isinstance(val[0], str)
                 z = re.search(r'(\d+)-(\d+)', val[0])
                 if z is not None:
-                    elementalDamage += (float(z.group(1)) + float(z.group(2))) / 2.0
+                    elemental_damage += (float(z.group(1)) + float(z.group(2))) / 2.0
 
         # Total damage
-        self.damage = physicalDamage + chaosDamage + elementalDamage
+        self.damage = physical_damage + chaos_damage + elemental_damage
 
         # APS
-        aps = propertyFunction('Attacks per Second')(self)
+        aps = property_function('Attacks per Second')(self)
         self.aps = float(aps) if aps != '' else None
 
         # Crit chance
         z = re.search(
-            r'([0-9]{1,2}\.\d{2})%', propertyFunction('Critical Strike Chance')(self)
+            r'([0-9]{1,2}\.\d{2})%', property_function('Critical Strike Chance')(self)
         )
         self.crit = float(z.group(1)) if z is not None else None
 
         # Different DPS
         self.dps = self.damage * self.aps if self.aps is not None else None
-        self.pdps = physicalDamage * self.aps if self.aps is not None else None
-        self.edps = elementalDamage * self.aps if self.aps is not None else None
+        self.pdps = physical_damage * self.aps if self.aps is not None else None
+        self.edps = elemental_damage * self.aps if self.aps is not None else None
 
-    def _getHeaderTooltip(self) -> str:
+    def _get_header_tooltip(self) -> str:
         """Returns the header tooltip, including
         influence icons and a colorized name."""
         influence_icons = ''
@@ -332,14 +334,14 @@ class Item:
 
         return influence_icons + HEADER_TEMPLATE.format(name)
 
-    def _getProphecyTooltip(self) -> str:
+    def _get_prophecy_tooltip(self) -> str:
         """Returns the colorized prophecy tooltip."""
         if self.prophecy is not None:
             return SPAN_TEMPLATE.format(COLORS['white'], self.prophecy)
 
         return ''
 
-    def _getPropertyTooltip(self) -> str:
+    def _get_property_tooltip(self) -> str:
         """Returns the colorized, line separated properties tooltip."""
         tooltip = ''
         if len(self.properties) > 0:
@@ -350,15 +352,15 @@ class Item:
 
         return tooltip
 
-    def _getUtilityTooltip(self) -> str:
+    def _get_utility_tooltip(self) -> str:
         """Returns the colorized, line separated utility mods tooltip."""
-        mods = _listMods([(self.utility, 'magic')])
+        mods = _list_mods([(self.utility, 'magic')])
         if len(mods) > 0:
             return '<br />' + mods
 
         return ''
 
-    def _getRequirementTooltip(self) -> str:
+    def _get_requirement_tooltip(self) -> str:
         """Returns the colorized, line separated requirements tooltip."""
         tooltip = ''
         if len(self.requirements) > 0:
@@ -370,14 +372,14 @@ class Item:
 
         return tooltip
 
-    def _getGemSecondaryTooltip(self) -> str:
+    def _get_gem_secondary_tooltip(self) -> str:
         """Returns the colorized, line separated gem description tooltip."""
         if self.gem is not None:
             return SPAN_TEMPLATE.format(COLORS['gem'], self.gem)
 
         return ''
 
-    def _getItemLevelTooltip(self) -> str:
+    def _get_ilevel_tooltip(self) -> str:
         """Returns the colorized item level tooltip
         for organs and bestiary orbs."""
         if 'Metamorph' in self.icon or 'BestiaryOrb' in self.icon:
@@ -387,20 +389,22 @@ class Item:
 
         return ''
 
-    def _getGemExperienceTooltip(self) -> str:
+    def _get_gem_exp_tooltip(self) -> str:
         """Returns the colorized gem experience tooltip."""
         if self.experience is not None:
             exp = self.experience[0]['values'][0][0]
             index = exp.index('/')
-            currentExp = int(exp[0:index])
-            maxExp = int(exp[index + 1 :])
+            current_exp = int(exp[0:index])
+            max_exp = int(exp[index + 1 :])
             label = SPAN_TEMPLATE.format(COLORS['grey'], 'Experience: ')
-            value = SPAN_TEMPLATE.format(COLORS['white'], f'{currentExp:,}/{maxExp:,}')
+            value = SPAN_TEMPLATE.format(
+                COLORS['white'], f'{current_exp:,}/{max_exp:,}'
+            )
             return label + value
 
         return ''
 
-    def _getIncubatorTooltip(self) -> str:
+    def _get_incubator_tooltip(self) -> str:
         """Returns the colorized, line separated incubator tooltip."""
         if self.incubator is not None:
             progress = int(self.incubator['progress'])

@@ -1,3 +1,7 @@
+"""
+Threads used in the application.
+"""
+
 import os
 import pathlib
 import re
@@ -21,19 +25,19 @@ def _retrieves(items: List[Item]) -> None:
             continue
 
         # Extract filePath from web url
-        if item.filePath == '':
-            searchObj = re.search(r'\/([^.]+\.png)', item.icon)
-            if searchObj is not None:
-                item.filePath = f'../cache{searchObj.group()}'
+        if item.file_path == '':
+            z = re.search(r'\/([^.]+\.png)', item.icon)
+            if z is not None:
+                item.file_path = f'../cache{z.group()}'
 
-        directory = os.path.dirname(item.filePath)
-        if not os.path.exists(item.filePath):
-            print('Downloading image to', item.filePath)
+        directory = os.path.dirname(item.file_path)
+        if not os.path.exists(item.file_path):
+            print('Downloading image to', item.file_path)
             # Create directories
             pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
             # Download image
             try:
-                urllib.request.urlretrieve(item.icon, item.filePath)
+                urllib.request.urlretrieve(item.icon, item.file_path)
             except HTTPError as e:
                 print('HTTP error:', e.code)
             except URLError as e:
@@ -56,4 +60,5 @@ class DownloadThread(QThread):
         self.finished.connect(partial(_download_finished, statusbar))
 
     def run(self) -> None:
+        """Runs the thread."""
         _retrieves(self.items)

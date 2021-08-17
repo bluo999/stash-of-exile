@@ -1,3 +1,7 @@
+"""
+Handles creation of widgets, status bar, and some initial setup.
+"""
+
 import os
 
 from typing import List
@@ -28,43 +32,44 @@ class MainWindow(QMainWindow):
             self.setStyleSheet(f.read())
 
         # Menu bar
-        menuBar = QMenuBar(self)
-        menuBar.setGeometry(QRect(0, 0, 1280, 21))
-        self.setMenuBar(menuBar)
+        menu_bar = QMenuBar(self)
+        menu_bar.setGeometry(QRect(0, 0, 1280, 21))
+        self.setMenuBar(menu_bar)
 
         # Status bar
-        statusBar = QStatusBar(self)
-        self.setStatusBar(statusBar)
+        status_bar = QStatusBar(self)
+        self.setStatusBar(status_bar)
 
         # Screen widgets
-        self.centerWidget = QWidget(self)
-        self.setCentralWidget(self.centerWidget)
-        self.centralLayout = QHBoxLayout(self.centerWidget)
+        self.center_widget = QWidget(self)
+        self.setCentralWidget(self.center_widget)
+        self.central_layout = QHBoxLayout(self.center_widget)
 
-        self.loginWidget = LoginWidget(self)
-        self.tabsWidget = TabsWidget(self)
-        self.mainWidget = MainWidget(self)
+        self.login_widget = LoginWidget(self)
+        self.tabs_widget = TabsWidget(self)
+        self.main_widget = MainWidget(self)
         self.widgets: List[QWidget] = [
-            self.loginWidget,
-            self.tabsWidget,
-            self.mainWidget,
+            self.login_widget,
+            self.tabs_widget,
+            self.main_widget,
         ]
         for widget in self.widgets:
-            self.centralLayout.addWidget(widget)
+            self.central_layout.addWidget(widget)
 
-        self.switchWidget(self.loginWidget)
+        self.switch_widget(self.login_widget)
 
         # Show window
         self.show()
 
-    def switchWidget(self, destWidget: QWidget, *args):
-        assert destWidget in self.widgets
+    def switch_widget(self, dest_widget: QWidget, *args):
+        """Switches to another widget and """
+        assert dest_widget in self.widgets
         for widget in self.widgets:
-            if widget == destWidget:
+            if widget == dest_widget:
                 widget.setEnabled(True)
                 widget.show()
             else:
                 widget.setDisabled(True)
                 widget.hide()
 
-        destWidget.onShow(*args)
+        dest_widget.on_show(*args)
