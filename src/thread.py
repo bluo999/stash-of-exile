@@ -24,7 +24,7 @@ def _retrieves(items: List[Item]) -> None:
         if item.downloaded:
             continue
 
-        # Extract filePath from web url
+        # Extract file path from web url
         if item.file_path == '':
             z = re.search(r'\/([^.]+\.png)', item.icon)
             if z is not None:

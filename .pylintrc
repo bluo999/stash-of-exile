@@ -293,11 +293,11 @@ function-naming-style=snake_case
 #function-rgx=
 
 # Good variable names which should always be accepted, separated by a comma.
-good-names=e,f,i,j,k,z,_
+good-names=e,f,i,j,k,_
 
 # Good variable names regexes, separated by a comma. If names match any regex,
 # they will always be accepted
-good-names-rgxs=
+good-names-rgxs=z
 
 # Include a hint for the correct naming format with invalid-name.
 include-naming-hint=no

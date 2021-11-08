@@ -22,8 +22,7 @@ class ValInfo(TypedDict):
 
 
 def insert_values(text: str, values: List[List[Union[str, int]]]) -> ModifiedStr:
-    """Inserts the colorized values into
-    description text provided by the API."""
+    """Inserts the colorized values into description text provided by the API."""
     obj: ModifiedStr = {'text': text, 'inserted': False}
 
     while '{' in obj['text']:

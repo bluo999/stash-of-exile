@@ -53,11 +53,11 @@ class TableModel(QAbstractTableModel):
         self.headers = list(TableModel.PROPERTY_FUNCS.keys())
         self.table_view = table_view
 
-    def rowCount(self, _parent: QModelIndex) -> int:
+    def rowCount(self, _parent: QModelIndex) -> int:  # pylint: disable=invalid-name
         """Returns the current number of current rows (excluding filtered)."""
         return len(self.current_items)
 
-    def columnCount(self, _parent: QModelIndex) -> int:
+    def columnCount(self, _parent: QModelIndex) -> int:  # pylint: disable=invalid-name
         """Returns the number of columns / properties."""
         return len(self.property_funcs)
 
@@ -80,6 +80,8 @@ class TableModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.BackgroundRole:
             return QColor(COLORS['darkgrey'])
 
+        return None
+
     def headerData(  # pylint: disable=invalid-name
         self, section: int, orientation: Qt.Orientation, role: int
     ) -> object:
@@ -90,6 +92,8 @@ class TableModel(QAbstractTableModel):
             and orientation == Qt.Orientation.Horizontal
         ):
             return QVariant(self.headers[section])
+
+        return None
 
     def insert_items(self, items: List[Item]) -> None:
         """Inserts a list of items into the table."""

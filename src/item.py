@@ -5,10 +5,14 @@ Defines parsing of the item API and converting into a local object.
 import re
 from typing import Any, Callable, Dict, List, Tuple
 
-from consts import HEADER_TEMPLATE, SPAN_TEMPLATE, COLORS
+from consts import COLORS, HEADER_TEMPLATE, SPAN_TEMPLATE
 from gamedata import COMBO_ITEMS, FRAGMENTS, RARITIES
-from requirement import Requirement
 from property import Property
+from requirement import Requirement
+
+PLUS_PERCENT_REGEX = r'\+(\d+)%'  # +x%
+FLAT_PERCENT_REGEX = r'([0-9]{1,2}\.\d{2})%'  # xx.xx%
+NUM_RANGE_REGEX = r'(\d+)-(\d+)'  # x-x
 
 
 def property_function(prop_name: str) -> Callable[['Item'], str]:
@@ -65,11 +69,11 @@ def _list_tags(tag_info: List[Tuple[bool, str, str]]) -> str:
     Given a list of tags, returns a single complete
     line separate, colored string of tags.
     """
-    # Get rid of inactive tags
+    # Get rid of inactive tags then format them
     formatted_tags = [
-        SPAN_TEMPLATE.format(COLORS[color], tagStr)
-        for tagActive, tagStr, color in tag_info
-        if tagActive
+        SPAN_TEMPLATE.format(COLORS[color], tag_str)
+        for tag_active, tag_str, color in tag_info
+        if tag_active
     ]
 
     # Add tags on separate lines
@@ -187,7 +191,8 @@ class Item:
             return 'Currency'
 
         # Add currency to ignore when searching in icon name
-        categories.append('Currency')
+        ignore_categories = categories
+        ignore_categories.append('Currency')
 
         # Gem
         if item_json.get('support') is not None:
@@ -203,8 +208,10 @@ class Item:
                 return cat
 
         # Search in icon name
-        categories = [cat for cat in COMBO_ITEMS['Category'] if cat not in categories]
-        for cat in categories:
+        ignore_categories = [
+            cat for cat in COMBO_ITEMS['Category'] if cat not in ignore_categories
+        ]
+        for cat in ignore_categories:
             # Remove spaces
             if cat.replace(' ', '') in item_json['icon']:
                 return cat
@@ -217,7 +224,7 @@ class Item:
         if 'BestiaryOrb' in item_json['icon']:
             return 'Captured Beast'
 
-        # TODO: add exception
+        # TODO: add warning
         return ''
 
     def get_tooltip(self) -> List[str]:
@@ -273,22 +280,21 @@ class Item:
         return self.tooltip
 
     def _calculate_properties(self) -> None:
+        """Calculates properties of item from base stats (e.g. pdps)."""
         # Pre-formatted properties
         self.quality = property_function('Quality')(self)
-        z = re.search(r'\+(\d+)%', self.quality)  # quality regex: +num%
+        z = re.search(PLUS_PERCENT_REGEX, self.quality)
         if z is not None:
             self.quality_num = int(z.group(1))
 
         # Physical damage
-        z = re.search(
-            r'(\d+)-(\d+)', property_function('Physical Damage')(self)
-        )  # range regex: num-num
+        z = re.search(NUM_RANGE_REGEX, property_function('Physical Damage')(self))
         physical_damage = (
             (float(z.group(1)) + float(z.group(2))) / 2.0 if z is not None else 0
         )
 
         # Chaos damage
-        z = re.search(r'(\d+)-(\d+)', property_function('Chaos Damage')(self))
+        z = re.search(NUM_RANGE_REGEX, property_function('Chaos Damage')(self))
         chaos_damage = (
             (float(z.group(1)) + float(z.group(2))) / 2.0 if z is not None else 0
         )
@@ -299,7 +305,7 @@ class Item:
         if prop is not None:
             for val in prop.values:
                 assert isinstance(val[0], str)
-                z = re.search(r'(\d+)-(\d+)', val[0])
+                z = re.search(NUM_RANGE_REGEX, val[0])
                 if z is not None:
                     elemental_damage += (float(z.group(1)) + float(z.group(2))) / 2.0
 
@@ -312,11 +318,11 @@ class Item:
 
         # Crit chance
         z = re.search(
-            r'([0-9]{1,2}\.\d{2})%', property_function('Critical Strike Chance')(self)
+            FLAT_PERCENT_REGEX, property_function('Critical Strike Chance')(self)
         )
         self.crit = float(z.group(1)) if z is not None else None
 
-        # Different DPS
+        # Calculate DPS
         self.dps = self.damage * self.aps if self.aps is not None else None
         self.pdps = physical_damage * self.aps if self.aps is not None else None
         self.edps = elemental_damage * self.aps if self.aps is not None else None
