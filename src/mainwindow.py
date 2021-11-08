@@ -15,6 +15,9 @@ from tabswidget import TabsWidget
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
+# A font by Jos Buivenga (exljbris) -> www.exljbris.com
+TTF_FILE = os.path.join('..', 'assets', 'FontinSmallCaps.ttf')
+
 
 class MainWindow(QMainWindow):
     """Custom Main Window."""
@@ -24,8 +27,7 @@ class MainWindow(QMainWindow):
         self.resize(1280, 720)
         self.setWindowTitle('Stash of Exile')
 
-        # A font by Jos Buivenga (exljbris) -> www.exljbris.com
-        QFontDatabase.addApplicationFont('../assets/FontinSmallCaps.ttf')
+        QFontDatabase.addApplicationFont(TTF_FILE)
 
         # QSS file
         with open(os.path.join(__location__, 'styles.qss'), 'r') as f:

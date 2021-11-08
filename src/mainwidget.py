@@ -2,10 +2,12 @@
 Handles viewing items in tabs and characters.
 """
 
+from dataclasses import field
 import json
 
 from functools import partial
 from inspect import signature
+import os
 from typing import List, TYPE_CHECKING
 from PyQt6.QtCore import QItemSelection, QSize, Qt
 from PyQt6.QtGui import QFont, QTextCursor
@@ -26,19 +28,22 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from apimanager import APIManager
 
 from consts import SEPARATOR_TEMPLATE
 from filter import FILTERS
 from item import Item
 from gamedata import COMBO_ITEMS
+from save import Account
 from table import TableModel
 from thread import DownloadThread
+from util import create_directories, get_jsons, get_subdirectories
 
 if TYPE_CHECKING:
     from mainwindow import MainWindow
 
 
-_jsons = ['../assets/tab1.json', '../assets/tab2.json']
+ITEM_CACHE_DIR = os.path.join('..', 'item_cache')
 
 
 class MainWidget(QWidget):
@@ -53,16 +58,49 @@ class MainWidget(QWidget):
         self._setup_filters()
         self._name_ui()
 
-    def on_show(self):
+    def on_show(
+        self,
+        account: Account = None,
+        league: str = '',
+        characters: List[str] = field(default_factory=list),
+        tabs: List[int] = field(default_factory=list),
+    ):
         """Build the item table."""
-        self._build_table()
+        # TODO: use tabs
+        paths: List[str] = []
+        if account is None:
+            # Show all cached results
+            paths = [
+                char
+                for accounts in get_subdirectories(ITEM_CACHE_DIR)
+                for leagues in get_subdirectories(accounts)
+                for char in get_jsons(leagues)
+            ]
+        else:
+            # Download jsons
+            for char in characters:
+                filename = ITEM_CACHE_DIR + f'{account.username}/{league}/{char}.json'
+                paths.append(filename)
+                # TODO: force import vs cache
+                if os.path.exists(filename):
+                    continue
+                create_directories(filename)
+                char = APIManager.get_character_items(
+                    account.username, account.poesessid, char
+                )
+                print('Writing character json to ', filename)
+                with open(filename, 'w') as f:
+                    json.dump(char, f)
 
-    def _build_table(self) -> None:
+        print(paths)
+        self._build_table(paths)
+
+    def _build_table(self, paths: List[str]) -> None:
         """Setup the items, download their images, and setup the table."""
         items: List[Item] = []
-        for i, tab in enumerate(_jsons):
+        for i, tab in enumerate(paths):
             # Open each tab
-            with open(tab) as f:
+            with open(tab, 'r') as f:
                 data = json.load(f)
                 # Add each item
                 for item in data['items']:

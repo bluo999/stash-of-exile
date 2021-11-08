@@ -2,7 +2,7 @@
 Defines a tab widget to select tabs and characters.
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import (
@@ -31,17 +31,20 @@ class TabsWidget(QWidget):
         self.main_window = main_window
         self.saved_data = None
         self.account = None
+        self.league = None
         self._static_build()
         self._name_ui()
 
-    def on_show(self, saved_data: SavedData, account: Account) -> None:
+    def on_show(self, saved_data: SavedData, account: Account, league: str) -> None:
         """Setup tree based on saved_data and account."""
         self.saved_data = saved_data
         self.account = account
-        if self.tree_widget.topLevelItemCount() != 0:
-            return
+        self.league = league
 
-        self._setup_tree()
+        # TODO: clear tree then rebuild
+        # Setup tree has not yet been called
+        if self.tree_widget.topLevelItemCount() == 1:
+            self._setup_tree()
 
     def _static_build(self) -> None:
         """Setup the static base UI, including properties and widgets."""
@@ -57,6 +60,9 @@ class TabsWidget(QWidget):
         self.tree_widget = QTreeWidget()
         self.tree_widget.setHeaderHidden(True)
         self.vlayout.addWidget(self.tree_widget)
+
+        # Characters
+        self.char_group = QTreeWidgetItem(self.tree_widget)
 
         # Error Text
         self.error_text = QLabel()
@@ -76,9 +82,7 @@ class TabsWidget(QWidget):
 
         # Import Button
         self.import_button = QPushButton()
-        self.import_button.clicked.connect(
-            lambda _: self.main_window.switch_widget(self.main_window.main_widget)
-        )
+        self.import_button.clicked.connect(self._import_items)
         self.button_layout.addWidget(self.import_button)
 
         self.main_hlayout = QHBoxLayout(self)
@@ -87,6 +91,8 @@ class TabsWidget(QWidget):
     def _setup_tree(self):
         """Setup tabs in tree widget."""
         assert self.account is not None
+        print('Setting up tree')
+
         tab_group = QTreeWidgetItem(self.tree_widget)
         tab_group.setText(0, f'Stash Tabs ({self.account.tabs_length})')
         tab_group.setFlags(
@@ -97,14 +103,24 @@ class TabsWidget(QWidget):
         tab_group.setCheckState(0, Qt.CheckState.Checked)
 
         # Setup characters in tree widget
-        char_group = QTreeWidgetItem(self.tree_widget)
-        char_group.setText(0, f'Characters ({len(self.account.character_names)})')
-        char_group.setFlags(tab_group.flags())
+        self.char_group.setText(0, f'Characters ({len(self.account.character_names)})')
+        self.char_group.setFlags(tab_group.flags())
         for char in self.account.character_names:
-            char_widget = QTreeWidgetItem(char_group)
+            char_widget = QTreeWidgetItem(self.char_group)
             char_widget.setText(0, char)
             char_widget.setFlags(char_widget.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             char_widget.setCheckState(0, Qt.CheckState.Checked)
+
+    def _import_items(self) -> None:
+        # TODO: import tabs
+        characters: List[str] = []
+        for i in range(self.char_group.childCount()):
+            char = self.char_group.child(i)
+            if char.checkState(0) == Qt.CheckState.Checked:
+                characters.append(char.text(0))
+        self.main_window.switch_widget(
+            self.main_window.main_widget, self.account, self.league, characters
+        )
 
     def _name_ui(self) -> None:
         """Name the UI elements, including window title and labels."""

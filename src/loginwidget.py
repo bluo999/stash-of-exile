@@ -27,7 +27,7 @@ from save import Account, SavedData
 if TYPE_CHECKING:
     from mainwindow import MainWindow
 
-SAVE_FILE = '../saveddata.pkl'
+SAVE_FILE = os.path.join('..', 'saveddata.pkl')
 
 
 class LoginWidget(QWidget):
@@ -102,14 +102,19 @@ class LoginWidget(QWidget):
         self.error_text.setObjectName('ErrorText')
         self.form_vlayout.addWidget(self.error_text)
 
+        # League Button
+        self.league_button = QPushButton()
+        self.league_button.clicked.connect(self._get_leagues_api)
+        self.form_vlayout.addWidget(self.league_button)
+
         # Buttons
         self.button_layout = QHBoxLayout()
         self.form_vlayout.addLayout(self.button_layout)
 
-        # League Button
-        self.league_button = QPushButton()
-        self.league_button.clicked.connect(self._get_leagues_api)
-        self.button_layout.addWidget(self.league_button)
+        # View Cached Button
+        self.cached_button = QPushButton()
+        self.cached_button.clicked.connect(self._submit_cached)
+        self.button_layout.addWidget(self.cached_button)
 
         # Login Button
         self.login_button = QPushButton()
@@ -155,6 +160,10 @@ class LoginWidget(QWidget):
         assert self.saved_data is not None
         self.league_field.addItems(self.saved_data.leagues)
         self.login_button.setEnabled(True)
+
+    def _submit_cached(self) -> None:
+        """Skip login and view cached stash."""
+        self.main_window.switch_widget(self.main_window.main_widget)
 
     def _submit_login_info(self) -> None:
         """Submit login information: account name and POESESSID."""
@@ -243,10 +252,10 @@ class LoginWidget(QWidget):
 
     def _transition_tabs(self) -> None:
         """Switch to tab widget."""
-        print(f'Writing save file to{SAVE_FILE}')
+        print(f'Writing save file to {SAVE_FILE}')
         pickle.dump(self.saved_data, open(SAVE_FILE, 'wb'))
         self.main_window.switch_widget(
-            self.main_window.tabs_widget, self.saved_data, self.account
+            self.main_window.tabs_widget, self.saved_data, self.account, self.league
         )
 
     def _http_error(self, code: int) -> None:
@@ -259,4 +268,5 @@ class LoginWidget(QWidget):
         self.poesessid_label.setText('POESESSID: ')
         self.league_label.setText('League: ')
         self.league_button.setText('Get Leagues')
+        self.cached_button.setText('View Cached')
         self.login_button.setText('Login')

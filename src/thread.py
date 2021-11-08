@@ -16,6 +16,10 @@ from PyQt6.QtWidgets import QStatusBar
 
 from consts import STATUS_TIMEOUT
 from item import Item
+from util import create_directories
+
+
+IMAGE_CACHE_DIR = os.path.join('..', 'image_cache')
 
 
 def _retrieves(items: List[Item]) -> None:
@@ -28,13 +32,11 @@ def _retrieves(items: List[Item]) -> None:
         if item.file_path == '':
             z = re.search(r'\/([^.]+\.png)', item.icon)
             if z is not None:
-                item.file_path = f'../cache{z.group()}'
+                item.file_path = IMAGE_CACHE_DIR + z.group()
 
-        directory = os.path.dirname(item.file_path)
+        create_directories(item.file_path)
         if not os.path.exists(item.file_path):
             print('Downloading image to', item.file_path)
-            # Create directories
-            pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
             # Download image
             try:
                 urllib.request.urlretrieve(item.icon, item.file_path)

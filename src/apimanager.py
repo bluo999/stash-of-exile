@@ -8,8 +8,6 @@ from typing import Any, Dict, List
 
 import urllib.request
 
-from save import Account
-
 # HTTPS request headers
 HEADERS = {'User-Agent': 'stash-of-exile/0.1.0 (contact:brianluo999@gmail.com)'}
 
@@ -54,7 +52,7 @@ class APIManager:
     @staticmethod
     def get_tab_items(
         username: str, poesessid: str, league: str, tab_index: int
-    ) -> List[Dict[str, Any]]:
+    ) -> Any:
         """Retrieves items from a specific tab."""
         print(f'Sending GET request for tab {tab_index}')
         req = _elevated_request(
@@ -62,7 +60,7 @@ class APIManager:
         )
         with urllib.request.urlopen(req) as conn:
             tab = json.loads(conn.read())
-            return tab.get('items', [])
+            return tab
 
     @staticmethod
     def get_character_list(poesessid: str, league: str) -> List[str]:
@@ -74,13 +72,11 @@ class APIManager:
             return [char['name'] for char in char_info if char['league'] == league]
 
     @staticmethod
-    def get_character_items(
-        username: str, poesessid: str, character: str
-    ) -> List[Dict[str, Any]]:
+    def get_character_items(username: str, poesessid: str, character: str) -> Any:
         """Retrieves character list."""
-        print('Sending GET request for characters')
+        print(f'Sending GET request for character {character}')
         req = _elevated_request(URL_CHAR_ITEMS.format(username, character), poesessid)
         # TODO: also get jewels from passive tree
         with urllib.request.urlopen(req) as conn:
             char = json.loads(conn.read())
-            return char.get('items', [])
+            return char
