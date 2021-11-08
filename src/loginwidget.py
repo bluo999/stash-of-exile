@@ -209,7 +209,7 @@ class LoginWidget(QWidget):
         assert self.league is not None
         try:
             self.account.tabs_length = APIManager.get_num_tabs(
-                self.account, self.league
+                self.account.username, self.account.poesessid, self.league
             )
             print(f'Success: {self.account.tabs_length} tabs')
         except HTTPError as e:
@@ -228,7 +228,7 @@ class LoginWidget(QWidget):
         assert self.league is not None
         try:
             self.account.character_names = APIManager.get_character_list(
-                self.account, self.league
+                self.account.poesessid, self.league
             )
             print(f'Success: {self.account.character_names}')
         except HTTPError as e:
