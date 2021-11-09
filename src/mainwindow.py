@@ -11,7 +11,7 @@ from PyQt6.QtCore import QRect
 from PyQt6.QtGui import QFontDatabase
 from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QMenuBar, QStatusBar, QWidget
 
-from apimanager import APIManager
+from api import APIManager
 from loginwidget import LoginWidget
 from mainwidget import MainWidget
 from tabswidget import TabsWidget
@@ -50,6 +50,11 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.center_widget)
         self.central_layout = QHBoxLayout(self.center_widget)
 
+        # Start API thread
+        self.api_manager = APIManager()
+        self.api_manager.api_thread.output.connect(MainWindow.callback)
+
+        # Initialize (and build) widgets
         self.login_widget = LoginWidget(self)
         self.tabs_widget = TabsWidget(self)
         self.main_widget = MainWidget(self)
@@ -62,10 +67,6 @@ class MainWindow(QMainWindow):
             self.central_layout.addWidget(widget)
 
         self.switch_widget(self.login_widget)
-
-        # Start API thread
-        self.api_manager = APIManager()
-        self.api_manager.api_thread.output.connect(MainWindow.callback)
 
         # Show window
         self.show()
@@ -91,4 +92,5 @@ class MainWindow(QMainWindow):
     @staticmethod
     def callback(cb_obj: QWidget, cb: Callable, args: Tuple) -> None:
         """Calls the callback function on an object with specified arguments."""
+        print('Calling cb function ', cb.__name__, args)
         getattr(cb_obj, cb.__name__)(*args)

@@ -5,13 +5,14 @@ Contains API related functions.
 import json
 import urllib.request
 
+from functools import wraps
 from queue import Queue
 from threading import Condition
 from typing import Any, Callable, List, Optional, Tuple
+from urllib.error import HTTPError, URLError
 
+from PyQt6.QtCore import QThread, pyqtSignal
 from PyQt6.QtWidgets import QWidget
-
-from thread import APIThread
 
 # HTTPS request headers
 HEADERS = {'User-Agent': 'stash-of-exile/0.1.0 (contact:brianluo999@gmail.com)'}
@@ -25,6 +26,22 @@ URL_CHARACTERS = 'https://pathofexile.com/character-window/get-characters'
 URL_CHAR_ITEMS = (
     'https://pathofexile.com/character-window/get-items?accountName={}&character={}'
 )
+
+
+def _get(func):
+    """Decorator function that returns (None, err) if an error
+    occurs during an API call that involves a GET request."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> Tuple[Any, str]:
+        try:
+            return (func(*args, **kwargs), '')
+        except HTTPError as e:
+            return (None, f'HTTP Error {e.code} {e.reason}')
+        except URLError as e:
+            return (None, f'URL Error {e.reason}')
+
+    return wrapper
 
 
 def _elevated_request(url: str, poesessid: str) -> urllib.request.Request:
@@ -45,15 +62,17 @@ class APIManager:
     def kill_thread(self) -> None:
         """Kills the API thread."""
         self.cond.acquire()
-        self.queue.put((None, None, lambda: None, ()))
+        self.queue.put(None)
         self.cond.notify()
         self.cond.release()
         self.api_thread.wait()
 
-    def insert(self, elem: str, cb_obj: QWidget, cb: Callable, *args) -> None:
+    def insert(
+        self, api_call: Callable, api_args: Tuple, cb_obj: QWidget, cb: Callable
+    ) -> None:
         """Inserts an element into the API queue."""
         self.cond.acquire()
-        self.queue.put((elem, cb_obj, cb, args))
+        self.queue.put((api_call, api_args, cb_obj, cb))
         self.cond.notify()
         self.cond.release()
 
@@ -62,19 +81,21 @@ class APIManager:
         self.cond.acquire()
         while self.queue.qsize() == 0:
             self.cond.wait()
-        elem, cb_obj, cb, args = self.queue.get()
 
+        ret = self.queue.get()
         # Signals to kill the thread
-        if elem is None:
+        if ret is None:
             return None
-        assert cb_obj is not None
 
-        # Process element
-        print(elem)
+        # Process api call
+        api_call, api_args, cb_obj, cb = ret
+        args = self.__getattribute__(api_call.__name__)(*api_args)
+
         self.cond.release()
         return (cb_obj, cb, args)
 
     @staticmethod
+    @_get
     def get_leagues() -> List[str]:
         """Retrieves current leagues."""
         print('Sending GET request for leagues')
@@ -84,6 +105,7 @@ class APIManager:
             return [league['id'] for league in leagues]
 
     @staticmethod
+    @_get
     def get_num_tabs(username: str, poesessid: str, league: str) -> int:
         """Retrieves number of tabs."""
         print('Sending GET request for num tabs')
@@ -93,6 +115,7 @@ class APIManager:
             return tab_info.get('numTabs', 0)
 
     @staticmethod
+    @_get
     def get_tab_items(
         username: str, poesessid: str, league: str, tab_index: int
     ) -> Any:
@@ -106,6 +129,7 @@ class APIManager:
             return tab
 
     @staticmethod
+    @_get
     def get_character_list(poesessid: str, league: str) -> List[str]:
         """Retrieves character list."""
         print('Sending GET request for characters')
@@ -115,6 +139,7 @@ class APIManager:
             return [char['name'] for char in char_info if char['league'] == league]
 
     @staticmethod
+    @_get
     def get_character_items(username: str, poesessid: str, character: str) -> Any:
         """Retrieves character list."""
         print(f'Sending GET request for character {character}')
@@ -123,3 +148,24 @@ class APIManager:
         with urllib.request.urlopen(req) as conn:
             char = json.loads(conn.read())
             return char
+
+
+class APIThread(QThread):
+    """Thread that handles API calls."""
+
+    output = pyqtSignal(object, object, object)
+
+    def __init__(self, api_manager: APIManager) -> None:
+        QThread.__init__(self)
+        self.api_manager = api_manager
+
+    def run(self) -> None:
+        """Runs the thread."""
+        while True:
+            ret = self.api_manager.consume()
+            if ret is None:
+                # Signal to exit the thread
+                break
+
+            cb_obj, cb, args = ret
+            self.output.emit(cb_obj, cb, args)

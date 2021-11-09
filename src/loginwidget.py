@@ -4,9 +4,8 @@ Handles league retrieving and login sequence.
 
 import os
 import pickle
-from urllib.error import HTTPError, URLError
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import (
@@ -20,7 +19,6 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from apimanager import APIManager
 
 from save import Account, SavedData
 
@@ -136,32 +134,38 @@ class LoginWidget(QWidget):
         else:
             self.saved_data = SavedData()
 
+    def _submit_cached(self) -> None:
+        """Skip login and view cached stash."""
+        self.main_window.switch_widget(self.main_window.main_widget)
+
     def _get_leagues_api(self) -> None:
         """Get leagues from API."""
-        assert self.saved_data is not None
-        try:
-            self.saved_data.leagues = APIManager.get_leagues()
-            print(f'Success: {self.saved_data.leagues}')
-        except HTTPError as e:
-            self.error_text.setText(f'HTTP Error {e.code} {e.reason}')
-            return
-        except URLError as e:
-            self.error_text.setText(f'URL Error {e.reason}')
+        api_manager = self.main_window.api_manager
+        api_manager.insert(
+            api_manager.get_leagues, (), self, self._get_leagues_callback
+        )
+
+    def _get_leagues_callback(
+        self, leagues: Optional[List[str]], err_message: str = ''
+    ) -> None:
+        """Callback after get leagues is returned."""
+        if leagues is None:
+            self.error_text.setText(err_message)
             return
 
-        # Success - leagues obtained
+        assert self.saved_data is not None
+        self.saved_data.leagues = leagues
         self._get_leagues_success()
 
     def _get_leagues_success(self) -> None:
         """Populate leagues combo box."""
+        assert self.saved_data is not None
+        print(f'Success: {self.saved_data.leagues}')
         self.league_field.clear()
         assert self.saved_data is not None
         self.league_field.addItems(self.saved_data.leagues)
         self.login_button.setEnabled(True)
-
-    def _submit_cached(self) -> None:
-        """Skip login and view cached stash."""
-        self.main_window.switch_widget(self.main_window.main_widget)
+        self.error_text.setText('')
 
     def _submit_login_info(self) -> None:
         """Submit login information: account name and POESESSID."""
@@ -193,71 +197,88 @@ class LoginWidget(QWidget):
             self.account = Account(username, poesessid)
             self.saved_data.accounts.append(self.account)
             self._get_num_tabs_api()
+            self._get_char_list_api()
             return
 
         self.account = search_account[0]
-        if self.account.poesessid != poesessid or self.account.tabs_length == 0:
+        if not self.account.has_characters():
+            # Character names were not saved
+            self._get_char_list_api()
+            return
+
+        if self.account.poesessid != poesessid or not self.account.has_tabs():
             # POESESSID is different or number of tabs was not saved
             self.account.poesessid = poesessid
             self._get_num_tabs_api()
             return
 
-        if len(self.account.character_names) == 0:
-            # Character names were not saved
-            self._get_char_list_api()
-            return
-
         # Number of tabs and character list saved
-        self._transition_tabs()
+        self._check_login_success()
 
     def _get_num_tabs_api(self) -> None:
         """Get number of tabs from API."""
         assert self.account is not None
         assert self.league is not None
-        try:
-            self.account.tabs_length = APIManager.get_num_tabs(
-                self.account.username, self.account.poesessid, self.league
-            )
-            print(f'Success: {self.account.tabs_length} tabs')
-        except HTTPError as e:
-            self.error_text.setText(f'HTTP Error {e.code} {e.reason}')
-            return
-        except URLError as e:
-            self.error_text.setText(f'URL Error {e.reason}')
+        api_manager = self.main_window.api_manager
+        api_manager.insert(
+            api_manager.get_num_tabs,
+            (self.account.username, self.account.poesessid, self.league),
+            self,
+            self._get_num_tabs_callback,
+        )
+
+    def _get_num_tabs_callback(
+        self, tabs_length: Optional[int], err_message: str = ''
+    ) -> None:
+        """Callback after get num tabs is returned."""
+        if tabs_length is None:
+            self.error_text.setText(err_message)
             return
 
-        # Success - tabs obtained
-        self._get_char_list_api()
+        assert self.account is not None
+        print(f'Success: {tabs_length} tabs')
+        self.account.tabs_length = tabs_length
+        self.error_text.setText('')
+        self._check_login_success()
 
     def _get_char_list_api(self) -> None:
         """Get character list from API."""
         assert self.account is not None
         assert self.league is not None
-        try:
-            self.account.character_names = APIManager.get_character_list(
-                self.account.poesessid, self.league
-            )
-            print(f'Success: {self.account.character_names}')
-        except HTTPError as e:
-            self.error_text.setText(f'HTTP error {e.code} {e.reason}')
-            return
-        except URLError as e:
-            self.error_text.setText(f'URL error {e.reason}')
+        api_manager = self.main_window.api_manager
+        api_manager.insert(
+            api_manager.get_character_list,
+            (self.account.poesessid, self.league),
+            self,
+            self._get_char_list_callback,
+        )
+
+    def _get_char_list_callback(
+        self, char_list: Optional[List[str]], err_message: str = ''
+    ) -> None:
+        """Callback after get num tabs is returned."""
+        if char_list is None:
+            self.error_text.setText(err_message)
             return
 
-        # Success - character list obtained
-        self._transition_tabs()
+        assert self.account is not None
+        print('Success:', self.account.character_names)
+        self.account.character_names = char_list
+        self.error_text.setText('')
+        self._check_login_success()
 
-    def _transition_tabs(self) -> None:
-        """Switch to tab widget."""
+    def _check_login_success(self) -> None:
+        """Checks whether characters and tabs are set. If so, transition to tab widget."""
+        assert self.account is not None
+        if not self.account.has_characters() or not self.account.has_tabs():
+            return
+
+        # Switch to tab widget
         print(f'Writing save file to {SAVE_FILE}')
         pickle.dump(self.saved_data, open(SAVE_FILE, 'wb'))
         self.main_window.switch_widget(
             self.main_window.tabs_widget, self.saved_data, self.account, self.league
         )
-
-    def _http_error(self, code: int) -> None:
-        pass
 
     def _name_ui(self) -> None:
         """Name the UI elements, including window title and labels."""

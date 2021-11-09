@@ -28,7 +28,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from apimanager import APIManager
+from api import APIManager
 
 from consts import SEPARATOR_TEMPLATE
 from filter import FILTERS
@@ -79,7 +79,9 @@ class MainWidget(QWidget):
         else:
             # Download jsons
             for char in characters:
-                filename = ITEM_CACHE_DIR + f'{account.username}/{league}/{char}.json'
+                filename = os.path.join(
+                    ITEM_CACHE_DIR, f'{account.username}/{league}/{char}.json'
+                )
                 paths.append(filename)
                 # TODO: force import vs cache
                 if os.path.exists(filename):

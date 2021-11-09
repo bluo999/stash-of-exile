@@ -10,10 +10,9 @@ from functools import partial
 from typing import List
 from urllib.error import HTTPError, URLError
 
-from PyQt6.QtCore import QThread, pyqtSignal
+from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QStatusBar
 
-from apimanager import APIManager
 from consts import STATUS_TIMEOUT
 from item import Item
 from util import create_directories
@@ -32,7 +31,7 @@ def _retrieves(items: List[Item]) -> None:
         if item.file_path == '':
             z = re.search(r'\/([^.]+\.png)', item.icon)
             if z is not None:
-                item.file_path = IMAGE_CACHE_DIR + z.group()
+                item.file_path = os.path.join(IMAGE_CACHE_DIR, z.group())
 
         create_directories(item.file_path)
         if not os.path.exists(item.file_path):
@@ -64,23 +63,3 @@ class DownloadThread(QThread):
     def run(self) -> None:
         """Runs the thread."""
         _retrieves(self.items)
-
-
-class APIThread(QThread):
-    """Thread that handles API calls."""
-
-    output = pyqtSignal(object, object, object)
-
-    def __init__(self, api_manager: APIManager) -> None:
-        QThread.__init__(self)
-        self.api_manager = api_manager
-
-    def run(self) -> None:
-        """Runs the thread."""
-        while True:
-            ret = self.api_manager.consume()
-            if ret is None:
-                break
-
-            cb_obj, cb, args = ret
-            self.output.emit(cb_obj, cb, args)

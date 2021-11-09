@@ -17,6 +17,14 @@ class Account:
     character_names: List[str] = field(default_factory=list)
     tabs_length: int = 0
 
+    def has_characters(self):
+        """Returns whether the character list has been set."""
+        return len(self.character_names) != 0
+
+    def has_tabs(self):
+        """Returns whether tab list has been set."""
+        return self.tabs_length != 0
+
 
 @dataclass
 class SavedData:
