@@ -3,8 +3,12 @@ Contains API related functions.
 """
 
 import json
+import math
+import time
 import urllib.request
 
+from collections import deque
+from datetime import datetime
 from functools import wraps
 from queue import Queue
 from threading import Condition
@@ -26,6 +30,15 @@ URL_CHARACTERS = 'https://pathofexile.com/character-window/get-characters'
 URL_CHAR_ITEMS = (
     'https://pathofexile.com/character-window/get-items?accountName={}&character={}'
 )
+
+# Default rate limit values
+RATE_LIMITS = [(5.0, 5.0), (10.0, 10.0), (15.0, 10.0)]
+
+
+def _get_time_ms() -> int:
+    """Gets time in milliseconds
+    (epoch doesn't matter since only used for relativity)."""
+    return round(datetime.utcnow().timestamp() * 1000)
 
 
 def _get(func):
@@ -158,10 +171,16 @@ class APIThread(QThread):
     def __init__(self, api_manager: APIManager) -> None:
         QThread.__init__(self)
         self.api_manager = api_manager
+        self.update_rate_limits(RATE_LIMITS)
+        self.deque = deque()
+
+    def update_rate_limits(self, rate_limits: List[Tuple[float, float]]) -> None:
+        self.rate_limits = rate_limits
 
     def run(self) -> None:
-        """Runs the thread."""
+        """Runs the thread. Employs rate limiting using a dequeue."""
         while True:
+
             ret = self.api_manager.consume()
             if ret is None:
                 # Signal to exit the thread
