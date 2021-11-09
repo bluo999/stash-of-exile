@@ -6,7 +6,7 @@ import os
 import pickle
 from urllib.error import HTTPError, URLError
 
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Optional
 
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import (
@@ -45,9 +45,7 @@ class LoginWidget(QWidget):
         self._name_ui()
 
     def on_show(
-        self,
-        saved_data: Union[SavedData, None] = None,
-        account: Union[Account, None] = None,
+        self, saved_data: Optional[SavedData] = None, account: Optional[Account] = None
     ) -> None:
         """Update saved data and account if specified."""
         if saved_data is not None:

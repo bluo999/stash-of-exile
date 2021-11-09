@@ -3,10 +3,15 @@ Contains API related functions.
 """
 
 import json
-
-from typing import Any, Dict, List
-
 import urllib.request
+
+from queue import Queue
+from threading import Condition
+from typing import Any, Callable, List, Optional, Tuple
+
+from PyQt6.QtWidgets import QWidget
+
+from thread import APIThread
 
 # HTTPS request headers
 HEADERS = {'User-Agent': 'stash-of-exile/0.1.0 (contact:brianluo999@gmail.com)'}
@@ -30,6 +35,44 @@ def _elevated_request(url: str, poesessid: str) -> urllib.request.Request:
 
 class APIManager:
     """Manages sending official API calls."""
+
+    def __init__(self):
+        self.queue: Queue = Queue()
+        self.cond = Condition()
+        self.api_thread = APIThread(self)
+        self.api_thread.start()
+
+    def kill_thread(self) -> None:
+        """Kills the API thread."""
+        self.cond.acquire()
+        self.queue.put((None, None, lambda: None, ()))
+        self.cond.notify()
+        self.cond.release()
+        self.api_thread.wait()
+
+    def insert(self, elem: str, cb_obj: QWidget, cb: Callable, *args) -> None:
+        """Inserts an element into the API queue."""
+        self.cond.acquire()
+        self.queue.put((elem, cb_obj, cb, args))
+        self.cond.notify()
+        self.cond.release()
+
+    def consume(self) -> Optional[Tuple[QWidget, Callable, Tuple]]:
+        """Consumes an element from the API queue (blocking)."""
+        self.cond.acquire()
+        while self.queue.qsize() == 0:
+            self.cond.wait()
+        elem, cb_obj, cb, args = self.queue.get()
+
+        # Signals to kill the thread
+        if elem is None:
+            return None
+        assert cb_obj is not None
+
+        # Process element
+        print(elem)
+        self.cond.release()
+        return (cb_obj, cb, args)
 
     @staticmethod
     def get_leagues() -> List[str]:

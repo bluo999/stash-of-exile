@@ -4,11 +4,14 @@ Handles creation of widgets, status bar, and some initial setup.
 
 import os
 
-from typing import List
+from typing import Callable, List, Tuple
+
+from PyQt6 import QtGui
 from PyQt6.QtCore import QRect
 from PyQt6.QtGui import QFontDatabase
 from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QMenuBar, QStatusBar, QWidget
 
+from apimanager import APIManager
 from loginwidget import LoginWidget
 from mainwidget import MainWidget
 from tabswidget import TabsWidget
@@ -60,8 +63,17 @@ class MainWindow(QMainWindow):
 
         self.switch_widget(self.login_widget)
 
+        # Start API thread
+        self.api_manager = APIManager()
+        self.api_manager.api_thread.output.connect(MainWindow.callback)
+
         # Show window
         self.show()
+
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:  # pylint: disable=invalid-name
+        """Kills the API thread on close."""
+        self.api_manager.kill_thread()
+        return super().closeEvent(a0)
 
     def switch_widget(self, dest_widget: QWidget, *args):
         """Switches to another widget and """
@@ -75,3 +87,8 @@ class MainWindow(QMainWindow):
                 widget.hide()
 
         dest_widget.on_show(*args)
+
+    @staticmethod
+    def callback(cb_obj: QWidget, cb: Callable, args: Tuple) -> None:
+        """Calls the callback function on an object with specified arguments."""
+        getattr(cb_obj, cb.__name__)(*args)

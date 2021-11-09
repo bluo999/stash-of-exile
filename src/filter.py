@@ -2,7 +2,7 @@
 Defines Filter class and filter functions for each item filter.
 """
 
-from typing import Callable, Type, Union
+from typing import Callable, Optional, Type, Union
 from dataclasses import dataclass
 from PyQt6.QtGui import QDoubleValidator, QIntValidator, QValidator
 
@@ -33,7 +33,7 @@ class Filter:
     name: str
     widget: Type[QWidget]
     filter_func: FilterFunction
-    validator: Union[QValidator, None]
+    validator: Optional[QValidator]
 
 
 def _filter_name(item: Item, elem: QLineEdit) -> bool:
