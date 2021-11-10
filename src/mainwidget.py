@@ -2,16 +2,16 @@
 Handles viewing items in tabs and characters.
 """
 
-from dataclasses import field
 import json
+import os
 
+from dataclasses import field
 from functools import partial
 from inspect import signature
-import os
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Tuple
+
 from PyQt6.QtCore import QItemSelection, QSize, Qt
 from PyQt6.QtGui import QFont, QTextCursor
-
 from PyQt6.QtWidgets import (
     QAbstractItemView,
     QAbstractScrollArea,
@@ -28,7 +28,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from api import APIManager
+
+import log
 
 from consts import SEPARATOR_TEMPLATE
 from filter import FILTERS
@@ -42,6 +43,7 @@ from util import create_directories, get_jsons, get_subdirectories
 if TYPE_CHECKING:
     from mainwindow import MainWindow
 
+logger = log.get_logger(__name__)
 
 ITEM_CACHE_DIR = os.path.join('..', 'item_cache')
 
@@ -53,6 +55,8 @@ class MainWidget(QWidget):
         """Initialize the UI."""
         QWidget.__init__(self)
         self.main_window = main_window
+        self.paths: List[Tuple[str, str]] = []
+        self.num_tabs = 0
         self._static_build()
         self._dynamic_build_filters()
         self._setup_filters()
@@ -65,62 +69,91 @@ class MainWidget(QWidget):
         characters: List[str] = field(default_factory=list),
         tabs: List[int] = field(default_factory=list),
     ):
-        """Build the item table."""
+        """Use cached items and retrieve the remainder using the API."""
         # TODO: use tabs
-        paths: List[str] = []
+        # self.paths represents the paths that still need to be imported into the table
         if account is None:
             # Show all cached results
-            paths = [
-                char
+            self.paths = [
+                (os.path.splitext(os.path.basename(path))[0], path)
                 for accounts in get_subdirectories(ITEM_CACHE_DIR)
                 for leagues in get_subdirectories(accounts)
-                for char in get_jsons(leagues)
+                for path in get_jsons(leagues)
             ]
         else:
             # Download jsons
             for char in characters:
                 filename = os.path.join(
-                    ITEM_CACHE_DIR, f'{account.username}/{league}/{char}.json'
+                    ITEM_CACHE_DIR, account.username, league, f'{char}.json'
                 )
-                paths.append(filename)
                 # TODO: force import vs cache
                 if os.path.exists(filename):
+                    self.paths.append((char, filename))
                     continue
                 create_directories(filename)
-                char = APIManager.get_character_items(
-                    account.username, account.poesessid, char
+                api_manager = self.main_window.api_manager
+                api_manager.insert(
+                    api_manager.get_character_items,
+                    (account.username, account.poesessid, char),
+                    self,
+                    self._get_char_callback,
+                    (char, filename),
                 )
-                print('Writing character json to ', filename)
-                with open(filename, 'w') as f:
-                    json.dump(char, f)
 
-        print(paths)
-        self._build_table(paths)
+        self._build_table()
 
-    def _build_table(self, paths: List[str]) -> None:
-        """Setup the items, download their images, and setup the table."""
-        items: List[Item] = []
-        for i, tab in enumerate(paths):
-            # Open each tab
-            with open(tab, 'r') as f:
-                data = json.load(f)
-                # Add each item
-                for item in data['items']:
-                    items.append(Item(item, i))
-                    # Add socketed items
-                    if item.get('socketedItems') is not None:
-                        for socketed_item in item['socketedItems']:
-                            items.append(Item(socketed_item, i))
-        items.sort()
+    def _get_char_callback(
+        self, char_name: str, filename: str, char, err_message: str
+    ) -> None:
+        """Takes character API data and inserts the items into the table."""
+        if char is None:
+            # Use error message
+            logger.warning(err_message)
+            return
+
+        logger.info('Writing character json to %s', filename)
+        with open(filename, 'w') as f:
+            json.dump(char, f)
+
+        items = self._parse_tab(filename, char_name)
         self.model.insert_items(items)
 
-        # Start downloading images
-        status_bar: QStatusBar = self.main_window.statusBar()
-        status_bar.showMessage('Downloading images')
-        thread = DownloadThread(status_bar, items)
-        thread.start()
+    def _parse_tab(self, tab: str, tab_name: str = '') -> List[Item]:
+        """Parses a tab or character, extracting all items and socketed items."""
+        items: List[Item] = []
+        if tab_name == '':
+            tab_name = str(self.num_tabs)
+        with open(tab, 'r') as f:
+            data = json.load(f)
+            # Add each item
+            for item in data['items']:
+                items.append(Item(item, tab_name))
+                # Add socketed items
+                if item.get('socketedItems') is not None:
+                    for socketed_item in item['socketedItems']:
+                        items.append(Item(socketed_item, tab_name))
+        self.num_tabs += 1
+        items.sort()
+        return items
 
+    def _build_table(self) -> None:
+        """Setup the items, download their images, and setup the table."""
+        # Get available items
+        logger.debug(self.paths)
+        items: List[Item] = []
+        for (tab_name, tab) in self.paths:
+            # Open each tab
+            items.extend(self._parse_tab(tab, tab_name))
+        self.paths = []
+        self.model.insert_items(items)
+
+        # # Start downloading images
+        # status_bar: QStatusBar = self.main_window.statusBar()
+        # status_bar.showMessage('Downloading images')
+        # thread = DownloadThread(status_bar, items)
+        # thread.start()
         # Connect selection to update tooltip
+
         self.table.selectionModel().selectionChanged.connect(
             partial(self._update_tooltip, self.model)
         )

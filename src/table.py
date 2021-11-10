@@ -29,7 +29,7 @@ class TableModel(QAbstractTableModel):
     # Values: function that computes the value
     PROPERTY_FUNCS: Dict[str, Callable[[Item], str]] = {
         'Name': lambda item: item.name,
-        'Tab': lambda item: str(item.tab_num),
+        'Tab': lambda item: str(item.tab),
         'Stack': property_function('Stack Size'),
         'iLvl': lambda item: str(item.ilvl) if item.ilvl != 0 else '',
         'Quality': lambda item: item.quality,

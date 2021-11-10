@@ -91,8 +91,6 @@ class TabsWidget(QWidget):
     def _setup_tree(self):
         """Setup tabs in tree widget."""
         assert self.account is not None
-        print('Setting up tree')
-
         tab_group = QTreeWidgetItem(self.tree_widget)
         tab_group.setText(0, f'Stash Tabs ({self.account.tabs_length})')
         tab_group.setFlags(

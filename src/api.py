@@ -2,6 +2,7 @@
 Contains API related functions.
 """
 
+from dataclasses import dataclass
 import json
 import math
 import time
@@ -10,6 +11,7 @@ import urllib.request
 from collections import deque
 from datetime import datetime
 from functools import wraps
+from http import HTTPStatus
 from queue import Queue
 from threading import Condition
 from typing import Any, Callable, List, Optional, Tuple
@@ -17,6 +19,10 @@ from urllib.error import HTTPError, URLError
 
 from PyQt6.QtCore import QThread, pyqtSignal
 from PyQt6.QtWidgets import QWidget
+
+import log
+
+logger = log.get_logger(__name__)
 
 # HTTPS request headers
 HEADERS = {'User-Agent': 'stash-of-exile/0.1.0 (contact:brianluo999@gmail.com)'}
@@ -31,8 +37,8 @@ URL_CHAR_ITEMS = (
     'https://pathofexile.com/character-window/get-items?accountName={}&character={}'
 )
 
-# Default rate limit values
-RATE_LIMITS = [(5.0, 5.0), (10.0, 10.0), (15.0, 10.0)]
+# Default rate limit values (hits, period (in ms))
+RATE_LIMITS = [(5, 5000), (10, 10000), (15, 10000)]
 
 
 def _get_time_ms() -> int:
@@ -41,15 +47,31 @@ def _get_time_ms() -> int:
     return round(datetime.utcnow().timestamp() * 1000)
 
 
+def _elevated_request(url: str, poesessid: str) -> urllib.request.Request:
+    """Wraps a request that requires POESESSID."""
+    req = urllib.request.Request(url, headers=HEADERS)
+    req.add_header('Cookie', f'POESESSID={poesessid}')
+    return req
+
+
 def _get(func):
     """Decorator function that returns (None, err) if an error
     occurs during an API call that involves a GET request."""
 
     @wraps(func)
-    def wrapper(*args, **kwargs) -> Tuple[Any, str]:
+    def wrapper(self, *args, **kwargs):
+        assert isinstance(self, APIManager)
         try:
-            return (func(*args, **kwargs), '')
+            return (func(self, *args, **kwargs), '')
         except HTTPError as e:
+            if e.code == HTTPStatus.TOO_MANY_REQUESTS:
+                rules = e.headers.get('X-Rate-Limit-Rules').split(',')
+                rule = 'client' if 'client' in rules else rules[0]
+                rate_limits_str = e.headers.get(f'X-Rate-Limit-{rule}')
+                retry_after = int(e.headers.get('Retry After'))
+                logger.warning('Received rate limits: %s', rate_limits_str)
+                logger.info('Retry after: %s', retry_after)
+                self.too_many_reqs(rate_limits_str, retry_after)
             return (None, f'HTTP Error {e.code} {e.reason}')
         except URLError as e:
             return (None, f'URL Error {e.reason}')
@@ -57,10 +79,12 @@ def _get(func):
     return wrapper
 
 
-def _elevated_request(url: str, poesessid: str) -> urllib.request.Request:
-    req = urllib.request.Request(url, headers=HEADERS)
-    req.add_header('Cookie', f'POESESSID={poesessid}')
-    return req
+@dataclass
+class TooManyReq:
+    """Class storing data from a too many requests HTTP error."""
+
+    rate_limits: List[Tuple[int, int]]
+    retry_after: int
 
 
 class APIManager:
@@ -80,16 +104,32 @@ class APIManager:
         self.cond.release()
         self.api_thread.wait()
 
-    def insert(
-        self, api_call: Callable, api_args: Tuple, cb_obj: QWidget, cb: Callable
-    ) -> None:
-        """Inserts an element into the API queue."""
+    def too_many_reqs(self, rate_limits_str: str, retry_after: int) -> None:
+        """Updates the rate limits based on the string from response headers."""
+        rate_limits = [
+            (int(hits), int(period * 1000))
+            for hits, period, _ in rate_limits_str.split(',')
+        ]
         self.cond.acquire()
-        self.queue.put((api_call, api_args, cb_obj, cb))
+        self.queue.put(TooManyReq(rate_limits, retry_after))
         self.cond.notify()
         self.cond.release()
 
-    def consume(self) -> Optional[Tuple[QWidget, Callable, Tuple]]:
+    def insert(
+        self,
+        api_call: Callable,
+        api_args: Tuple,
+        cb_obj: QWidget,
+        cb: Callable,
+        cb_args: Tuple,
+    ) -> None:
+        """Inserts an element into the API queue."""
+        self.cond.acquire()
+        self.queue.put((api_call, api_args, cb_obj, cb, cb_args))
+        self.cond.notify()
+        self.cond.release()
+
+    def consume(self) -> Optional[Tuple[QWidget, Callable, Tuple, Tuple]]:
         """Consumes an element from the API queue (blocking)."""
         self.cond.acquire()
         while self.queue.qsize() == 0:
@@ -101,39 +141,38 @@ class APIManager:
             return None
 
         # Process api call
-        api_call, api_args, cb_obj, cb = ret
+        api_call, api_args, cb_obj, cb, cb_args = ret
         args = self.__getattribute__(api_call.__name__)(*api_args)
 
         self.cond.release()
-        return (cb_obj, cb, args)
+        return (cb_obj, cb, cb_args, args)
 
-    @staticmethod
     @_get
-    def get_leagues() -> List[str]:
+    def get_leagues(self) -> List[str]:  # pylint: disable=no-self-use
         """Retrieves current leagues."""
-        print('Sending GET request for leagues')
+        logger.info('Sending GET request for leagues')
         req = urllib.request.Request(URL_LEAGUES, headers=HEADERS)
         with urllib.request.urlopen(req) as conn:
             leagues = json.loads(conn.read())
             return [league['id'] for league in leagues]
 
-    @staticmethod
     @_get
-    def get_num_tabs(username: str, poesessid: str, league: str) -> int:
+    def get_num_tabs(  # pylint: disable=no-self-use
+        self, username: str, poesessid: str, league: str
+    ) -> int:
         """Retrieves number of tabs."""
-        print('Sending GET request for num tabs')
+        logger.info('Sending GET request for num tabs')
         req = _elevated_request(URL_TAB_NUM.format(username, league), poesessid)
         with urllib.request.urlopen(req) as conn:
             tab_info = json.loads(conn.read())
             return tab_info.get('numTabs', 0)
 
-    @staticmethod
     @_get
-    def get_tab_items(
-        username: str, poesessid: str, league: str, tab_index: int
+    def get_tab_items(  # pylint: disable=no-self-use
+        self, username: str, poesessid: str, league: str, tab_index: int
     ) -> Any:
         """Retrieves items from a specific tab."""
-        print(f'Sending GET request for tab {tab_index}')
+        logger.info('Sending GET request for tab %s', tab_index)
         req = _elevated_request(
             URL_TAB_ITEMS.format(username, league, tab_index), poesessid
         )
@@ -141,21 +180,23 @@ class APIManager:
             tab = json.loads(conn.read())
             return tab
 
-    @staticmethod
     @_get
-    def get_character_list(poesessid: str, league: str) -> List[str]:
+    def get_character_list(  # pylint: disable=no-self-use
+        self, poesessid: str, league: str
+    ) -> List[str]:
         """Retrieves character list."""
-        print('Sending GET request for characters')
+        logger.info('Sending GET request for characters')
         req = _elevated_request(URL_CHARACTERS, poesessid)
         with urllib.request.urlopen(req) as conn:
             char_info = json.loads(conn.read())
             return [char['name'] for char in char_info if char['league'] == league]
 
-    @staticmethod
     @_get
-    def get_character_items(username: str, poesessid: str, character: str) -> Any:
+    def get_character_items(  # pylint: disable=no-self-use
+        self, username: str, poesessid: str, character: str
+    ) -> Any:
         """Retrieves character list."""
-        print(f'Sending GET request for character {character}')
+        logger.info('Sending GET request for character %s', character)
         req = _elevated_request(URL_CHAR_ITEMS.format(username, character), poesessid)
         # TODO: also get jewels from passive tree
         with urllib.request.urlopen(req) as conn:
@@ -163,28 +204,85 @@ class APIManager:
             return char
 
 
+class APIQueue(deque):
+    """Queue that stores API call timestamps for rate limiting purposes."""
+
+    def __init__(self, hits: int, period: int):
+        deque.__init__(self)
+        self.update_rate_limit(hits, period)
+
+    def update_rate_limit(self, hits: int, period: int):
+        """Update to new rate limits."""
+        self.hits = hits
+        self.period = period
+
+
+class APIQueueManager:
+    """Keeps track of multiple API Queues."""
+
+    def __init__(self, rate_limits: List[Tuple[int, int]]):
+        self.queues = [APIQueue(hits, period) for hits, period in rate_limits]
+
+    def update_rate_limits(self, rate_limits: List[Tuple[int, int]]) -> None:
+        """Update to new rate limits."""
+        for queue, (hits, period) in zip(self.queues, rate_limits):
+            queue.update_rate_limit(hits, period)
+
+    def insert(self) -> None:
+        """Add timestamp to queue."""
+        for queue in self.queues:
+            queue.append(_get_time_ms())
+
+    def block_until_ready(self) -> None:
+        """Sleeps until the next API call won't be rejected (if necessary)."""
+        if all(len(queue) < queue.hits for queue in self.queues):
+            return
+
+        # Pop excess elements (needed when rate limits change)
+        for queue in self.queues:
+            num_iters = len(queue) - queue.hits
+            for _ in range(num_iters):
+                queue.popleft()
+
+        assert all(len(queue) <= queue.hits for queue in self.queues)
+        next_avail_time = max(
+            queue.popleft() + queue.period
+            for queue in self.queues
+            if len(queue) == queue.hits
+        )
+        sleep_time = max((next_avail_time - _get_time_ms()) / 1000, 0.0)
+        if math.isclose(sleep_time, 0.0):
+            return
+
+        if sleep_time > 1.0:
+            logger.info('Cooling off API calls for %s', sleep_time)
+        time.sleep(sleep_time)
+
+
 class APIThread(QThread):
     """Thread that handles API calls."""
 
-    output = pyqtSignal(object, object, object)
+    output = pyqtSignal(object, object, object, object)
 
     def __init__(self, api_manager: APIManager) -> None:
         QThread.__init__(self)
         self.api_manager = api_manager
-        self.update_rate_limits(RATE_LIMITS)
-        self.deque = deque()
-
-    def update_rate_limits(self, rate_limits: List[Tuple[float, float]]) -> None:
-        self.rate_limits = rate_limits
+        self.api_queue_manager = APIQueueManager(RATE_LIMITS)
 
     def run(self) -> None:
-        """Runs the thread. Employs rate limiting using a dequeue."""
+        """Runs the thread."""
         while True:
-
+            self.api_queue_manager.block_until_ready()
             ret = self.api_manager.consume()
+            self.api_queue_manager.insert()
             if ret is None:
                 # Signal to exit the thread
                 break
+            if isinstance(ret, TooManyReq):
+                self.api_queue_manager.update_rate_limits(ret.rate_limits)
+                logger.warning('Hit rate limit, sleeping for %s', ret.retry_after)
+                time.sleep(ret.retry_after)
+                continue
 
-            cb_obj, cb, args = ret
-            self.output.emit(cb_obj, cb, args)
+            cb_obj, cb, cb_args, args = ret
+            self.output.emit(cb_obj, cb, cb_args, args)

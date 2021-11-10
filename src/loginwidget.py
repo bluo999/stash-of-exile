@@ -20,10 +20,14 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+import log
+
 from save import Account, SavedData
 
 if TYPE_CHECKING:
     from mainwindow import MainWindow
+
+logger = log.get_logger(__name__)
 
 SAVE_FILE = os.path.join('..', 'saveddata.pkl')
 
@@ -125,12 +129,12 @@ class LoginWidget(QWidget):
         """Load existing save file. If none exists,
         then make a SavedData object."""
         if os.path.isfile(SAVE_FILE):
-            print('Found saved file')
+            logger.info('Found saved file')
             self.saved_data = pickle.load(open(SAVE_FILE, 'rb'))
             assert isinstance(self.saved_data, SavedData)
-            print(self.saved_data.leagues)
+            logger.info(self.saved_data.leagues)
             for account in self.saved_data.accounts:
-                print(account.username, account.poesessid)
+                logger.info('%s %s', account.username, account.poesessid)
         else:
             self.saved_data = SavedData()
 
@@ -142,7 +146,7 @@ class LoginWidget(QWidget):
         """Get leagues from API."""
         api_manager = self.main_window.api_manager
         api_manager.insert(
-            api_manager.get_leagues, (), self, self._get_leagues_callback
+            api_manager.get_leagues, (), self, self._get_leagues_callback, ()
         )
 
     def _get_leagues_callback(
@@ -160,7 +164,7 @@ class LoginWidget(QWidget):
     def _get_leagues_success(self) -> None:
         """Populate leagues combo box."""
         assert self.saved_data is not None
-        print(f'Success: {self.saved_data.leagues}')
+        logger.info('Success: %s', self.saved_data.leagues)
         self.league_field.clear()
         assert self.saved_data is not None
         self.league_field.addItems(self.saved_data.leagues)
@@ -225,6 +229,7 @@ class LoginWidget(QWidget):
             (self.account.username, self.account.poesessid, self.league),
             self,
             self._get_num_tabs_callback,
+            (),
         )
 
     def _get_num_tabs_callback(
@@ -236,7 +241,7 @@ class LoginWidget(QWidget):
             return
 
         assert self.account is not None
-        print(f'Success: {tabs_length} tabs')
+        logger.info('Success: %s tabs', tabs_length)
         self.account.tabs_length = tabs_length
         self.error_text.setText('')
         self._check_login_success()
@@ -251,6 +256,7 @@ class LoginWidget(QWidget):
             (self.account.poesessid, self.league),
             self,
             self._get_char_list_callback,
+            (),
         )
 
     def _get_char_list_callback(
@@ -262,7 +268,7 @@ class LoginWidget(QWidget):
             return
 
         assert self.account is not None
-        print('Success:', self.account.character_names)
+        logger.info('Success: %s', self.account.character_names)
         self.account.character_names = char_list
         self.error_text.setText('')
         self._check_login_success()
@@ -274,7 +280,7 @@ class LoginWidget(QWidget):
             return
 
         # Switch to tab widget
-        print(f'Writing save file to {SAVE_FILE}')
+        logger.info('Writing save file to %s', SAVE_FILE)
         pickle.dump(self.saved_data, open(SAVE_FILE, 'wb'))
         self.main_window.switch_widget(
             self.main_window.tabs_widget, self.saved_data, self.account, self.league

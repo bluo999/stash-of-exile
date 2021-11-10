@@ -13,9 +13,14 @@ from urllib.error import HTTPError, URLError
 from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QStatusBar
 
+import log
+
 from consts import STATUS_TIMEOUT
 from item import Item
 from util import create_directories
+
+
+logger = log.get_logger(__name__)
 
 
 IMAGE_CACHE_DIR = os.path.join('..', 'image_cache')
@@ -31,18 +36,19 @@ def _retrieves(items: List[Item]) -> None:
         if item.file_path == '':
             z = re.search(r'\/([^.]+\.png)', item.icon)
             if z is not None:
-                item.file_path = os.path.join(IMAGE_CACHE_DIR, z.group())
+                paths = z.group().split('/')
+                item.file_path = os.path.join(IMAGE_CACHE_DIR, *paths)
 
         create_directories(item.file_path)
         if not os.path.exists(item.file_path):
-            print('Downloading image to', item.file_path)
+            logger.debug('Downloading image to %s', item.file_path)
             # Download image
             try:
                 urllib.request.urlretrieve(item.icon, item.file_path)
             except HTTPError as e:
-                print('HTTP error:', e.code)
+                logger.error('HTTP error: %s %s', e.code, e.reason)
             except URLError as e:
-                print('URL error:', e.reason)
+                logger.error('URL error: %s', e.reason)
 
         item.downloaded = True
 

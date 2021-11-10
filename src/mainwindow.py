@@ -11,12 +11,16 @@ from PyQt6.QtCore import QRect
 from PyQt6.QtGui import QFontDatabase
 from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QMenuBar, QStatusBar, QWidget
 
+import log
+
 from api import APIManager
 from loginwidget import LoginWidget
 from mainwidget import MainWidget
 from tabswidget import TabsWidget
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+logger = log.get_logger(__name__)
 
 # A font by Jos Buivenga (exljbris) -> www.exljbris.com
 TTF_FILE = os.path.join('..', 'assets', 'FontinSmallCaps.ttf')
@@ -90,7 +94,9 @@ class MainWindow(QMainWindow):
         dest_widget.on_show(*args)
 
     @staticmethod
-    def callback(cb_obj: QWidget, cb: Callable, args: Tuple) -> None:
+    def callback(cb_obj: QWidget, cb: Callable, cb_args: Tuple, args: Tuple) -> None:
         """Calls the callback function on an object with specified arguments."""
-        print('Calling cb function ', cb.__name__, args)
-        getattr(cb_obj, cb.__name__)(*args)
+        logger.info(
+            'Calling cb function %s %s (args(%s))', cb.__name__, cb_args, len(args)
+        )
+        getattr(cb_obj, cb.__name__)(*cb_args, *args)

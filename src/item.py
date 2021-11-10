@@ -89,7 +89,7 @@ def _list_tags(tag_info: List[Tuple[bool, str, str]]) -> str:
 class Item:
     """Class to represent an Item."""
 
-    def __init__(self, item_json: Dict[str, Any], tab_num: int) -> None:
+    def __init__(self, item_json: Dict[str, Any], tab: str) -> None:
         """Initializes every field that is needed, given the API JSON of the item."""
         self.name = (
             item_json['typeLine']
@@ -133,7 +133,7 @@ class Item:
         self.sockets = item_json.get("sockets")
 
         self.visible = True
-        self.tab_num = tab_num
+        self.tab = tab
         self.tooltip = []
 
         self.category = self.get_category(item_json)
@@ -146,10 +146,10 @@ class Item:
 
     def __lt__(self, other: 'Item') -> bool:
         """Default ordering for Items."""
-        if self.tab_num < other.tab_num:
+        if self.tab < other.tab:
             return True
 
-        if self.tab_num > other.tab_num:
+        if self.tab > other.tab:
             return False
 
         return self.name < other.name
