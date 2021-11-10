@@ -8,9 +8,14 @@ from PyQt6.QtCore import QAbstractTableModel, QModelIndex, QObject, QVariant, Qt
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QTableView, QWidget
 from consts import COLORS
-from filter import FILTERS
+from filter import FILTERS, filter_is_active
 
+import log
+
+from api import _get_time_ms
 from item import Item, property_function
+
+logger = log.get_logger(__name__)
 
 
 def _influence_func(item: 'Item') -> str:
@@ -48,7 +53,7 @@ class TableModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.items: List[Item] = []
         self.current_items: List[Item] = []
-        self.widgets: List[List[QWidget]] = []
+        self.filter_widgets: List[List[QWidget]] = []
         self.property_funcs = [func for _, func in TableModel.PROPERTY_FUNCS.items()]
         self.headers = list(TableModel.PROPERTY_FUNCS.keys())
         self.table_view = table_view
@@ -102,9 +107,9 @@ class TableModel(QAbstractTableModel):
         self.current_items.extend(items)
         self.endInsertRows()
 
-    def set_widgets(self, widgets: List[List[QWidget]]) -> None:
+    def set_filter_widgets(self, filter_widgets: List[List[QWidget]]) -> None:
         """Sets the filter widgets for the table."""
-        self.widgets = widgets
+        self.filter_widgets = filter_widgets
 
     def apply_filters(
         self, index: int = 1, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder
@@ -118,14 +123,21 @@ class TableModel(QAbstractTableModel):
         )
 
         # Items that pass every filter
+        prev_time = _get_time_ms()
+        active_filters = [
+            (filter, filter_widgets)
+            for filter, filter_widgets in zip(FILTERS, self.filter_widgets)
+            if any(filter_is_active(widget) for widget in filter_widgets)
+        ]
         self.current_items = [
             item
             for item in self.items
             if all(
-                filter.filter_func(item, *widgets)
-                for (filter, widgets) in zip(FILTERS, self.widgets)
+                filter.filter_func(item, *filter_widgets)
+                for (filter, filter_widgets) in active_filters
             )
         ]
+        logger.debug('Filtering took %sms', _get_time_ms() - prev_time)
 
         key = list(TableModel.PROPERTY_FUNCS.keys())[index]
         sort_func = TableModel.PROPERTY_FUNCS[key]

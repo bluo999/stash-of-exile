@@ -33,7 +33,16 @@ class Filter:
     name: str
     widget: Type[QWidget]
     filter_func: FilterFunction
-    validator: Optional[QValidator]
+    validator: Optional[QValidator] = None
+
+def filter_is_active(widget: QWidget) -> bool:
+    if isinstance(widget, QCheckBox):
+        return widget.isChecked()
+    if isinstance(widget, QLineEdit):
+        return len(widget.text()) > 0
+    if isinstance(widget, QComboBox):
+        return widget.currentIndex() > 0
+    return False
 
 
 def _filter_name(item: Item, elem: QLineEdit) -> bool:
@@ -44,14 +53,12 @@ def _filter_name(item: Item, elem: QLineEdit) -> bool:
 def _filter_category(item: Item, elem: QComboBox) -> bool:
     """Filter function that uses category."""
     text = elem.currentText()
-    return text in ('Any', item.category)
+    return text == item.category
 
 
 def _filter_rarity(item: Item, elem: QComboBox) -> bool:
     """Filter function that uses rarity."""
     text = elem.currentText()
-    if text == 'Any':
-        return True
     if item.rarity == text.lower():
         return True
     if text == 'Any Non-Unique' and item.rarity not in ['unique', 'foil']:
@@ -106,13 +113,20 @@ def _get_filter_ilevel() -> FilterFunction:
 
 def _filter_influences(item: Item, elem: QCheckBox) -> bool:
     """Filter function that uses influence."""
-    return (not elem.isChecked()) or len(item.influences) > 0
+    assert elem.isChecked()
+    return len(item.influences) > 0
+
+
+def _filter_mod(item: Item, elem: QLineEdit) -> bool:
+    """Filter function that searches for mods."""
+    search = elem.text().lower()
+    return any(search in mod.lower() for mod in item.explicit)
 
 
 FILTERS = [
-    Filter('Name', QLineEdit, _filter_name, None),
-    Filter('Category', QComboBox, _filter_category, None),
-    Filter('Rarity', QComboBox, _filter_rarity, None),
+    Filter('Name', QLineEdit, _filter_name),
+    Filter('Category', QComboBox, _filter_category),
+    Filter('Rarity', QComboBox, _filter_rarity),
     Filter('Damage', QLineEdit, _duo_filt_num('damage', float), DV),
     Filter('Attacks per Second', QLineEdit, _duo_filt_num('aps', float), DV),
     Filter('Critical Chance', QLineEdit, _duo_filt_num('crit', float), DV),
@@ -121,5 +135,6 @@ FILTERS = [
     Filter('Elemental DPS', QLineEdit, _duo_filt_num('edps', float), DV),
     Filter('Quality', QLineEdit, _duo_filt_num('qualityNum', int), IV),
     Filter('Item Level', QLineEdit, _get_filter_ilevel(), IV),
-    Filter('Influenced', QCheckBox, _filter_influences, None),
+    Filter('Influenced', QCheckBox, _filter_influences),
+    Filter('Mod', QLineEdit, _filter_mod),
 ]

@@ -187,6 +187,7 @@ class MainWidget(QWidget):
         for (tab_name, tab) in self.paths:
             # Open each tab
             items.extend(_parse_tab(tab, tab_name))
+        logger.debug('Num items: %s', len(items))
         self.paths = []
         self.model.insert_items(items)
 
@@ -292,7 +293,7 @@ class MainWidget(QWidget):
             self.filter_form_layout.setLayout(i, QFormLayout.ItemRole.FieldRole, layout)
 
         # Send widgets to model
-        self.model.set_widgets(self.widgets)
+        self.model.set_filter_widgets(self.widgets)
 
     def _name_ui(self) -> None:
         """Name the UI elements, including window title and labels."""
