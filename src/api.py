@@ -12,9 +12,8 @@ from collections import deque
 from datetime import datetime
 from functools import wraps
 from http import HTTPStatus
-from queue import Queue
 from threading import Condition
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, Deque, List, Tuple, Union
 from urllib.error import HTTPError, URLError
 
 from PyQt6.QtCore import QThread, pyqtSignal
@@ -28,17 +27,26 @@ logger = log.get_logger(__name__)
 HEADERS = {'User-Agent': 'stash-of-exile/0.1.0 (contact:brianluo999@gmail.com)'}
 
 URL_LEAGUES = 'https://api.pathofexile.com/leagues?type=main&compact=1'
-URL_TAB_NUM = (
-    'https://pathofexile.com/character-window/get-stash-items?accountName={}&league={}'
+URL_TAB_INFO = (
+    'https://pathofexile.com/character-window/get-stash-items'
+    + '?accountName={}&league={}&tabs=1'
 )
-URL_TAB_ITEMS = URL_TAB_NUM + '&tabNum={}'
+URL_TAB_ITEMS = URL_TAB_INFO + '&tabIndex={}'
 URL_CHARACTERS = 'https://pathofexile.com/character-window/get-characters'
 URL_CHAR_ITEMS = (
     'https://pathofexile.com/character-window/get-items?accountName={}&character={}'
 )
 
 # Default rate limit values (hits, period (in ms))
-RATE_LIMITS = [(5, 5000), (10, 10000), (15, 10000)]
+RATE_LIMITS = [(45, 60000), (240, 240000)]
+
+
+@dataclass
+class TooManyReq:
+    """Class storing data from a too many requests HTTP error."""
+
+    rate_limits: List[Tuple[int, int]]
+    retry_after: int
 
 
 def _get_time_ms() -> int:
@@ -65,10 +73,11 @@ def _get(func):
             return (func(self, *args, **kwargs), '')
         except HTTPError as e:
             if e.code == HTTPStatus.TOO_MANY_REQUESTS:
+                # TODO: update rate limiting variables on success
                 rules = e.headers.get('X-Rate-Limit-Rules').split(',')
                 rule = 'client' if 'client' in rules else rules[0]
                 rate_limits_str = e.headers.get(f'X-Rate-Limit-{rule}')
-                retry_after = int(e.headers.get('Retry After'))
+                retry_after = int(e.headers.get('Retry-After'))
                 logger.warning('Received rate limits: %s', rate_limits_str)
                 logger.info('Retry after: %s', retry_after)
                 self.too_many_reqs(rate_limits_str, retry_after)
@@ -79,19 +88,12 @@ def _get(func):
     return wrapper
 
 
-@dataclass
-class TooManyReq:
-    """Class storing data from a too many requests HTTP error."""
-
-    rate_limits: List[Tuple[int, int]]
-    retry_after: int
-
-
 class APIManager:
     """Manages sending official API calls."""
 
     def __init__(self):
-        self.queue: Queue = Queue()
+        Elem = Union[TooManyReq, Tuple[Callable, Tuple, QWidget, Callable, Tuple], None]
+        self.queue: Deque[Elem] = deque()
         self.cond = Condition()
         self.api_thread = APIThread(self)
         self.api_thread.start()
@@ -99,19 +101,19 @@ class APIManager:
     def kill_thread(self) -> None:
         """Kills the API thread."""
         self.cond.acquire()
-        self.queue.put(None)
+        self.queue.append(None)
         self.cond.notify()
         self.cond.release()
         self.api_thread.wait()
 
     def too_many_reqs(self, rate_limits_str: str, retry_after: int) -> None:
         """Updates the rate limits based on the string from response headers."""
-        rate_limits = [
-            (int(hits), int(period * 1000))
-            for hits, period, _ in rate_limits_str.split(',')
-        ]
+        rate_limits: List[Tuple[int, int]] = []
+        for rate_limit in rate_limits_str.split(','):
+            hits, period, _ = rate_limit.split(':')
+            rate_limits.append((int(hits), int(period) * 1000))
         self.cond.acquire()
-        self.queue.put(TooManyReq(rate_limits, retry_after))
+        self.queue.appendleft(TooManyReq(rate_limits, retry_after))
         self.cond.notify()
         self.cond.release()
 
@@ -124,21 +126,27 @@ class APIManager:
         cb_args: Tuple,
     ) -> None:
         """Inserts an element into the API queue."""
+        # TODO: batch insert
         self.cond.acquire()
-        self.queue.put((api_call, api_args, cb_obj, cb, cb_args))
+        self.queue.append((api_call, api_args, cb_obj, cb, cb_args))
         self.cond.notify()
         self.cond.release()
 
-    def consume(self) -> Optional[Tuple[QWidget, Callable, Tuple, Tuple]]:
+    def consume(
+        self
+    ) -> Union[TooManyReq, Tuple[QWidget, Callable, Tuple, Tuple], None]:
         """Consumes an element from the API queue (blocking)."""
         self.cond.acquire()
-        while self.queue.qsize() == 0:
+        while len(self.queue) == 0:
             self.cond.wait()
 
-        ret = self.queue.get()
+        ret = self.queue.popleft()
         # Signals to kill the thread
         if ret is None:
             return None
+
+        if isinstance(ret, TooManyReq):
+            return ret
 
         # Process api call
         api_call, api_args, cb_obj, cb, cb_args = ret
@@ -157,15 +165,15 @@ class APIManager:
             return [league['id'] for league in leagues]
 
     @_get
-    def get_num_tabs(  # pylint: disable=no-self-use
+    def get_tab_info(  # pylint: disable=no-self-use
         self, username: str, poesessid: str, league: str
-    ) -> int:
+    ) -> Any:
         """Retrieves number of tabs."""
         logger.info('Sending GET request for num tabs')
-        req = _elevated_request(URL_TAB_NUM.format(username, league), poesessid)
+        req = _elevated_request(URL_TAB_INFO.format(username, league), poesessid)
         with urllib.request.urlopen(req) as conn:
             tab_info = json.loads(conn.read())
-            return tab_info.get('numTabs', 0)
+            return tab_info
 
     @_get
     def get_tab_items(  # pylint: disable=no-self-use
@@ -207,7 +215,7 @@ class APIManager:
 class APIQueue(deque):
     """Queue that stores API call timestamps for rate limiting purposes."""
 
-    def __init__(self, hits: int, period: int):
+    def __init__(self, hits: int = 0, period: int = 0):
         deque.__init__(self)
         self.update_rate_limit(hits, period)
 
@@ -225,6 +233,12 @@ class APIQueueManager:
 
     def update_rate_limits(self, rate_limits: List[Tuple[int, int]]) -> None:
         """Update to new rate limits."""
+        if len(rate_limits) < len(self.queues):
+            self.queues = self.queues[: len(rate_limits)]
+        elif len(rate_limits) > len(self.queues):
+            for _ in range(len(rate_limits) - len(self.queues)):
+                self.queues.append(APIQueue())
+
         for queue, (hits, period) in zip(self.queues, rate_limits):
             queue.update_rate_limit(hits, period)
 

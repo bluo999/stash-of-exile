@@ -5,7 +5,7 @@ Handles league retrieving and login sequence.
 import os
 import pickle
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import (
@@ -22,7 +22,7 @@ from PyQt6.QtWidgets import (
 
 import log
 
-from save import Account, SavedData
+from save import Account, SavedData, TabId
 
 if TYPE_CHECKING:
     from mainwindow import MainWindow
@@ -225,24 +225,24 @@ class LoginWidget(QWidget):
         assert self.league is not None
         api_manager = self.main_window.api_manager
         api_manager.insert(
-            api_manager.get_num_tabs,
+            api_manager.get_tab_info,
             (self.account.username, self.account.poesessid, self.league),
             self,
-            self._get_num_tabs_callback,
+            self._get_tab_info_callback,
             (),
         )
 
-    def _get_num_tabs_callback(
-        self, tabs_length: Optional[int], err_message: str = ''
+    def _get_tab_info_callback(
+        self, tab_info: Optional[Dict[str, Any]], err_message: str = ''
     ) -> None:
         """Callback after get num tabs is returned."""
-        if tabs_length is None:
+        if tab_info is None:
             self.error_text.setText(err_message)
             return
 
         assert self.account is not None
-        logger.info('Success: %s tabs', tabs_length)
-        self.account.tabs_length = tabs_length
+        self.account.tab_ids = [TabId(tab['n'], tab['id']) for tab in tab_info['tabs']]
+        logger.info('Success: %s tabs', len(self.account.tab_ids))
         self.error_text.setText('')
         self._check_login_success()
 

@@ -48,6 +48,22 @@ logger = log.get_logger(__name__)
 ITEM_CACHE_DIR = os.path.join('..', 'item_cache')
 
 
+def _parse_tab(tab: str, tab_name: str) -> List[Item]:
+    """Parses a tab or character, extracting all items and socketed items."""
+    items: List[Item] = []
+    with open(tab, 'r') as f:
+        data = json.load(f)
+        # Add each item
+        for item in data['items']:
+            items.append(Item(item, tab_name))
+            # Add socketed items
+            if item.get('socketedItems') is not None:
+                for socketed_item in item['socketedItems']:
+                    items.append(Item(socketed_item, tab_name))
+    items.sort()
+    return items
+
+
 class MainWidget(QWidget):
     """Main Widget for the filter, tooltip, and table view."""
 
@@ -56,7 +72,7 @@ class MainWidget(QWidget):
         QWidget.__init__(self)
         self.main_window = main_window
         self.paths: List[Tuple[str, str]] = []
-        self.num_tabs = 0
+        self.account = None
         self._static_build()
         self._dynamic_build_filters()
         self._setup_filters()
@@ -66,32 +82,54 @@ class MainWidget(QWidget):
         self,
         account: Account = None,
         league: str = '',
-        characters: List[str] = field(default_factory=list),
         tabs: List[int] = field(default_factory=list),
+        characters: List[str] = field(default_factory=list),
     ):
         """Use cached items and retrieve the remainder using the API."""
-        # TODO: use tabs
         # self.paths represents the paths that still need to be imported into the table
+        logger.debug('on_show()')
         if account is None:
             # Show all cached results
             self.paths = [
                 (os.path.splitext(os.path.basename(path))[0], path)
                 for accounts in get_subdirectories(ITEM_CACHE_DIR)
                 for leagues in get_subdirectories(accounts)
-                for path in get_jsons(leagues)
+                for tab_char in get_subdirectories(leagues)
+                for path in get_jsons(tab_char)
             ]
         else:
             # Download jsons
+            # TODO: force import vs cache
+            self.account = account
+            api_manager = self.main_window.api_manager
+            for tab_num in tabs:
+                filename = os.path.join(
+                    ITEM_CACHE_DIR, account.username, league, 'tabs', f'{tab_num}.json'
+                )
+                if os.path.exists(filename):
+                    self.paths.append(
+                        (f'{tab_num} ({account.tab_ids[tab_num].name})', filename)
+                    )
+                    continue
+                api_manager.insert(
+                    api_manager.get_tab_items,
+                    (account.username, account.poesessid, league, tab_num),
+                    self,
+                    self._get_tab_callback,
+                    (tab_num, filename),
+                )
+
             for char in characters:
                 filename = os.path.join(
-                    ITEM_CACHE_DIR, account.username, league, f'{char}.json'
+                    ITEM_CACHE_DIR,
+                    account.username,
+                    league,
+                    'characters',
+                    f'{char}.json',
                 )
-                # TODO: force import vs cache
                 if os.path.exists(filename):
                     self.paths.append((char, filename))
                     continue
-                create_directories(filename)
-                api_manager = self.main_window.api_manager
                 api_manager.insert(
                     api_manager.get_character_items,
                     (account.username, account.poesessid, char),
@@ -101,6 +139,27 @@ class MainWidget(QWidget):
                 )
 
         self._build_table()
+
+    def _get_tab_callback(
+        self, tab_num: int, filename: str, tab, err_message: str
+    ) -> None:
+        """Takes tab API data and inserts the items into the table."""
+        if tab is None:
+            # Use error message
+            logger.warning(err_message)
+            return
+
+        assert self.account is not None
+
+        logger.info('Writing tab json to %s', filename)
+        create_directories(filename)
+        with open(filename, 'w') as f:
+            json.dump(tab, f)
+
+        items = _parse_tab(
+            filename, f'{tab_num} ({self.account.tab_ids[tab_num].name})'
+        )
+        self.model.insert_items(items)
 
     def _get_char_callback(
         self, char_name: str, filename: str, char, err_message: str
@@ -112,38 +171,22 @@ class MainWidget(QWidget):
             return
 
         logger.info('Writing character json to %s', filename)
+        create_directories(filename)
         with open(filename, 'w') as f:
             json.dump(char, f)
 
-        items = self._parse_tab(filename, char_name)
+        items = _parse_tab(filename, char_name)
         self.model.insert_items(items)
-
-    def _parse_tab(self, tab: str, tab_name: str = '') -> List[Item]:
-        """Parses a tab or character, extracting all items and socketed items."""
-        items: List[Item] = []
-        if tab_name == '':
-            tab_name = str(self.num_tabs)
-        with open(tab, 'r') as f:
-            data = json.load(f)
-            # Add each item
-            for item in data['items']:
-                items.append(Item(item, tab_name))
-                # Add socketed items
-                if item.get('socketedItems') is not None:
-                    for socketed_item in item['socketedItems']:
-                        items.append(Item(socketed_item, tab_name))
-        self.num_tabs += 1
-        items.sort()
-        return items
 
     def _build_table(self) -> None:
         """Setup the items, download their images, and setup the table."""
         # Get available items
         logger.debug(self.paths)
+        # TODO: delegate this to APIManager or new thread to avoid blocking UI
         items: List[Item] = []
         for (tab_name, tab) in self.paths:
             # Open each tab
-            items.extend(self._parse_tab(tab, tab_name))
+            items.extend(_parse_tab(tab, tab_name))
         self.paths = []
         self.model.insert_items(items)
 

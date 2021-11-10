@@ -16,10 +16,14 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+import log
+
 from save import Account, SavedData
 
 if TYPE_CHECKING:
     from mainwindow import MainWindow
+
+logger = log.get_logger(__name__)
 
 
 class TabsWidget(QWidget):
@@ -43,7 +47,7 @@ class TabsWidget(QWidget):
 
         # TODO: clear tree then rebuild
         # Setup tree has not yet been called
-        if self.tree_widget.topLevelItemCount() == 1:
+        if self.tree_widget.topLevelItemCount() == 2:
             self._setup_tree()
 
     def _static_build(self) -> None:
@@ -61,7 +65,8 @@ class TabsWidget(QWidget):
         self.tree_widget.setHeaderHidden(True)
         self.vlayout.addWidget(self.tree_widget)
 
-        # Characters
+        # Characters and Tabs
+        self.tab_group = QTreeWidgetItem(self.tree_widget)
         self.char_group = QTreeWidgetItem(self.tree_widget)
 
         # Error Text
@@ -91,18 +96,22 @@ class TabsWidget(QWidget):
     def _setup_tree(self):
         """Setup tabs in tree widget."""
         assert self.account is not None
-        tab_group = QTreeWidgetItem(self.tree_widget)
-        tab_group.setText(0, f'Stash Tabs ({self.account.tabs_length})')
-        tab_group.setFlags(
-            tab_group.flags()
+        self.tab_group.setText(0, f'Stash Tabs ({len(self.account.tab_ids)})')
+        self.tab_group.setFlags(
+            self.tab_group.flags()
             | Qt.ItemFlag.ItemIsAutoTristate
             | Qt.ItemFlag.ItemIsUserCheckable
         )
-        tab_group.setCheckState(0, Qt.CheckState.Checked)
+        for i, tab in enumerate(self.account.tab_ids):
+            tab_widget = QTreeWidgetItem(self.tab_group)
+            tab_widget.setText(0, f'{i} ({tab.name})')
+            tab_widget.setFlags(tab_widget.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            tab_widget.setCheckState(0, Qt.CheckState.Checked)
+        # self.tab_group.setCheckState(0, Qt.CheckState.Checked)
 
         # Setup characters in tree widget
         self.char_group.setText(0, f'Characters ({len(self.account.character_names)})')
-        self.char_group.setFlags(tab_group.flags())
+        self.char_group.setFlags(self.tab_group.flags())
         for char in self.account.character_names:
             char_widget = QTreeWidgetItem(self.char_group)
             char_widget.setText(0, char)
@@ -110,14 +119,25 @@ class TabsWidget(QWidget):
             char_widget.setCheckState(0, Qt.CheckState.Checked)
 
     def _import_items(self) -> None:
-        # TODO: import tabs
+        """Send the list of checked tabs and characters to the main widget."""
+        assert self.account is not None
+        logger.debug('Getting checked')
+        tabs = [
+            i
+            for i, _ in enumerate(self.account.tab_ids)
+            if self.tab_group.child(i).checkState(0) == Qt.CheckState.Checked
+        ]
+
         characters: List[str] = []
         for i in range(self.char_group.childCount()):
             char = self.char_group.child(i)
             if char.checkState(0) == Qt.CheckState.Checked:
                 characters.append(char.text(0))
+
+        logger.debug('Finished checked')
+
         self.main_window.switch_widget(
-            self.main_window.main_widget, self.account, self.league, characters
+            self.main_window.main_widget, self.account, self.league, tabs, characters
         )
 
     def _name_ui(self) -> None:

@@ -97,7 +97,7 @@ class TableModel(QAbstractTableModel):
 
     def insert_items(self, items: List[Item]) -> None:
         """Inserts a list of items into the table."""
-        self.beginInsertRows(QModelIndex(), 0, len(items))
+        self.beginInsertRows(QModelIndex(), 0, len(items) - 1)
         self.items.extend(items)
         self.current_items.extend(items)
         self.endInsertRows()

@@ -40,7 +40,7 @@ class Property:
             # Property with label
             valnum = self.values[0][1]
             assert isinstance(valnum, int)
-            color = COLORS[VALNUM_TO_COLOR[valnum]]
+            color = COLORS[VALNUM_TO_COLOR.get(valnum, 'white')]
             label = SPAN_TEMPLATE.format(COLORS['grey'], obj['text'] + ': ')
             value = SPAN_TEMPLATE.format(color, self.values[0][0])
             self.tooltip = label + value
