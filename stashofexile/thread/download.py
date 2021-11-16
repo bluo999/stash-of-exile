@@ -13,8 +13,8 @@ from urllib.error import HTTPError, URLError
 import log
 import util
 
-from item import Item
-from thread import IMAGE_CACHE_DIR
+from item.item import Item
+from thread.thread import IMAGE_CACHE_DIR
 
 logger = log.get_logger(__name__)
 

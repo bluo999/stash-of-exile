@@ -7,13 +7,13 @@ from typing import Callable, Dict, List
 from PyQt6.QtCore import QAbstractTableModel, QModelIndex, QObject, QVariant, Qt
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QTableView, QWidget
-from consts import COLORS
-from filter import FILTERS, filter_is_active
 
 import log
 
-from item import Item, property_function
-from ratelimiting import _get_time_ms
+from consts import COLORS
+from item.filter import FILTERS, filter_is_active
+from item.item import Item, property_function
+from thread.ratelimiting import _get_time_ms
 
 logger = log.get_logger(__name__)
 

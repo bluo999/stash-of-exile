@@ -8,7 +8,7 @@ from PyQt6.QtGui import QDoubleValidator, QIntValidator, QValidator
 
 from PyQt6.QtWidgets import QCheckBox, QComboBox, QLineEdit, QWidget
 
-from item import Item
+from item.item import Item
 
 FilterFunction = Callable[..., bool]
 Num = Union[int, float]

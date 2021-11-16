@@ -13,11 +13,11 @@ from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QMenuBar, QStatusBar, QWid
 
 import log
 
-from api import APIManager
-from loginwidget import LoginWidget
-from mainwidget import MainWidget
-from tabswidget import TabsWidget
-from thread import Ret
+from thread.api import APIManager
+from thread.thread import Ret
+from widgets.loginwidget import LoginWidget
+from widgets.tabswidget import TabsWidget
+from widgets.mainwidget import MainWidget
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 

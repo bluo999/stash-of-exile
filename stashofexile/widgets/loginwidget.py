@@ -21,7 +21,7 @@ from PyQt6.QtWidgets import (
 
 import log
 from save import Account, SavedData, TabId
-from thread import Call
+from thread.thread import Call
 
 if TYPE_CHECKING:
     from mainwindow import MainWindow

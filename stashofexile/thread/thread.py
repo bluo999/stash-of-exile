@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import QWidget
 
 import log
 
-from ratelimiting import RateLimit, RateLimiter, TooManyReq
+from thread.ratelimiting import RateLimit, RateLimiter, TooManyReq
 
 
 logger = log.get_logger(__name__)
@@ -124,6 +124,7 @@ class ThreadManager(ABC):
 
 class QThreadABCMeta(type(QThread), type(ABC)):
     """Final metatype for QThread and ABC."""
+
 
 class RetrieveThread(QThread, ABC, metaclass=QThreadABCMeta):
     """QThread that will retrieve from some service."""

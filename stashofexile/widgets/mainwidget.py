@@ -29,18 +29,18 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from tab import CharacterTab, ItemTab, StashTab
 
 import log
-from thread import Call
 import util
 
 from consts import SEPARATOR_TEMPLATE
-from filter import FILTERS
-from item import Item
+from item.filter import FILTERS
+from item.item import Item
 from gamedata import COMBO_ITEMS
 from save import Account
+from tab import CharacterTab, ItemTab, StashTab
 from table import TableModel
+from thread.thread import Call
 
 if TYPE_CHECKING:
     from mainwindow import MainWindow

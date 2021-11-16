@@ -10,7 +10,7 @@ from typing import List, Optional
 import log
 import util
 
-from item import Item
+from item.item import Item
 
 logger = log.get_logger(__name__)
 

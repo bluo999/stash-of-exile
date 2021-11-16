@@ -14,8 +14,8 @@ from PyQt6.QtCore import pyqtSignal
 
 import log
 
-from ratelimiting import RateLimit, RateLimiter
-from thread import Ret, RetrieveThread, ThreadManager
+from thread.ratelimiting import RateLimit, RateLimiter
+from thread.thread import Ret, RetrieveThread, ThreadManager
 
 logger = log.get_logger(__name__)
 

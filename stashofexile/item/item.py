@@ -7,8 +7,8 @@ from typing import Any, Callable, Dict, List, NamedTuple
 
 from consts import COLORS, HEADER_TEMPLATE, SPAN_TEMPLATE
 from gamedata import COMBO_ITEMS, FRAGMENTS, RARITIES
-from property import Property
-from requirement import Requirement
+from item.property import Property
+from item.requirement import Requirement
 
 PLUS_PERCENT_REGEX = r'\+(\d+)%'  # +x%
 FLAT_PERCENT_REGEX = r'([0-9]{1,2}\.\d{2})%'  # xx.xx%
