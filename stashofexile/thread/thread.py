@@ -2,14 +2,13 @@
 Threads used in the application.
 """
 
-import os
 import time
 
 from abc import ABC, abstractmethod
 from collections import deque
 from dataclasses import dataclass
 from threading import Condition
-from typing import Callable, Deque, List, Optional, Tuple, Type, Union
+from typing import Callable, Deque, Iterable, List, Optional, Tuple, Type, Union
 
 from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QWidget
@@ -22,17 +21,14 @@ from thread.ratelimiting import RateLimit, RateLimiter, TooManyReq
 logger = log.get_logger(__name__)
 
 
-IMAGE_CACHE_DIR = os.path.join('..', 'image_cache')
-
-
 @dataclass
 class Call:
     """Represents a service call and callback parameters."""
 
     service_method: Callable
     service_args: Tuple
-    cb_obj: QWidget
-    cb: Callable
+    cb_obj: Optional[QWidget]
+    cb: Callable = lambda: ()
     cb_args: Tuple = ()
 
 
@@ -40,7 +36,7 @@ class Call:
 class Ret:
     """Represents a service return and callback parameters."""
 
-    cb_obj: QWidget
+    cb_obj: Optional[QWidget]
     cb: Callable
     cb_args: Tuple
     service_result: Tuple
@@ -71,18 +67,14 @@ class ThreadManager(ABC):
         self.cond.release()
         self.thread.wait()
 
-    def too_many_reqs(self, rate_limits_str: str, retry_after: int) -> None:
+    def too_many_reqs(self, rate_limits: List[RateLimit], retry_after: int = 0) -> None:
         """Updates the rate limits based on the string from response headers."""
-        rate_limits: List[RateLimit] = []
-        for rate_limit in rate_limits_str.split(','):
-            hits, period, _ = rate_limit.split(':')
-            rate_limits.append(RateLimit(int(hits), int(period) * 1000))
         self.cond.acquire()
         self.queue.appendleft(TooManyReq(rate_limits, retry_after))
         self.cond.notify()
         self.cond.release()
 
-    def insert(self, calls: List) -> None:
+    def insert(self, calls: Iterable[Call]) -> None:
         """Inserts a call into the queue."""
         self.cond.acquire()
         self.queue.extend(calls)
@@ -167,5 +159,5 @@ class RetrieveThread(QThread, ABC, metaclass=QThreadABCMeta):
             self.service_success(ret)
 
     @abstractmethod
-    def service_success(self, ret: Ret):
+    def service_success(self, ret: Ret) -> None:
         """Callback for a successful service."""

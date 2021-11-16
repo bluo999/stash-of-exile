@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QMenuBar, QStatusBar, QWid
 import log
 
 from thread.api import APIManager
+from thread.download import DownloadManager
 from thread.thread import Ret
 from widgets.loginwidget import LoginWidget
 from widgets.tabswidget import TabsWidget
@@ -59,6 +60,9 @@ class MainWindow(QMainWindow):
         self.api_manager = APIManager()
         self.api_manager.thread.output.connect(MainWindow.callback)
 
+        # Start download thread
+        self.download_manager = DownloadManager()
+
         # Initialize (and build) widgets
         self.login_widget = LoginWidget(self)
         self.tabs_widget = TabsWidget(self)
@@ -95,14 +99,15 @@ class MainWindow(QMainWindow):
         dest_widget.on_show(*args)
 
     @staticmethod
-    def callback(api_ret: Ret) -> None:
+    def callback(ret: Ret) -> None:
         """Calls the callback function on an object with specified arguments."""
+        if ret.cb_obj is None:
+            return
+
         logger.info(
             'Calling cb function %s %s (args(%s))',
-            api_ret.cb.__name__,
-            api_ret.cb_args,
-            len(api_ret.service_result),
+            ret.cb.__name__,
+            ret.cb_args,
+            len(ret.service_result),
         )
-        getattr(api_ret.cb_obj, api_ret.cb.__name__)(
-            *api_ret.cb_args, *api_ret.service_result
-        )
+        getattr(ret.cb_obj, ret.cb.__name__)(*ret.cb_args, *ret.service_result)

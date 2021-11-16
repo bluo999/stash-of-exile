@@ -8,7 +8,7 @@ import os
 from dataclasses import field
 from functools import partial
 from inspect import signature
-from typing import List, TYPE_CHECKING, Optional
+from typing import List, TYPE_CHECKING, Optional, Set, Tuple
 
 from PyQt6.QtCore import QItemSelection, QSize, Qt
 from PyQt6.QtGui import QFont, QTextCursor
@@ -23,7 +23,6 @@ from PyQt6.QtWidgets import (
     QHeaderView,
     QLabel,
     QLineEdit,
-    QStatusBar,
     QTableView,
     QTextEdit,
     QVBoxLayout,
@@ -140,6 +139,16 @@ class MainWidget(QWidget):
 
         api_manager.insert(api_calls)
 
+    def _on_receive_items(self, items: List[Item]):
+        """Inserts items in model and queues image downloading."""
+        icons: Set[Tuple[str, str]] = set()
+        download_manager = self.main_window.download_manager
+        icons.update((item.icon, item.file_path) for item in items)
+        download_manager.insert(
+            Call(download_manager.get_image, icon, None) for icon in icons
+        )
+        self.model.insert_items(items)
+
     def _get_stash_tab_callback(self, tab: StashTab, data, err_message: str) -> None:
         """Takes tab API data and inserts the items into the table."""
         if data is None:
@@ -154,7 +163,7 @@ class MainWidget(QWidget):
         with open(tab.filepath, 'w') as f:
             json.dump(data, f)
 
-        self.model.insert_items(tab.get_items())
+        self._on_receive_items(tab.get_items())
 
     def _get_char_callback(self, tab: CharacterTab, data, err_message: str) -> None:
         """Takes character API data and inserts the items into the table."""
@@ -168,17 +177,25 @@ class MainWidget(QWidget):
         with open(tab.filepath, 'w') as f:
             json.dump(data, f)
 
-        self.model.insert_items(tab.get_items())
+        self._on_receive_items(tab.get_items())
 
     def _build_table(self) -> None:
         """Sets up the items, downloads their images, and sets up the table."""
         # Get available items
         # TODO: delegate this to APIManager or new thread to avoid blocking UI
+        download_manager = self.main_window.download_manager
         items: List[Item] = []
+        icons: Set[Tuple[str, str]] = set()
         for tab in self.item_tabs:
             # Open each tab
             # logger.debug(tab.filepath)
-            items.extend(tab.get_items())
+            tab_items = tab.get_items()
+            icons.update((item.icon, item.file_path) for item in tab_items)
+            items.extend(tab_items)
+
+        download_manager.insert(
+            Call(download_manager.get_image, icon, None) for icon in icons
+        )
         logger.debug('Cached tabs: %s, items: %s', len(self.item_tabs), len(items))
         self.item_tabs = []
 
@@ -190,12 +207,6 @@ class MainWidget(QWidget):
 
         # Insert remaining items
         self.model.insert_items(items[1:])
-
-        # # Start downloading images
-        # status_bar: QStatusBar = self.main_window.statusBar()
-        # status_bar.showMessage('Downloading images')
-        # thread = DownloadThread(status_bar, items)
-        # thread.start()
 
         # Connect selection to update tooltip
         self.table.selectionModel().selectionChanged.connect(

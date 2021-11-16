@@ -38,7 +38,7 @@ class LoginWidget(QWidget):
         """Initialize the UI."""
         QWidget.__init__(self)
         self.main_window = main_window
-        self.saved_data = None
+        self.saved_data = SavedData()
         self.account = None
         self.league = None
         self._static_build()
@@ -46,18 +46,15 @@ class LoginWidget(QWidget):
         self._name_ui()
 
     def on_show(
-        self, saved_data: Optional[SavedData] = None, account: Optional[Account] = None
+        self, account: Optional[Account] = None
     ) -> None:
-        """Updates saved data and account if specified."""
-        if saved_data is not None:
-            self.saved_data = saved_data
+        """Updates account if specified."""
         if account is not None:
             self.account = account
 
     def _dynamic_build(self) -> None:
         """Loads saved file and get leagues if necessary."""
         self._load_saved_file()
-        assert self.saved_data is not None
         if len(self.saved_data.leagues) == 0:
             self._get_leagues_api()
         else:
@@ -141,8 +138,6 @@ class LoginWidget(QWidget):
                 account = self.saved_data.accounts[0]
                 self.account_field.setText(self.saved_data.accounts[0].username)
                 self.poesessid_field.setText(self.saved_data.accounts[0].poesessid)
-        else:
-            self.saved_data = SavedData()
 
     def _submit_cached(self) -> None:
         """Skips login and view cached stash."""
@@ -150,6 +145,7 @@ class LoginWidget(QWidget):
 
     def _get_leagues_api(self) -> None:
         """Gets leagues from API."""
+        logger.debug('Getting leagues')
         api_manager = self.main_window.api_manager
         api_manager.insert(
             [Call(api_manager.get_leagues, (), self, self._get_leagues_callback)]
@@ -160,19 +156,17 @@ class LoginWidget(QWidget):
     ) -> None:
         """Callback after get leagues is returned."""
         if leagues is None:
+            logger.error(err_message)
             self.error_text.setText(err_message)
             return
 
-        assert self.saved_data is not None
         self.saved_data.leagues = leagues
         self._get_leagues_success()
 
     def _get_leagues_success(self) -> None:
         """Populates leagues combo box."""
-        assert self.saved_data is not None
         logger.info('Success: %s', self.saved_data.leagues)
         self.league_field.clear()
-        assert self.saved_data is not None
         self.league_field.addItems(self.saved_data.leagues)
         self.login_button.setEnabled(True)
         self.error_text.setText('')
@@ -195,7 +189,6 @@ class LoginWidget(QWidget):
             self.error_text.setText('First get leagues')
             return
 
-        assert self.saved_data is not None
         search_account = [
             savedAccount
             for savedAccount in self.saved_data.accounts
@@ -205,19 +198,18 @@ class LoginWidget(QWidget):
         if len(search_account) == 0:
             # Account not in saved data
             self.account = Account(username, poesessid)
-            self.saved_data.accounts.append(self.account)
-            self._get_num_tabs_api()
             self._get_char_list_api()
+            self._get_num_tabs_api()
             return
 
         self.account = search_account[0]
         if not self.account.has_characters():
-            # Character names were not saved
+            logger.info('Character list was not saved')
             self._get_char_list_api()
             return
 
         if self.account.poesessid != poesessid or not self.account.has_tabs():
-            # POESESSID is different or number of tabs was not saved
+            logger.info('POESESSID different or number of tabs was not saved')
             self.account.poesessid = poesessid
             self._get_num_tabs_api()
             return
@@ -229,6 +221,7 @@ class LoginWidget(QWidget):
         """Gets number of tabs from API."""
         assert self.account is not None
         assert self.league is not None
+        logger.debug('Getting num tabs')
         api_manager = self.main_window.api_manager
         api_call = Call(
             api_manager.get_tab_info,
@@ -243,10 +236,16 @@ class LoginWidget(QWidget):
     ) -> None:
         """Callback after get num tabs is returned."""
         if tab_info is None:
+            logger.error(err_message)
             self.error_text.setText(err_message)
             return
 
         assert self.account is not None
+
+        # Save username/poessesid to saved data
+        if self.account not in self.saved_data.accounts:
+            self.saved_data.accounts.append(self.account)
+
         self.account.tab_ids = [TabId(tab['n'], tab['id']) for tab in tab_info['tabs']]
         logger.info('Success: %s tabs', len(self.account.tab_ids))
         self.error_text.setText('')
@@ -256,6 +255,7 @@ class LoginWidget(QWidget):
         """Gets character list from API."""
         assert self.account is not None
         assert self.league is not None
+        logger.debug('Getting character list')
         api_manager = self.main_window.api_manager
         api_call = Call(
             api_manager.get_character_list,
@@ -269,12 +269,14 @@ class LoginWidget(QWidget):
         self, char_list: Optional[List[str]], err_message: str = ''
     ) -> None:
         """Callback after get num tabs is returned."""
-        if char_list is None:
+        if char_list is None or len(char_list) == 0:
+            logger.error(err_message)
             self.error_text.setText(err_message)
             return
 
         assert self.account is not None
-        logger.info('Success: %s', self.account.character_names)
+
+        logger.info('Success: %s', char_list)
         self.account.character_names = char_list
         self.error_text.setText('')
         self._check_login_success()

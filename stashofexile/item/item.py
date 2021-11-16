@@ -2,6 +2,7 @@
 Defines parsing of the item API and converting into a local object.
 """
 
+import os
 import re
 from typing import Any, Callable, Dict, List, NamedTuple
 
@@ -13,6 +14,8 @@ from item.requirement import Requirement
 PLUS_PERCENT_REGEX = r'\+(\d+)%'  # +x%
 FLAT_PERCENT_REGEX = r'([0-9]{1,2}\.\d{2})%'  # xx.xx%
 NUM_RANGE_REGEX = r'(\d+)-(\d+)'  # x-x
+
+IMAGE_CACHE_DIR = os.path.join('..', 'image_cache')
 
 
 class ModGroup(NamedTuple):
@@ -158,7 +161,16 @@ class Item:
         self.category = self.get_category(item_json)
 
         self.icon = item_json['icon']
+
         self.file_path = ''
+        z = re.search(r'\/([^.]+\.png)', self.icon)
+        if z is not None:
+            paths = z.group().split('/')
+            # Some generated file names are the same for different images:
+            # if 'gen' in paths:
+            #     index = paths.index('gen')
+            #     paths = paths[0: index + 1] + paths[-1:]
+            self.file_path = os.path.join(IMAGE_CACHE_DIR, *paths)
 
         self._calculate_properties()
 

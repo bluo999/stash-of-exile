@@ -7,7 +7,7 @@ import urllib.request
 
 from functools import wraps
 from http import HTTPStatus
-from typing import Any, List
+from typing import Any, List, Tuple
 from urllib.error import HTTPError, URLError
 
 from PyQt6.QtCore import pyqtSignal
@@ -52,7 +52,7 @@ def _get(func):
     """
 
     @wraps(func)
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self, *args, **kwargs) -> Tuple:
         assert isinstance(self, APIManager)
         try:
             return (func(self, *args, **kwargs), '')
@@ -65,7 +65,11 @@ def _get(func):
                 retry_after = int(e.headers.get('Retry-After'))
                 logger.warning('Received rate limits: %s', rate_limits_str)
                 logger.info('Retry after: %s', retry_after)
-                self.too_many_reqs(rate_limits_str, retry_after)
+                rate_limits: List[RateLimit] = []
+                for rate_limit in rate_limits_str.split(','):
+                    hits, period, _ = rate_limit.split(':')
+                    rate_limits.append(RateLimit(int(hits), int(period) * 1000))
+                self.too_many_reqs(rate_limits, retry_after)
             return (None, f'HTTP Error {e.code} {e.reason}')
         except URLError as e:
             return (None, f'URL Error {e.reason}')

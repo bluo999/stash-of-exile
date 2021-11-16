@@ -3,60 +3,53 @@ Contains image downloading related classes.
 """
 
 import os
-import re
 import urllib.request
 
 from http import HTTPStatus
-from typing import List
+from typing import Tuple
 from urllib.error import HTTPError, URLError
 
 import log
 import util
 
-from item.item import Item
-from thread.thread import IMAGE_CACHE_DIR
+from thread.thread import Ret, RetrieveThread, ThreadManager
 
 logger = log.get_logger(__name__)
 
 
-def _retrieves(items: List[Item]) -> None:
-    """Downloads images for each item."""
-    for item in items:
-        # Extract file path from web url
-        if item.file_path == '':
-            z = re.search(r'\/([^.]+\.png)', item.icon)
-            if z is not None:
-                paths = z.group().split('/')
-                item.file_path = os.path.join(IMAGE_CACHE_DIR, *paths)
+class DownloadManager(ThreadManager):
+    """Manages downloading images for items."""
 
-        util.create_directories(item.file_path)
-        if not os.path.exists(item.file_path):
-            logger.debug('Downloading image to %s', item.file_path)
+    def __init__(self):
+        ThreadManager.__init__(self, DownloadThread)
+
+    def get_image(self, icon: str, file_path: str) -> Tuple:
+        """Gets an image given item info."""
+        # Extract file path from web url
+        util.create_directories(file_path)
+        if not os.path.exists(file_path):
+            logger.debug('Downloading image to %s', file_path)
             # Download image
             try:
-                urllib.request.urlretrieve(item.icon, item.file_path)
+                urllib.request.urlretrieve(icon, file_path)
             except HTTPError as e:
                 logger.error('HTTP error: %s %s', e.code, e.reason)
                 if e.code == HTTPStatus.TOO_MANY_REQUESTS:
                     logger.error('%s received, aborting image downloads', e.code)
-                    break
+                    self.too_many_reqs([])
             except URLError as e:
                 logger.error('URL error: %s', e.reason)
+        # else:
+        #     logger.error('Could not get image from path %s', icon)
+
+        return (None,)
 
 
-# def _download_finished(statusbar: QStatusBar) -> None:
-#     """Shows a status message, when the download thread finishes."""
-#     statusbar.showMessage('Image downloading finished', STATUS_TIMEOUT)
+class DownloadThread(RetrieveThread):
+    """Thread that downloads images."""
 
+    def __init__(self, download_manager: DownloadManager) -> None:
+        RetrieveThread.__init__(self, download_manager)
 
-# class DownloadThread(QThread):
-#     """Thread that downloads images for each item."""
-
-#     def __init__(self, items: List[Item]) -> None:
-#         QThread.__init__(self)
-#         self.items = items
-#         # self.finished.connect(partial(_download_finished, statusbar))
-
-#     def run(self) -> None:
-#         """Runs the thread."""
-#         _retrieves(self.items)
+    def service_success(self, ret: Ret) -> None:
+        """Don't do anything for now."""
