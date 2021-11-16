@@ -20,8 +20,8 @@ logger = log.get_logger(__name__)
 
 def _influence_func(item: 'Item') -> str:
     """
-    Given an item return an influence string, which is a list of capital letters for
-    each influence.
+    Returns an influence string (list of capital letters for each influence) given an
+    item.
     """
     ret = ''
     for infl in item.influences:
@@ -51,7 +51,6 @@ class TableModel(QAbstractTableModel):
     }
 
     def __init__(self, table_view: QTableView, parent: QObject) -> None:
-        """Initialize the table model."""
         QAbstractTableModel.__init__(self, parent)
         self.items: List[Item] = []
         self.current_items: List[Item] = []
@@ -69,8 +68,10 @@ class TableModel(QAbstractTableModel):
         return len(self.property_funcs)
 
     def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole):
-        """Returns the data stored under the given
-        role for the item referred to by the index."""
+        """
+        Returns the data stored under the given role for the item referred to by the
+        index.
+        """
         row = index.row()
         column = index.column()
 
@@ -119,8 +120,8 @@ class TableModel(QAbstractTableModel):
         self, index: int = 1, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder
     ) -> None:
         """
-        Apply a filter based on several search parameters, updating the current items
-        and layout.
+        Applies a filter based on several search parameters, updating the current
+        items and layout.
         """
         # Previously selected item
         selection = self.table_view.selectedIndexes()

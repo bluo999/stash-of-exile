@@ -129,7 +129,10 @@ def _filter_influences(item: Item, elem: QCheckBox) -> bool:
 def _filter_mod(item: Item, elem: QLineEdit) -> bool:
     """Filter function that searches for mods."""
     search = elem.text().lower()
-    return any(search in mod.lower() for mod in item.explicit)
+    return any(
+        any(search in mod.lower() for mod in mod_group)
+        for mod_group in (item.fractured, item.explicit, item.crafted)
+    )
 
 
 FILTERS = [

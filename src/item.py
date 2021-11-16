@@ -378,7 +378,7 @@ class Item:
         tooltip = ''
         if len(self.properties) > 0:
             for i, prop in enumerate(self.properties):
-                tooltip += prop.description()
+                tooltip += prop.description
                 if i < len(self.properties) - 1:
                     tooltip += '<br />'
 
@@ -400,7 +400,7 @@ class Item:
             for i, req in enumerate(self.requirements):
                 if i > 0:
                     tooltip += ','
-                tooltip += ' ' + req.description()
+                tooltip += ' ' + req.description
 
         return tooltip
 

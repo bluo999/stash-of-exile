@@ -15,8 +15,9 @@ class Requirement:
         self.values = reqInfo['vals']
         self.tooltip = None
 
+    @property
     def description(self) -> str:
-        """Get colorized description used in the requirements tooltip."""
+        """Gets colorized description used in the requirements tooltip."""
         if self.tooltip is not None:
             return self.tooltip
 

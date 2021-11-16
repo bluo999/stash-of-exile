@@ -40,7 +40,7 @@ class TabsWidget(QWidget):
         self._name_ui()
 
     def on_show(self, saved_data: SavedData, account: Account, league: str) -> None:
-        """Setup tree based on saved_data and account."""
+        """Sets up tree based on saved_data and account."""
         self.saved_data = saved_data
         self.account = account
         self.league = league
@@ -51,7 +51,7 @@ class TabsWidget(QWidget):
             self._setup_tree()
 
     def _static_build(self) -> None:
-        """Setup the static base UI, including properties and widgets."""
+        """Sets up the static base UI, including properties and widgets."""
         # Main area
         self.login_box = QWidget(self)
         self.login_box.setMinimumSize(QSize(500, 400))
@@ -96,7 +96,7 @@ class TabsWidget(QWidget):
         self.main_hlayout.addWidget(self.login_box, 0, Qt.AlignmentFlag.AlignCenter)
 
     def _setup_tree(self):
-        """Setup tabs in tree widget."""
+        """Sets up tabs in tree widget."""
         assert self.account is not None
         self.tab_group.setText(0, f'Stash Tabs ({len(self.account.tab_ids)})')
         self.tab_group.setFlags(
@@ -121,9 +121,8 @@ class TabsWidget(QWidget):
             char_widget.setCheckState(0, Qt.CheckState.Checked)
 
     def _import_items(self) -> None:
-        """Send the list of checked tabs and characters to the main widget."""
+        """Sends the list of checked tabs and characters to the main widget."""
         assert self.account is not None
-        logger.debug('Getting checked')
         tabs = [
             i
             for i, _ in enumerate(self.account.tab_ids)
@@ -136,14 +135,12 @@ class TabsWidget(QWidget):
             if char.checkState(0) == Qt.CheckState.Checked:
                 characters.append(char.text(0))
 
-        logger.debug('Finished checked')
-
         self.main_window.switch_widget(
             self.main_window.main_widget, self.account, self.league, tabs, characters
         )
 
     def _name_ui(self) -> None:
-        """Name the UI elements, including window title and labels."""
+        """Names the UI elements, including window title and labels."""
         self.group_box.setTitle('Select Tabs')
         self.back_button.setText('Back')
         self.import_button.setText('Import Tabs')

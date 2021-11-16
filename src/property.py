@@ -15,8 +15,9 @@ class Property:
         self.values = prop_info.get('vals')
         self.tooltip = None
 
+    @property
     def description(self) -> str:
-        """Get colorized description used in the properties tooltip."""
+        """Gets colorized description used in the properties tooltip."""
         if self.tooltip is not None:
             return self.tooltip
 

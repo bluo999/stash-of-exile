@@ -13,7 +13,7 @@ from datetime import datetime
 from functools import wraps
 from http import HTTPStatus
 from threading import Condition
-from typing import Any, Callable, Deque, List, NamedTuple, Tuple, Union
+from typing import Any, Callable, Deque, List, NamedTuple, Optional, Tuple, Union
 from urllib.error import HTTPError, URLError
 
 from PyQt6.QtCore import QThread, pyqtSignal
@@ -128,6 +128,7 @@ class APIManager:
         Elem = Union[TooManyReq, APICall, None]
         self.queue: Deque[Elem] = deque()
         self.cond = Condition()
+        self.last_api_call: Optional[APICall] = None
         self.api_thread = APIThread(self)
         self.api_thread.start()
 
@@ -150,11 +151,19 @@ class APIManager:
         self.cond.notify()
         self.cond.release()
 
-    def insert(self, api_call: APICall) -> None:
+    def insert(self, api_calls: List[APICall]) -> None:
         """Inserts an element into the API queue."""
-        # TODO: batch insert
         self.cond.acquire()
-        self.queue.append(api_call)
+        self.queue.extend(api_calls)
+        self.cond.notify()
+        self.cond.release()
+
+    def retry_last(self) -> None:
+        """Inserts the last API call popped into the front of the API queue."""
+        if self.last_api_call is None:
+            return
+        self.cond.acquire()
+        self.queue.appendleft(self.last_api_call)
         self.cond.notify()
         self.cond.release()
 
@@ -173,7 +182,8 @@ class APIManager:
             return api_call
 
         # Process api method and store its result
-        api_result = self.__getattribute__(api_call.api_method.__name__)(
+        self.last_api_call = api_call
+        api_result: Tuple = self.__getattribute__(api_call.api_method.__name__)(
             *api_call.api_args
         )
 
@@ -292,11 +302,14 @@ class APIQueueManager:
             if len(queue) == queue.hits
         )
         sleep_time = max((next_avail_time - _get_time_ms()) / 1000, 0.0)
+        logger.info(sleep_time)
         if math.isclose(sleep_time, 0.0):
             return
 
-        if sleep_time > 1.0:
+        if sleep_time > 1:
             logger.info('Cooling off API calls for %s', sleep_time)
+        # TODO: figure out a way to not block so that insert can be called during
+        # this cool off period. Same with retry after.
         time.sleep(sleep_time)
 
 
@@ -321,6 +334,7 @@ class APIThread(QThread):
                 break
             if isinstance(api_ret, TooManyReq):
                 self.api_queue_manager.update_rate_limits(api_ret.rate_limits)
+                self.api_manager.retry_last()
                 logger.warning('Hit rate limit, sleeping for %s', api_ret.retry_after)
                 time.sleep(api_ret.retry_after)
                 continue

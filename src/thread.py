@@ -2,6 +2,7 @@
 Threads used in the application.
 """
 
+from http import HTTPStatus
 import os
 import re
 import urllib.request
@@ -27,7 +28,7 @@ IMAGE_CACHE_DIR = os.path.join('..', 'image_cache')
 
 
 def _retrieves(items: List[Item]) -> None:
-    """Download images for each item."""
+    """Downloads images for each item."""
     for item in items:
         if item.downloaded:
             continue
@@ -47,6 +48,9 @@ def _retrieves(items: List[Item]) -> None:
                 urllib.request.urlretrieve(item.icon, item.file_path)
             except HTTPError as e:
                 logger.error('HTTP error: %s %s', e.code, e.reason)
+                if e.code == HTTPStatus.TOO_MANY_REQUESTS:
+                    logger.error('%s received, aborting image downloads', e.code)
+                    break
             except URLError as e:
                 logger.error('URL error: %s', e.reason)
 

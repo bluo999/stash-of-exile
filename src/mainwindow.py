@@ -81,7 +81,7 @@ class MainWindow(QMainWindow):
         return super().closeEvent(a0)
 
     def switch_widget(self, dest_widget: QWidget, *args):
-        """Switches to another widget and """
+        """Switches to another widget."""
         assert dest_widget in self.widgets
         for widget in self.widgets:
             if widget == dest_widget:

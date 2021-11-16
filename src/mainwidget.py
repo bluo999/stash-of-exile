@@ -8,7 +8,7 @@ import os
 from dataclasses import field
 from functools import partial
 from inspect import signature
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional
 
 from PyQt6.QtCore import QItemSelection, QSize, Qt
 from PyQt6.QtGui import QFont, QTextCursor
@@ -30,7 +30,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 from api import APICall
-from itemtab import CharacterTab, ItemTab, StashTab
+from tab import CharacterTab, ItemTab, StashTab
 
 import log
 import util
@@ -69,12 +69,12 @@ class MainWidget(QWidget):
 
     def on_show(
         self,
-        account: Account = None,
+        account: Optional[Account] = None,
         league: str = '',
         tabs: List[int] = field(default_factory=list),
         characters: List[str] = field(default_factory=list),
-    ):
-        """Use cached items and retrieve the remainder using the API."""
+    ) -> None:
+        """Retrieves existing tabs or send API calls, then build the table."""
         if account is None:
             # Show all cached results
             for accounts in util.get_subdirectories(ITEM_CACHE_DIR):
@@ -88,55 +88,58 @@ class MainWidget(QWidget):
                         CharacterTab(char) for char in util.get_jsons(character_dir)
                     )
         else:
-            # Download jsons
-            # TODO: force import vs cache
-            self.account = account
-            api_manager = self.main_window.api_manager
-            for tab_num in tabs:
-                filename = os.path.join(
-                    ITEM_CACHE_DIR,
-                    account.username,
-                    league,
-                    TABS_DIR,
-                    f'{tab_num}.json',
-                )
-                tab = StashTab(filename, tab_num)
-                if os.path.exists(filename):
-                    self.item_tabs.append(tab)
-                    continue
-                api_manager.insert(
-                    APICall(
-                        api_manager.get_tab_items,
-                        (account.username, account.poesessid, league, tab_num),
-                        self,
-                        self._get_stash_tab_callback,
-                        (tab,),
-                    )
-                )
-
-            for char in characters:
-                filename = os.path.join(
-                    ITEM_CACHE_DIR,
-                    account.username,
-                    league,
-                    CHARACTER_DIR,
-                    f'{char}.json',
-                )
-                tab = CharacterTab(filename, char)
-                if os.path.exists(filename):
-                    self.item_tabs.append(tab)
-                    continue
-                api_manager.insert(
-                    APICall(
-                        api_manager.get_character_items,
-                        (account.username, account.poesessid, char),
-                        self,
-                        self._get_char_callback,
-                        (tab,),
-                    )
-                )
+            self._send_api(account, league, tabs, characters)
 
         self._build_table()
+
+    def _send_api(
+        self, account: Account, league: str, tabs: List[int], characters: List[str]
+    ) -> None:
+        """
+        Generates and sends API calls based on selected league, tabs, and characters.
+        """
+        # TODO: force import vs cache
+        self.account = account
+        api_manager = self.main_window.api_manager
+
+        logger.debug('Begin checking cache')
+
+        api_calls: List[APICall] = []
+        for tab_num in tabs:
+            filename = os.path.join(
+                ITEM_CACHE_DIR, account.username, league, TABS_DIR, f'{tab_num}.json'
+            )
+            tab = StashTab(filename, tab_num)
+            if os.path.exists(filename):
+                self.item_tabs.append(tab)
+                continue
+            api_call = APICall(
+                api_manager.get_tab_items,
+                (account.username, account.poesessid, league, tab_num),
+                self,
+                self._get_stash_tab_callback,
+                (tab,),
+            )
+            api_calls.append(api_call)
+
+        for char in characters:
+            filename = os.path.join(
+                ITEM_CACHE_DIR, account.username, league, CHARACTER_DIR, f'{char}.json'
+            )
+            tab = CharacterTab(filename, char)
+            if os.path.exists(filename):
+                self.item_tabs.append(tab)
+                continue
+            api_call = APICall(
+                api_manager.get_character_items,
+                (account.username, account.poesessid, char),
+                self,
+                self._get_char_callback,
+                (tab,),
+            )
+            api_calls.append(api_call)
+
+        api_manager.insert(api_calls)
 
     def _get_stash_tab_callback(self, tab: StashTab, data, err_message: str) -> None:
         """Takes tab API data and inserts the items into the table."""
@@ -169,15 +172,15 @@ class MainWidget(QWidget):
         self.model.insert_items(tab.get_items())
 
     def _build_table(self) -> None:
-        """Setup the items, download their images, and setup the table."""
+        """Sets up the items, downloads their images, and sets up the table."""
         # Get available items
         # TODO: delegate this to APIManager or new thread to avoid blocking UI
         items: List[Item] = []
         for tab in self.item_tabs:
             # Open each tab
-            logger.debug(tab.filepath)
+            # logger.debug(tab.filepath)
             items.extend(tab.get_items())
-        logger.debug('Initial items: %s', len(items))
+        logger.debug('Cached tabs: %s, items: %s', len(self.item_tabs), len(items))
         self.item_tabs = []
 
         # Insert first item and use its height as default
@@ -212,7 +215,7 @@ class MainWidget(QWidget):
         self.table.resizeColumnToContents(0)
 
     def _static_build(self) -> None:
-        """Setup the static base UI, including properties and widgets."""
+        """Sets up the static base UI, including properties and widgets."""
         # Main Area
         self.main_hlayout = QHBoxLayout(self)
 
@@ -262,7 +265,7 @@ class MainWidget(QWidget):
         self.main_hlayout.setStretch(2, 3)
 
     def _dynamic_build_filters(self) -> None:
-        """Setup the filter widgets and labels."""
+        """Sets up the filter widgets and labels."""
         self.labels: List[QLabel] = []
         self.widgets: List[List[QWidget]] = []
         for i, filt in enumerate(FILTERS):
@@ -292,7 +295,7 @@ class MainWidget(QWidget):
         self.model.set_filter_widgets(self.widgets)
 
     def _name_ui(self) -> None:
-        """Name the UI elements, including window title and labels."""
+        """Names the UI elements, including window title and labels."""
         self.filter_group_box.setTitle('Filters')
 
         # Name filters
@@ -300,7 +303,7 @@ class MainWidget(QWidget):
             label.setText(f'{filt.name}:')
 
     def _update_tooltip(self, model: TableModel, selected: QItemSelection) -> None:
-        """Update item tooltip, triggered when a row is clicked."""
+        """Updates item tooltip, triggered when a row is clicked."""
         if len(selected.indexes()) == 0:
             # Nothing selected
             return
@@ -325,7 +328,7 @@ class MainWidget(QWidget):
         self.tooltip.moveCursor(QTextCursor.MoveOperation.Start)
 
     def _setup_filters(self) -> None:
-        """Initialize filters and link to widgets."""
+        """Initializes filters and links to widgets."""
         for filt, widgets in zip(FILTERS, self.widgets):
             signal = None
             for widget in widgets:

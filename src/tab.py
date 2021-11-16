@@ -26,6 +26,9 @@ class ItemTab(ABC):
     def __init__(self, filepath: str):
         self.filepath = filepath
 
+    def __repr__(self):
+        return self.get_tab_name()
+
     def get_items(self) -> List[Item]:
         """Gets items from this tab."""
         items: List[Item] = []
