@@ -21,9 +21,10 @@ DV = QDoubleValidator()
 
 @dataclass
 class Filter:
-    """Class to represent an item filter.
+    """
+    Represents an item filter.
 
-    Args:
+    Fields:
         name: Label name.
         widget: Widget type of filter.
         filterFunc: Filter function.
@@ -35,7 +36,9 @@ class Filter:
     filter_func: FilterFunction
     validator: Optional[QValidator] = None
 
+
 def filter_is_active(widget: QWidget) -> bool:
+    """Determines whether a filter is active (based on widget type)."""
     if isinstance(widget, QCheckBox):
         return widget.isChecked()
     if isinstance(widget, QLineEdit):
@@ -74,15 +77,21 @@ def _duo_filt_num(
     max_val: Num = MAX_VAL,
     default_val: Num = 0,
 ) -> FilterFunction:
-    """Returns a generic double QLineEdit filter function that checks Noneness
-    and whether the field is between the two input values.
+    """
+    Generic double QLineEditor filter function.
+
+    Checks Noneness and whether the field is between the two input values.
 
     Args:
-        fieldStr: Field of item JSON to get value from.
-        defaultVal: Default value of processed field.
-        minVal: Minimum value of processed field.
-        maxVal: Maximum value of processed field.
-        convFunc: Function to convert string to number (int or float).
+        field_str (str): Field of item JSON to get value from.
+        conv_func (Callable[[str], Num]): Function to convert string to number (int
+        or float).
+        min_val (Num, optional): [Min value of processed field]. Defaults to MIN_VAL.
+        max_val (Num, optional): [Max value of processed field]. Defaults to MAX_VAL.
+        default_val (Num, optional): [Default value of processed fifeld]. Defaults to 0.
+
+    Returns:
+        FilterFunction: [The filter function]
     """
 
     def filt(item: Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
@@ -136,5 +145,7 @@ FILTERS = [
     Filter('Quality', QLineEdit, _duo_filt_num('qualityNum', int), IV),
     Filter('Item Level', QLineEdit, _get_filter_ilevel(), IV),
     Filter('Influenced', QCheckBox, _filter_influences),
+    Filter('Mod', QLineEdit, _filter_mod),
+    Filter('Mod', QLineEdit, _filter_mod),
     Filter('Mod', QLineEdit, _filter_mod),
 ]

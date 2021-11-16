@@ -8,7 +8,7 @@ import os
 from dataclasses import field
 from functools import partial
 from inspect import signature
-from typing import List, TYPE_CHECKING, Tuple
+from typing import List, TYPE_CHECKING
 
 from PyQt6.QtCore import QItemSelection, QSize, Qt
 from PyQt6.QtGui import QFont, QTextCursor
@@ -20,6 +20,7 @@ from PyQt6.QtWidgets import (
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QLineEdit,
     QStatusBar,
@@ -28,8 +29,11 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from api import APICall
+from itemtab import CharacterTab, ItemTab, StashTab
 
 import log
+import util
 
 from consts import SEPARATOR_TEMPLATE
 from filter import FILTERS
@@ -38,7 +42,6 @@ from gamedata import COMBO_ITEMS
 from save import Account
 from table import TableModel
 from thread import DownloadThread
-from util import create_directories, get_jsons, get_subdirectories
 
 if TYPE_CHECKING:
     from mainwindow import MainWindow
@@ -46,22 +49,8 @@ if TYPE_CHECKING:
 logger = log.get_logger(__name__)
 
 ITEM_CACHE_DIR = os.path.join('..', 'item_cache')
-
-
-def _parse_tab(tab: str, tab_name: str) -> List[Item]:
-    """Parses a tab or character, extracting all items and socketed items."""
-    items: List[Item] = []
-    with open(tab, 'r') as f:
-        data = json.load(f)
-        # Add each item
-        for item in data['items']:
-            items.append(Item(item, tab_name))
-            # Add socketed items
-            if item.get('socketedItems') is not None:
-                for socketed_item in item['socketedItems']:
-                    items.append(Item(socketed_item, tab_name))
-    items.sort()
-    return items
+TABS_DIR = 'tabs'
+CHARACTER_DIR = 'characters'
 
 
 class MainWidget(QWidget):
@@ -71,7 +60,7 @@ class MainWidget(QWidget):
         """Initialize the UI."""
         QWidget.__init__(self)
         self.main_window = main_window
-        self.paths: List[Tuple[str, str]] = []
+        self.item_tabs: List[ItemTab] = []
         self.account = None
         self._static_build()
         self._dynamic_build_filters()
@@ -86,17 +75,18 @@ class MainWidget(QWidget):
         characters: List[str] = field(default_factory=list),
     ):
         """Use cached items and retrieve the remainder using the API."""
-        # self.paths represents the paths that still need to be imported into the table
-        logger.debug('on_show()')
         if account is None:
             # Show all cached results
-            self.paths = [
-                (os.path.splitext(os.path.basename(path))[0], path)
-                for accounts in get_subdirectories(ITEM_CACHE_DIR)
-                for leagues in get_subdirectories(accounts)
-                for tab_char in get_subdirectories(leagues)
-                for path in get_jsons(tab_char)
-            ]
+            for accounts in util.get_subdirectories(ITEM_CACHE_DIR):
+                for leagues in util.get_subdirectories(accounts):
+                    tab_dir = os.path.join(leagues, TABS_DIR)
+                    character_dir = os.path.join(leagues, CHARACTER_DIR)
+                    self.item_tabs.extend(
+                        StashTab(tab) for tab in util.get_jsons(tab_dir)
+                    )
+                    self.item_tabs.extend(
+                        CharacterTab(char) for char in util.get_jsons(character_dir)
+                    )
         else:
             # Download jsons
             # TODO: force import vs cache
@@ -104,19 +94,24 @@ class MainWidget(QWidget):
             api_manager = self.main_window.api_manager
             for tab_num in tabs:
                 filename = os.path.join(
-                    ITEM_CACHE_DIR, account.username, league, 'tabs', f'{tab_num}.json'
+                    ITEM_CACHE_DIR,
+                    account.username,
+                    league,
+                    TABS_DIR,
+                    f'{tab_num}.json',
                 )
+                tab = StashTab(filename, tab_num)
                 if os.path.exists(filename):
-                    self.paths.append(
-                        (f'{tab_num} ({account.tab_ids[tab_num].name})', filename)
-                    )
+                    self.item_tabs.append(tab)
                     continue
                 api_manager.insert(
-                    api_manager.get_tab_items,
-                    (account.username, account.poesessid, league, tab_num),
-                    self,
-                    self._get_tab_callback,
-                    (tab_num, filename),
+                    APICall(
+                        api_manager.get_tab_items,
+                        (account.username, account.poesessid, league, tab_num),
+                        self,
+                        self._get_stash_tab_callback,
+                        (tab,),
+                    )
                 )
 
             for char in characters:
@@ -124,80 +119,83 @@ class MainWidget(QWidget):
                     ITEM_CACHE_DIR,
                     account.username,
                     league,
-                    'characters',
+                    CHARACTER_DIR,
                     f'{char}.json',
                 )
+                tab = CharacterTab(filename, char)
                 if os.path.exists(filename):
-                    self.paths.append((char, filename))
+                    self.item_tabs.append(tab)
                     continue
                 api_manager.insert(
-                    api_manager.get_character_items,
-                    (account.username, account.poesessid, char),
-                    self,
-                    self._get_char_callback,
-                    (char, filename),
+                    APICall(
+                        api_manager.get_character_items,
+                        (account.username, account.poesessid, char),
+                        self,
+                        self._get_char_callback,
+                        (tab,),
+                    )
                 )
 
         self._build_table()
 
-    def _get_tab_callback(
-        self, tab_num: int, filename: str, tab, err_message: str
-    ) -> None:
+    def _get_stash_tab_callback(self, tab: StashTab, data, err_message: str) -> None:
         """Takes tab API data and inserts the items into the table."""
-        if tab is None:
+        if data is None:
             # Use error message
             logger.warning(err_message)
             return
 
         assert self.account is not None
 
-        logger.info('Writing tab json to %s', filename)
-        create_directories(filename)
-        with open(filename, 'w') as f:
-            json.dump(tab, f)
+        logger.info('Writing tab json to %s', tab.filepath)
+        util.create_directories(tab.filepath)
+        with open(tab.filepath, 'w') as f:
+            json.dump(data, f)
 
-        items = _parse_tab(
-            filename, f'{tab_num} ({self.account.tab_ids[tab_num].name})'
-        )
-        self.model.insert_items(items)
+        self.model.insert_items(tab.get_items())
 
-    def _get_char_callback(
-        self, char_name: str, filename: str, char, err_message: str
-    ) -> None:
+    def _get_char_callback(self, tab: CharacterTab, data, err_message: str) -> None:
         """Takes character API data and inserts the items into the table."""
-        if char is None:
+        if data is None:
             # Use error message
             logger.warning(err_message)
             return
 
-        logger.info('Writing character json to %s', filename)
-        create_directories(filename)
-        with open(filename, 'w') as f:
-            json.dump(char, f)
+        logger.info('Writing character json to %s', tab.filepath)
+        util.create_directories(tab.filepath)
+        with open(tab.filepath, 'w') as f:
+            json.dump(data, f)
 
-        items = _parse_tab(filename, char_name)
-        self.model.insert_items(items)
+        self.model.insert_items(tab.get_items())
 
     def _build_table(self) -> None:
         """Setup the items, download their images, and setup the table."""
         # Get available items
-        logger.debug(self.paths)
         # TODO: delegate this to APIManager or new thread to avoid blocking UI
         items: List[Item] = []
-        for (tab_name, tab) in self.paths:
+        for tab in self.item_tabs:
             # Open each tab
-            items.extend(_parse_tab(tab, tab_name))
-        logger.debug('Num items: %s', len(items))
-        self.paths = []
-        self.model.insert_items(items)
+            logger.debug(tab.filepath)
+            items.extend(tab.get_items())
+        logger.debug('Initial items: %s', len(items))
+        self.item_tabs = []
+
+        # Insert first item and use its height as default
+        self.model.insert_items(items[0:1])
+        self.table.resizeRowToContents(0)
+        row_height = self.table.verticalHeader().sectionSize(0)
+        self.table.verticalHeader().setDefaultSectionSize(row_height)
+
+        # Insert remaining items
+        self.model.insert_items(items[1:])
 
         # # Start downloading images
         # status_bar: QStatusBar = self.main_window.statusBar()
         # status_bar.showMessage('Downloading images')
         # thread = DownloadThread(status_bar, items)
         # thread.start()
-        # Connect selection to update tooltip
 
+        # Connect selection to update tooltip
         self.table.selectionModel().selectionChanged.connect(
             partial(self._update_tooltip, self.model)
         )
@@ -209,11 +207,9 @@ class MainWidget(QWidget):
             )
         )
 
-        # Sizing
-        self.table.resizeRowsToContents()
-        row_height = self.table.verticalHeader().sectionSize(0)
-        self.table.verticalHeader().setDefaultSectionSize(row_height)
-        self.table.resizeColumnsToContents()
+        # Remaining resizing
+        self.table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
+        self.table.resizeColumnToContents(0)
 
     def _static_build(self) -> None:
         """Setup the static base UI, including properties and widgets."""

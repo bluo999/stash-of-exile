@@ -57,6 +57,11 @@ def get_jsons(directory: str) -> Generator[str, None, None]:
     )
 
 
+def get_file_name(filepath: str) -> str:
+    """Returns the file name (without extension) given its path."""
+    return os.path.splitext(os.path.basename(filepath))[0]
+
+
 def create_directories(filename: str) -> None:
     """Creates the directories for a given filename."""
     directory = os.path.dirname(filename)

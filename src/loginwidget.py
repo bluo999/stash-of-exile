@@ -19,6 +19,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from api import APICall
 
 import log
 
@@ -126,8 +127,7 @@ class LoginWidget(QWidget):
         self.main_hlayout.addWidget(self.login_box, 0, Qt.AlignmentFlag.AlignCenter)
 
     def _load_saved_file(self) -> None:
-        """Load existing save file. If none exists,
-        then make a SavedData object."""
+        """Load existing save file. If none exists, then make a SavedData object."""
         if os.path.isfile(SAVE_FILE):
             logger.info('Found saved file')
             self.saved_data = pickle.load(open(SAVE_FILE, 'rb'))
@@ -135,6 +135,12 @@ class LoginWidget(QWidget):
             logger.info(self.saved_data.leagues)
             for account in self.saved_data.accounts:
                 logger.info('%s %s', account.username, account.poesessid)
+            # Populatea user/poesessid
+            # TODO: do by most recent
+            if len(self.saved_data.accounts) > 0:
+                account = self.saved_data.accounts[0]
+                self.account_field.setText(self.saved_data.accounts[0].username)
+                self.poesessid_field.setText(self.saved_data.accounts[0].poesessid)
         else:
             self.saved_data = SavedData()
 
@@ -146,7 +152,7 @@ class LoginWidget(QWidget):
         """Get leagues from API."""
         api_manager = self.main_window.api_manager
         api_manager.insert(
-            api_manager.get_leagues, (), self, self._get_leagues_callback, ()
+            APICall(api_manager.get_leagues, (), self, self._get_leagues_callback)
         )
 
     def _get_leagues_callback(
@@ -225,11 +231,12 @@ class LoginWidget(QWidget):
         assert self.league is not None
         api_manager = self.main_window.api_manager
         api_manager.insert(
-            api_manager.get_tab_info,
-            (self.account.username, self.account.poesessid, self.league),
-            self,
-            self._get_tab_info_callback,
-            (),
+            APICall(
+                api_manager.get_tab_info,
+                (self.account.username, self.account.poesessid, self.league),
+                self,
+                self._get_tab_info_callback,
+            )
         )
 
     def _get_tab_info_callback(
@@ -252,11 +259,12 @@ class LoginWidget(QWidget):
         assert self.league is not None
         api_manager = self.main_window.api_manager
         api_manager.insert(
-            api_manager.get_character_list,
-            (self.account.poesessid, self.league),
-            self,
-            self._get_char_list_callback,
-            (),
+            APICall(
+                api_manager.get_character_list,
+                (self.account.poesessid, self.league),
+                self,
+                self._get_char_list_callback,
+            )
         )
 
     def _get_char_list_callback(
@@ -274,7 +282,9 @@ class LoginWidget(QWidget):
         self._check_login_success()
 
     def _check_login_success(self) -> None:
-        """Checks whether characters and tabs are set. If so, transition to tab widget."""
+        """
+        Checks whether characters and tabs are set. If so, transition to tab widget.
+        """
         assert self.account is not None
         if not self.account.has_characters() or not self.account.has_tabs():
             return

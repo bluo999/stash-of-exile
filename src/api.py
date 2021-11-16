@@ -13,7 +13,7 @@ from datetime import datetime
 from functools import wraps
 from http import HTTPStatus
 from threading import Condition
-from typing import Any, Callable, Deque, List, Tuple, Union
+from typing import Any, Callable, Deque, List, NamedTuple, Tuple, Union
 from urllib.error import HTTPError, URLError
 
 from PyQt6.QtCore import QThread, pyqtSignal
@@ -37,21 +37,31 @@ URL_CHAR_ITEMS = (
     'https://pathofexile.com/character-window/get-items?accountName={}&character={}'
 )
 
+
+class RateLimit(NamedTuple):
+    """Represents a rate limit."""
+
+    hits: int
+    period: int
+
+
 # Default rate limit values (hits, period (in ms))
-RATE_LIMITS = [(45, 60000), (240, 240000)]
+RATE_LIMITS = [RateLimit(45, 60000), RateLimit(240, 240000)]
 
 
 @dataclass
 class TooManyReq:
     """Class storing data from a too many requests HTTP error."""
 
-    rate_limits: List[Tuple[int, int]]
+    rate_limits: List[RateLimit]
     retry_after: int
 
 
 def _get_time_ms() -> int:
-    """Gets time in milliseconds
-    (epoch doesn't matter since only used for relativity)."""
+    """
+    Gets time in milliseconds (epoch doesn't matter since only used for
+    relativity).
+    """
     return round(datetime.utcnow().timestamp() * 1000)
 
 
@@ -63,8 +73,10 @@ def _elevated_request(url: str, poesessid: str) -> urllib.request.Request:
 
 
 def _get(func):
-    """Decorator function that returns (None, err) if an error
-    occurs during an API call that involves a GET request."""
+    """
+    Decorator function that returns (None, err) if an error occurs during an API call
+    that involves a GET request.
+    """
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -88,11 +100,32 @@ def _get(func):
     return wrapper
 
 
+@dataclass
+class APICall:
+    """Represents an API call and callback parameters."""
+
+    api_method: Callable
+    api_args: Tuple
+    cb_obj: QWidget
+    cb: Callable
+    cb_args: Tuple = ()
+
+
+@dataclass
+class APIRet:
+    """Represents an API result and callback parameters."""
+
+    cb_obj: QWidget
+    cb: Callable
+    cb_args: Tuple
+    api_result: Tuple
+
+
 class APIManager:
     """Manages sending official API calls."""
 
     def __init__(self):
-        Elem = Union[TooManyReq, Tuple[Callable, Tuple, QWidget, Callable, Tuple], None]
+        Elem = Union[TooManyReq, APICall, None]
         self.queue: Deque[Elem] = deque()
         self.cond = Condition()
         self.api_thread = APIThread(self)
@@ -108,52 +141,44 @@ class APIManager:
 
     def too_many_reqs(self, rate_limits_str: str, retry_after: int) -> None:
         """Updates the rate limits based on the string from response headers."""
-        rate_limits: List[Tuple[int, int]] = []
+        rate_limits: List[RateLimit] = []
         for rate_limit in rate_limits_str.split(','):
             hits, period, _ = rate_limit.split(':')
-            rate_limits.append((int(hits), int(period) * 1000))
+            rate_limits.append(RateLimit(int(hits), int(period) * 1000))
         self.cond.acquire()
         self.queue.appendleft(TooManyReq(rate_limits, retry_after))
         self.cond.notify()
         self.cond.release()
 
-    def insert(
-        self,
-        api_call: Callable,
-        api_args: Tuple,
-        cb_obj: QWidget,
-        cb: Callable,
-        cb_args: Tuple,
-    ) -> None:
+    def insert(self, api_call: APICall) -> None:
         """Inserts an element into the API queue."""
         # TODO: batch insert
         self.cond.acquire()
-        self.queue.append((api_call, api_args, cb_obj, cb, cb_args))
+        self.queue.append(api_call)
         self.cond.notify()
         self.cond.release()
 
-    def consume(
-        self
-    ) -> Union[TooManyReq, Tuple[QWidget, Callable, Tuple, Tuple], None]:
+    def consume(self) -> Union[TooManyReq, APIRet, None]:
         """Consumes an element from the API queue (blocking)."""
         self.cond.acquire()
         while len(self.queue) == 0:
             self.cond.wait()
 
-        ret = self.queue.popleft()
+        api_call = self.queue.popleft()
         # Signals to kill the thread
-        if ret is None:
+        if api_call is None:
             return None
 
-        if isinstance(ret, TooManyReq):
-            return ret
+        if isinstance(api_call, TooManyReq):
+            return api_call
 
-        # Process api call
-        api_call, api_args, cb_obj, cb, cb_args = ret
-        args = self.__getattribute__(api_call.__name__)(*api_args)
+        # Process api method and store its result
+        api_result = self.__getattribute__(api_call.api_method.__name__)(
+            *api_call.api_args
+        )
 
         self.cond.release()
-        return (cb_obj, cb, cb_args, args)
+        return APIRet(api_call.cb_obj, api_call.cb, api_call.cb_args, api_result)
 
     @_get
     def get_leagues(self) -> List[str]:  # pylint: disable=no-self-use
@@ -228,10 +253,12 @@ class APIQueue(deque):
 class APIQueueManager:
     """Keeps track of multiple API Queues."""
 
-    def __init__(self, rate_limits: List[Tuple[int, int]]):
-        self.queues = [APIQueue(hits, period) for hits, period in rate_limits]
+    def __init__(self, rate_limits: List[RateLimit]):
+        self.queues = [
+            APIQueue(rate_limit.hits, rate_limit.period) for rate_limit in rate_limits
+        ]
 
-    def update_rate_limits(self, rate_limits: List[Tuple[int, int]]) -> None:
+    def update_rate_limits(self, rate_limits: List[RateLimit]) -> None:
         """Update to new rate limits."""
         if len(rate_limits) < len(self.queues):
             self.queues = self.queues[: len(rate_limits)]
@@ -239,8 +266,8 @@ class APIQueueManager:
             for _ in range(len(rate_limits) - len(self.queues)):
                 self.queues.append(APIQueue())
 
-        for queue, (hits, period) in zip(self.queues, rate_limits):
-            queue.update_rate_limit(hits, period)
+        for queue, rate_limit in zip(self.queues, rate_limits):
+            queue.update_rate_limit(rate_limit.hits, rate_limit.period)
 
     def insert(self) -> None:
         """Add timestamp to queue."""
@@ -276,7 +303,7 @@ class APIQueueManager:
 class APIThread(QThread):
     """Thread that handles API calls."""
 
-    output = pyqtSignal(object, object, object, object)
+    output = pyqtSignal(APIRet)
 
     def __init__(self, api_manager: APIManager) -> None:
         QThread.__init__(self)
@@ -287,16 +314,15 @@ class APIThread(QThread):
         """Runs the thread."""
         while True:
             self.api_queue_manager.block_until_ready()
-            ret = self.api_manager.consume()
+            api_ret = self.api_manager.consume()
             self.api_queue_manager.insert()
-            if ret is None:
+            if api_ret is None:
                 # Signal to exit the thread
                 break
-            if isinstance(ret, TooManyReq):
-                self.api_queue_manager.update_rate_limits(ret.rate_limits)
-                logger.warning('Hit rate limit, sleeping for %s', ret.retry_after)
-                time.sleep(ret.retry_after)
+            if isinstance(api_ret, TooManyReq):
+                self.api_queue_manager.update_rate_limits(api_ret.rate_limits)
+                logger.warning('Hit rate limit, sleeping for %s', api_ret.retry_after)
+                time.sleep(api_ret.retry_after)
                 continue
 
-            cb_obj, cb, cb_args, args = ret
-            self.output.emit(cb_obj, cb, cb_args, args)
+            self.output.emit(api_ret)

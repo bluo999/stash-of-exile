@@ -4,7 +4,7 @@ Handles creation of widgets, status bar, and some initial setup.
 
 import os
 
-from typing import Callable, List, Tuple
+from typing import List
 
 from PyQt6 import QtGui
 from PyQt6.QtCore import QRect
@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QMenuBar, QStatusBar, QWid
 
 import log
 
-from api import APIManager
+from api import APIManager, APIRet
 from loginwidget import LoginWidget
 from mainwidget import MainWidget
 from tabswidget import TabsWidget
@@ -94,9 +94,14 @@ class MainWindow(QMainWindow):
         dest_widget.on_show(*args)
 
     @staticmethod
-    def callback(cb_obj: QWidget, cb: Callable, cb_args: Tuple, args: Tuple) -> None:
+    def callback(api_ret: APIRet) -> None:
         """Calls the callback function on an object with specified arguments."""
         logger.info(
-            'Calling cb function %s %s (args(%s))', cb.__name__, cb_args, len(args)
+            'Calling cb function %s %s (args(%s))',
+            api_ret.cb.__name__,
+            api_ret.cb_args,
+            len(api_ret.api_result),
         )
-        getattr(cb_obj, cb.__name__)(*cb_args, *args)
+        getattr(api_ret.cb_obj, api_ret.cb.__name__)(
+            *api_ret.cb_args, *api_ret.api_result
+        )

@@ -19,8 +19,10 @@ logger = log.get_logger(__name__)
 
 
 def _influence_func(item: 'Item') -> str:
-    """Given an item return an influence string, which is a list of
-    capital letters for each influence."""
+    """
+    Given an item return an influence string, which is a list of capital letters for
+    each influence.
+    """
     ret = ''
     for infl in item.influences:
         ret += infl[0]
@@ -90,8 +92,10 @@ class TableModel(QAbstractTableModel):
     def headerData(  # pylint: disable=invalid-name
         self, section: int, orientation: Qt.Orientation, role: int
     ) -> object:
-        """Returns the data for the given role and section
-        in the header with the specified orientation."""
+        """
+        Returns the data for the given role and section in the header with the
+        specified orientation.
+        """
         if (
             role == Qt.ItemDataRole.DisplayRole
             and orientation == Qt.Orientation.Horizontal
@@ -114,8 +118,10 @@ class TableModel(QAbstractTableModel):
     def apply_filters(
         self, index: int = 1, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder
     ) -> None:
-        """Apply a filter based on several search parameters,
-        updating the current items and layout."""
+        """
+        Apply a filter based on several search parameters, updating the current items
+        and layout.
+        """
         # Previously selected item
         selection = self.table_view.selectedIndexes()
         selected_item = (

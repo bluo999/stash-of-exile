@@ -3,7 +3,7 @@ Defines parsing of the item API and converting into a local object.
 """
 
 import re
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, NamedTuple
 
 from consts import COLORS, HEADER_TEMPLATE, SPAN_TEMPLATE
 from gamedata import COMBO_ITEMS, FRAGMENTS, RARITIES
@@ -15,27 +15,32 @@ FLAT_PERCENT_REGEX = r'([0-9]{1,2}\.\d{2})%'  # xx.xx%
 NUM_RANGE_REGEX = r'(\d+)-(\d+)'  # x-x
 
 
-def property_function(prop_name: str) -> Callable[['Item'], str]:
-    """Returns the function that returns a specific property given an item."""
+class ModGroup(NamedTuple):
+    """Represents a mod group."""
 
-    def func(item: 'Item') -> str:
-        prop = next((x for x in item.properties if x.name == prop_name), None)
-        if prop is not None:
-            val = prop.values[0][0]
-            assert isinstance(val, str)
-            return val
-        return ''
-
-    return func
+    mods: List[str]
+    color: str
 
 
-def _list_mods(mod_lists: List[Tuple[List[str], str]]) -> str:
+class Tag(NamedTuple):
+    """Represents a tag."""
+
+    name: str
+    color: str
+    active: bool
+
+
+def _list_mods(mod_groups: List[ModGroup]) -> str:
     """
-    Given a list of mod lists, returns a single complete
-    line separated, colored string of mods.
+    Given a list of mod lists, returns a single complete line separated, colored
+    string of mods.
     """
     # Get rid of any empty mod list
-    filt_mod_lists = [(mods, color) for mods, color in mod_lists if len(mods) > 0]
+    filt_mod_lists = [
+        (mod_group.mods, mod_group.color)
+        for mod_group in mod_groups
+        if len(mod_group.mods) > 0
+    ]
 
     if len(filt_mod_lists) == 0:
         return ''
@@ -46,7 +51,7 @@ def _list_mods(mod_lists: List[Tuple[List[str], str]]) -> str:
         length = len(mods)
         while i < length:
             while '\n' in mods[i]:
-                # If there is a \n, split into two elements # and move to the second element
+                # Split into two elements and move to the second element
                 index = mods[i].index('\n')
                 mods.insert(i + 1, mods[i][index + 1 :])
                 mods[i] = mods[i][:index]
@@ -64,16 +69,16 @@ def _list_mods(mod_lists: List[Tuple[List[str], str]]) -> str:
     return text
 
 
-def _list_tags(tag_info: List[Tuple[bool, str, str]]) -> str:
+def _list_tags(tag_info: List[Tag]) -> str:
     """
-    Given a list of tags, returns a single complete
-    line separate, colored string of tags.
+    Given a list of tags, returns a single complete line separate, colored string of
+    tags.
     """
     # Get rid of inactive tags then format them
     formatted_tags = [
-        SPAN_TEMPLATE.format(COLORS[color], tag_str)
-        for tag_active, tag_str, color in tag_info
-        if tag_active
+        SPAN_TEMPLATE.format(COLORS[tag.color], tag.name)
+        for tag in tag_info
+        if tag.active
     ]
 
     # Add tags on separate lines
@@ -84,6 +89,20 @@ def _list_tags(tag_info: List[Tuple[bool, str, str]]) -> str:
             text += '<br />'
 
     return text
+
+
+def property_function(prop_name: str) -> Callable[['Item'], str]:
+    """Returns the function that returns a specific property given an item."""
+
+    def func(item: 'Item') -> str:
+        prop = next((x for x in item.properties if x.name == prop_name), None)
+        if prop is not None:
+            val = prop.values[0][0]
+            assert isinstance(val, str)
+            return val
+        return ''
+
+    return func
 
 
 class Item:
@@ -158,8 +177,10 @@ class Item:
         return self.name
 
     def get_category(self, item_json: Dict[str, Any]) -> str:
-        """Determines and returns an item's category
-        based on its other properties."""
+        """
+        Determines and returns an item's category based on its other
+        properties.
+        """
         # From basetype
         categories = [
             'Quiver',
@@ -228,24 +249,26 @@ class Item:
         return ''
 
     def get_tooltip(self) -> List[str]:
-        """Returns a list of strings, with each representing
-        a single section of the entire tooltip."""
+        """
+        Returns a list of strings, with each representing a single section of the
+        entire tooltip.
+        """
         if len(self.tooltip) > 0:
             return self.tooltip
 
         mods = _list_mods(
             [
-                (self.fractured, 'currency'),
-                (self.explicit, 'magic'),
-                (self.crafted, 'craft'),
+                ModGroup(self.fractured, 'currency'),
+                ModGroup(self.explicit, 'magic'),
+                ModGroup(self.crafted, 'craft'),
             ]
         )
         tags = _list_tags(
             [
-                (self.split, 'Split', 'magic'),
-                (self.corrupted, 'Corrupted', 'red'),
-                (self.unidentified, 'Unidentified', 'red'),
-                (self.mirrored, 'Mirrored', 'magic'),
+                Tag('Split', 'magic', self.split),
+                Tag('Corrupted', 'red', self.corrupted),
+                Tag('Unidentified', 'red', self.unidentified),
+                Tag('Mirrored', 'magic', self.mirrored),
             ]
         )
         self.tooltip = [
@@ -264,8 +287,9 @@ class Item:
             # Item level (metamorph, bestiary orb)
             self._get_ilevel_tooltip(),
             # Mods
-            _list_mods([(self.enchanted, 'craft')]),
-            _list_mods([(self.implicit, 'magic')]),
+            _list_mods(
+                [ModGroup(self.enchanted, 'craft'), ModGroup(self.implicit, 'magic')]
+            ),
             # Mods and Tags
             f'{mods}<br />{tags}' if len(mods) > 0 and len(tags) > 0 else mods + tags,
             # Gem experience
@@ -273,7 +297,7 @@ class Item:
             # Incubator info
             self._get_incubator_tooltip(),
             # Skin transfers
-            _list_mods([(self.cosmetic, 'currency')]),
+            _list_mods([ModGroup(self.cosmetic, 'currency')]),
         ]
         self.tooltip = [group for group in self.tooltip if len(group) > 0]
 
@@ -328,8 +352,10 @@ class Item:
         self.edps = elemental_damage * self.aps if self.aps is not None else None
 
     def _get_header_tooltip(self) -> str:
-        """Returns the header tooltip, including
-        influence icons and a colorized name."""
+        """
+        Returns the header tooltip, including influence icons and a colorized
+        name.
+        """
         influence_icons = ''
         for infl in self.influences:
             influence_icons += f'<img src="../assets/{infl}.png" />'
@@ -360,7 +386,7 @@ class Item:
 
     def _get_utility_tooltip(self) -> str:
         """Returns the colorized, line separated utility mods tooltip."""
-        mods = _list_mods([(self.utility, 'magic')])
+        mods = _list_mods([ModGroup(self.utility, 'magic')])
         if len(mods) > 0:
             return '<br />' + mods
 
@@ -386,8 +412,9 @@ class Item:
         return ''
 
     def _get_ilevel_tooltip(self) -> str:
-        """Returns the colorized item level tooltip
-        for organs and bestiary orbs."""
+        """
+        Returns the colorized item level tooltip for organs and bestiary orbs.
+        """
         if 'Metamorph' in self.icon or 'BestiaryOrb' in self.icon:
             label = SPAN_TEMPLATE.format(COLORS['grey'], 'Item Level: ')
             value = SPAN_TEMPLATE.format(COLORS['white'], self.ilvl)
