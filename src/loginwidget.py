@@ -4,7 +4,6 @@ Handles league retrieving and login sequence.
 
 import os
 import pickle
-
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from PyQt6.QtCore import QSize, Qt
@@ -19,11 +18,10 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from api import APICall
 
 import log
-
 from save import Account, SavedData, TabId
+from thread import Call
 
 if TYPE_CHECKING:
     from mainwindow import MainWindow
@@ -154,7 +152,7 @@ class LoginWidget(QWidget):
         """Gets leagues from API."""
         api_manager = self.main_window.api_manager
         api_manager.insert(
-            [APICall(api_manager.get_leagues, (), self, self._get_leagues_callback)]
+            [Call(api_manager.get_leagues, (), self, self._get_leagues_callback)]
         )
 
     def _get_leagues_callback(
@@ -232,7 +230,7 @@ class LoginWidget(QWidget):
         assert self.account is not None
         assert self.league is not None
         api_manager = self.main_window.api_manager
-        api_call = APICall(
+        api_call = Call(
             api_manager.get_tab_info,
             (self.account.username, self.account.poesessid, self.league),
             self,
@@ -259,7 +257,7 @@ class LoginWidget(QWidget):
         assert self.account is not None
         assert self.league is not None
         api_manager = self.main_window.api_manager
-        api_call = APICall(
+        api_call = Call(
             api_manager.get_character_list,
             (self.account.poesessid, self.league),
             self,

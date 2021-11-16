@@ -13,10 +13,11 @@ from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QMenuBar, QStatusBar, QWid
 
 import log
 
-from api import APIManager, APIRet
+from api import APIManager
 from loginwidget import LoginWidget
 from mainwidget import MainWidget
 from tabswidget import TabsWidget
+from thread import Ret
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
@@ -56,7 +57,7 @@ class MainWindow(QMainWindow):
 
         # Start API thread
         self.api_manager = APIManager()
-        self.api_manager.api_thread.output.connect(MainWindow.callback)
+        self.api_manager.thread.output.connect(MainWindow.callback)
 
         # Initialize (and build) widgets
         self.login_widget = LoginWidget(self)
@@ -94,14 +95,14 @@ class MainWindow(QMainWindow):
         dest_widget.on_show(*args)
 
     @staticmethod
-    def callback(api_ret: APIRet) -> None:
+    def callback(api_ret: Ret) -> None:
         """Calls the callback function on an object with specified arguments."""
         logger.info(
             'Calling cb function %s %s (args(%s))',
             api_ret.cb.__name__,
             api_ret.cb_args,
-            len(api_ret.api_result),
+            len(api_ret.service_result),
         )
         getattr(api_ret.cb_obj, api_ret.cb.__name__)(
-            *api_ret.cb_args, *api_ret.api_result
+            *api_ret.cb_args, *api_ret.service_result
         )

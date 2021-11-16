@@ -12,8 +12,8 @@ from filter import FILTERS, filter_is_active
 
 import log
 
-from api import _get_time_ms
 from item import Item, property_function
+from ratelimiting import _get_time_ms
 
 logger = log.get_logger(__name__)
 

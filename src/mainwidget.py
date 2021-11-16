@@ -29,10 +29,10 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from api import APICall
 from tab import CharacterTab, ItemTab, StashTab
 
 import log
+from thread import Call
 import util
 
 from consts import SEPARATOR_TEMPLATE
@@ -41,7 +41,6 @@ from item import Item
 from gamedata import COMBO_ITEMS
 from save import Account
 from table import TableModel
-from thread import DownloadThread
 
 if TYPE_CHECKING:
     from mainwindow import MainWindow
@@ -104,7 +103,7 @@ class MainWidget(QWidget):
 
         logger.debug('Begin checking cache')
 
-        api_calls: List[APICall] = []
+        api_calls: List[Call] = []
         for tab_num in tabs:
             filename = os.path.join(
                 ITEM_CACHE_DIR, account.username, league, TABS_DIR, f'{tab_num}.json'
@@ -113,7 +112,7 @@ class MainWidget(QWidget):
             if os.path.exists(filename):
                 self.item_tabs.append(tab)
                 continue
-            api_call = APICall(
+            api_call = Call(
                 api_manager.get_tab_items,
                 (account.username, account.poesessid, league, tab_num),
                 self,
@@ -130,7 +129,7 @@ class MainWidget(QWidget):
             if os.path.exists(filename):
                 self.item_tabs.append(tab)
                 continue
-            api_call = APICall(
+            api_call = Call(
                 api_manager.get_character_items,
                 (account.username, account.poesessid, char),
                 self,

@@ -159,7 +159,6 @@ class Item:
 
         self.icon = item_json['icon']
         self.file_path = ''
-        self.downloaded = False
 
         self._calculate_properties()
 
