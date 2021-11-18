@@ -160,6 +160,8 @@ class Item:
 
         self.category = self.get_category(item_json)
 
+        self.internal_mods = {}
+
         self.icon = item_json['icon']
 
         self.file_path = ''

@@ -83,6 +83,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:  # pylint: disable=invalid-name
         """Kills the API thread on close."""
         self.api_manager.kill_thread()
+        self.download_manager.kill_thread()
         return super().closeEvent(a0)
 
     def switch_widget(self, dest_widget: QWidget, *args):

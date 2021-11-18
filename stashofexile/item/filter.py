@@ -9,6 +9,7 @@ from PyQt6.QtGui import QDoubleValidator, QIntValidator, QValidator
 from PyQt6.QtWidgets import QCheckBox, QComboBox, QLineEdit, QWidget
 
 from item.item import Item
+from widgets.editcombo import EditComboBox
 
 FilterFunction = Callable[..., bool]
 Num = Union[int, float]
@@ -25,10 +26,10 @@ class Filter:
     Represents an item filter.
 
     Fields:
-        name: Label name.
-        widget: Widget type of filter.
-        filterFunc: Filter function.
-        numericOnly: Whether to restrict QLineEdit to numbers only.
+        name (str): Label name.
+        widget (Type[QWidget]): Widget type of filter.
+        filter_func (FilterFunction): Filter function.
+        validator (QValidator, Optional): Field validator.
     """
 
     name: str
@@ -126,13 +127,12 @@ def _filter_influences(item: Item, elem: QCheckBox) -> bool:
     return len(item.influences) > 0
 
 
-def _filter_mod(item: Item, elem: QLineEdit) -> bool:
+def _filter_mod(
+    item: Item, elem: EditComboBox, range1: QLineEdit, range2: QLineEdit
+) -> bool:
     """Filter function that searches for mods."""
-    search = elem.text().lower()
-    return any(
-        any(search in mod.lower() for mod in mod_group)
-        for mod_group in (item.fractured, item.explicit, item.crafted)
-    )
+    search = elem.currentText()
+    return search in item.internal_mods
 
 
 FILTERS = [
@@ -148,7 +148,6 @@ FILTERS = [
     Filter('Quality', QLineEdit, _duo_filt_num('qualityNum', int), IV),
     Filter('Item Level', QLineEdit, _get_filter_ilevel(), IV),
     Filter('Influenced', QCheckBox, _filter_influences),
-    Filter('Mod', QLineEdit, _filter_mod),
-    Filter('Mod', QLineEdit, _filter_mod),
-    Filter('Mod', QLineEdit, _filter_mod),
 ]
+
+MOD_FILTERS = [Filter('', EditComboBox, _filter_mod) for _ in range(5)]

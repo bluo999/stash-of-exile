@@ -8,6 +8,7 @@ import os
 from dataclasses import field
 from functools import partial
 from inspect import signature
+import pickle
 from typing import List, TYPE_CHECKING, Optional, Set, Tuple
 
 from PyQt6.QtCore import QItemSelection, QSize, Qt
@@ -18,11 +19,13 @@ from PyQt6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QFormLayout,
+    QFrame,
     QGroupBox,
     QHBoxLayout,
     QHeaderView,
     QLabel,
     QLineEdit,
+    QScrollArea,
     QTableView,
     QTextEdit,
     QVBoxLayout,
@@ -33,20 +36,24 @@ import log
 import util
 
 from consts import SEPARATOR_TEMPLATE
-from item.filter import FILTERS
+from item.filter import FILTERS, MOD_FILTERS
 from item.item import Item
+from item.moddb import ModDb
 from gamedata import COMBO_ITEMS
 from save import Account
 from tab import CharacterTab, ItemTab, StashTab
 from table import TableModel
 from thread.thread import Call
+from widgets.editcombo import EditComboBox
 
 if TYPE_CHECKING:
     from mainwindow import MainWindow
 
 logger = log.get_logger(__name__)
 
+MOD_DB_FILE = os.path.join('..', 'item_db.pkl')
 ITEM_CACHE_DIR = os.path.join('..', 'item_cache')
+
 TABS_DIR = 'tabs'
 CHARACTER_DIR = 'characters'
 
@@ -60,7 +67,9 @@ class MainWidget(QWidget):
         self.main_window = main_window
         self.item_tabs: List[ItemTab] = []
         self.account = None
+        self.mod_db: ModDb = ModDb()
         self._static_build()
+        self._load_mod_file()
         self._dynamic_build_filters()
         self._setup_filters()
         self._name_ui()
@@ -182,7 +191,6 @@ class MainWidget(QWidget):
     def _build_table(self) -> None:
         """Sets up the items, downloads their images, and sets up the table."""
         # Get available items
-        # TODO: delegate this to APIManager or new thread to avoid blocking UI
         download_manager = self.main_window.download_manager
         items: List[Item] = []
         icons: Set[Tuple[str, str]] = set()
@@ -192,6 +200,11 @@ class MainWidget(QWidget):
             tab_items = tab.get_items()
             icons.update((item.icon, item.file_path) for item in tab_items)
             items.extend(tab_items)
+
+        self.mod_db.insert_items(items)
+        logger.info('Writing mod db file')
+        with open(MOD_DB_FILE, 'wb') as f:
+            pickle.dump(self.mod_db, f)
 
         download_manager.insert(
             Call(download_manager.get_image, icon, None) for icon in icons
@@ -229,13 +242,48 @@ class MainWidget(QWidget):
         # Main Area
         self.main_hlayout = QHBoxLayout(self)
 
-        # Filter Area
-        self.filter = QVBoxLayout()
+        # Left Area (Filters, Mods)
+        self.left_vlayout = QVBoxLayout()
+
+        # Filters Group Box
         self.filter_group_box = QGroupBox()
-        self.filter.addWidget(self.filter_group_box)
+        self.filter_scroll_layout = QVBoxLayout(self.filter_group_box)
+        self.filter_scroll_layout.setContentsMargins(0, 0, 0, 0)
+        self.left_vlayout.addWidget(self.filter_group_box)
+
+        # Filters Scroll
+        self.filter_scroll = QScrollArea()
+        self.filter_scroll.setWidgetResizable(True)
+        self.filter_scroll.setContentsMargins(0, 0, 0, 0)
+        self.filter_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self.filter_scroll_layout.addWidget(self.filter_scroll)
+
+        # Intermediate Filter Widget
+        self.filter_scroll_widget = QWidget()
+        self.filter_scroll.setWidget(self.filter_scroll_widget)
         self.filter_form_layout = QFormLayout()
-        self.filter_vlayout = QVBoxLayout(self.filter_group_box)
+        self.filter_vlayout = QVBoxLayout(self.filter_scroll_widget)
         self.filter_vlayout.addLayout(self.filter_form_layout)
+
+        # Mods Group Box
+        self.mods_group_box = QGroupBox()
+        self.mods_scroll_layout = QVBoxLayout(self.mods_group_box)
+        self.mods_scroll_layout.setContentsMargins(0, 0, 0, 0)
+        self.left_vlayout.addWidget(self.mods_group_box)
+
+        # Mods Scroll
+        self.mods_scroll = QScrollArea()
+        self.mods_scroll.setWidgetResizable(True)
+        self.mods_scroll.setContentsMargins(0, 0, 0, 0)
+        self.mods_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self.mods_scroll_layout.addWidget(self.mods_scroll)
+
+        # Intermediate Mods Widget
+        self.mods_scroll_widget = QWidget()
+        self.mods_scroll.setWidget(self.mods_scroll_widget)
+        self.mods_form_layout = QFormLayout()
+        self.mods_vlayout = QVBoxLayout(self.mods_scroll_widget)
+        self.mods_vlayout.addLayout(self.mods_form_layout)
 
         # Tooltip
         self.tooltip = QTextEdit()
@@ -267,21 +315,29 @@ class MainWidget(QWidget):
         self.table.setModel(self.model)
 
         # Add to main layout and set stretch ratios
-        self.main_hlayout.addLayout(self.filter)
+        self.main_hlayout.addLayout(self.left_vlayout)
         self.main_hlayout.addWidget(self.tooltip)
         self.main_hlayout.addWidget(self.table)
         self.main_hlayout.setStretch(0, 1)
         self.main_hlayout.setStretch(1, 2)
         self.main_hlayout.setStretch(2, 3)
 
+    def _load_mod_file(self) -> None:
+        if os.path.isfile(MOD_DB_FILE):
+            logger.info('Found mod db file')
+            with open(MOD_DB_FILE, 'rb') as f:
+                self.mod_db = pickle.load(f)
+            assert isinstance(self.mod_db, ModDb)
+            logger.info('Initial mods: %s', len(self.mod_db))
+
     def _dynamic_build_filters(self) -> None:
         """Sets up the filter widgets and labels."""
-        self.labels: List[QLabel] = []
-        self.widgets: List[List[QWidget]] = []
+        self.filter_labels: List[QLabel] = []
+        self.filter_widgets: List[List[QWidget]] = []
         for i, filt in enumerate(FILTERS):
             # Label
-            label = QLabel(self.filter_group_box)
-            self.labels.append(label)
+            label = QLabel(self.filter_scroll_widget)
+            self.filter_labels.append(label)
             self.filter_form_layout.setWidget(i, QFormLayout.ItemRole.LabelRole, label)
 
             # Widget layout
@@ -298,18 +354,53 @@ class MainWidget(QWidget):
                     widget.setValidator(filt.validator)
 
             layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-            self.widgets.append(widgets)
+            self.filter_widgets.append(widgets)
             self.filter_form_layout.setLayout(i, QFormLayout.ItemRole.FieldRole, layout)
 
+        self.mod_widgets: List[List[QWidget]] = []
+        combo_width: Optional[int] = None
+        range_size: Optional[QSize] = None
+        for i, filt in enumerate(MOD_FILTERS):
+            widgets: List[QWidget] = []
+            # Combo box
+            widget = EditComboBox()
+            if combo_width is None:
+                combo_width = (int)(self.filter_group_box.sizeHint().width() * 0.69)
+            widget.setFixedWidth(combo_width)
+            widget.addItems(self.mod_db.keys())
+            widget.currentIndexChanged.connect(self._apply_filters)
+            widgets.append(widget)
+            self.mods_form_layout.setWidget(i, QFormLayout.ItemRole.LabelRole, widget)
+
+            # Range widgets
+            layout = QHBoxLayout()
+            for _ in range(2):
+                range_widget = QLineEdit()
+                if range_size is None:
+                    range_height = self.filter_widgets[0][0].sizeHint().height()
+                    range_size = QSize((int)(range_height * 1.5), range_height)
+                range_widget.setFixedSize(range_size)
+                range_widget.textChanged.connect(self._apply_filters)
+                widgets.append(range_widget)
+                layout.addWidget(range_widget)
+            layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+            self.mods_form_layout.setLayout(i, QFormLayout.ItemRole.FieldRole, layout)
+            self.mod_widgets.append(widgets)
+
+        # Resize scroll area width
+        self.filter_scroll.setMinimumWidth(self.filter_group_box.sizeHint().width())
+
         # Send widgets to model
-        self.model.set_filter_widgets(self.widgets)
+        self.model.set_filter_widgets(self.filter_widgets)
+        self.model.set_mod_widgets(self.mod_widgets)
 
     def _name_ui(self) -> None:
         """Names the UI elements, including window title and labels."""
         self.filter_group_box.setTitle('Filters')
+        self.mods_group_box.setTitle('Mods')
 
         # Name filters
-        for filt, label in zip(FILTERS, self.labels):
+        for filt, label in zip(FILTERS, self.filter_labels):
             label.setText(f'{filt.name}:')
 
     def _update_tooltip(self, model: TableModel, selected: QItemSelection) -> None:
@@ -337,9 +428,12 @@ class MainWidget(QWidget):
         # Reset scroll to top
         self.tooltip.moveCursor(QTextCursor.MoveOperation.Start)
 
+    def _apply_filters(self) -> None:
+        self.model.apply_filters(index=1, order=Qt.SortOrder.AscendingOrder)
+
     def _setup_filters(self) -> None:
         """Initializes filters and links to widgets."""
-        for filt, widgets in zip(FILTERS, self.widgets):
+        for filt, widgets in zip(FILTERS, self.filter_widgets):
             signal = None
             for widget in widgets:
                 # Get signal based on widget type
@@ -351,16 +445,15 @@ class MainWidget(QWidget):
                     signal = widget.stateChanged
 
                 if signal is not None:
-                    signal.connect(
-                        partial(
-                            self.model.apply_filters,
-                            index=1,
-                            order=Qt.SortOrder.AscendingOrder,
-                        )
-                    )
+                    signal.connect(self._apply_filters)
 
         # Add items to combo boxes (dropdown)
-        for filt, widgets in zip(FILTERS, self.widgets):
+        for filt, widgets in zip(FILTERS, self.filter_widgets):
+            if filt.name == 'Mod':
+                widget = widgets[0]
+                widget.setFixedWidth(self.filter_widgets[0][0].sizeHint().width())
+                assert isinstance(widget, EditComboBox)
+                widget.addItems(self.mod_db.keys())
             options = COMBO_ITEMS.get(filt.name)
             if options is not None:
                 widget = widgets[0]

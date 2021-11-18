@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import QTableView, QWidget
 import log
 
 from consts import COLORS
-from item.filter import FILTERS, filter_is_active
+from item.filter import FILTERS, filter_is_active, MOD_FILTERS
 from item.item import Item, property_function
 from thread.ratelimiting import _get_time_ms
 
@@ -55,6 +55,7 @@ class TableModel(QAbstractTableModel):
         self.items: List[Item] = []
         self.current_items: List[Item] = []
         self.filter_widgets: List[List[QWidget]] = []
+        self.mod_widgets: List[List[QWidget]] = []
         self.property_funcs = [func for _, func in TableModel.PROPERTY_FUNCS.items()]
         self.headers = list(TableModel.PROPERTY_FUNCS.keys())
         self.table_view = table_view
@@ -116,6 +117,10 @@ class TableModel(QAbstractTableModel):
         """Sets the filter widgets for the table."""
         self.filter_widgets = filter_widgets
 
+    def set_mod_widgets(self, mod_widgets: List[List[QWidget]]) -> None:
+        """Sets the mod filter widgets for the table."""
+        self.mod_widgets = mod_widgets
+
     def apply_filters(
         self, index: int = 1, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder
     ) -> None:
@@ -129,12 +134,15 @@ class TableModel(QAbstractTableModel):
             self.current_items[selection[0].row()] if len(selection) > 0 else None
         )
 
+        all_widgets = self.filter_widgets + self.mod_widgets
+        all_filters = FILTERS + MOD_FILTERS
+
         # Items that pass every filter
         prev_time = _get_time_ms()
         active_filters = [
-            (filter, filter_widgets)
-            for filter, filter_widgets in zip(FILTERS, self.filter_widgets)
-            if any(filter_is_active(widget) for widget in filter_widgets)
+            (filter, widgets)
+            for filter, widgets in zip(all_filters, all_widgets)
+            if any(filter_is_active(widget) for widget in widgets)
         ]
         self.current_items = [
             item

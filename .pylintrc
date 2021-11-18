@@ -144,7 +144,8 @@ disable=fixme,
 	too-many-return-statements,
 	too-many-branches,
 	too-many-instance-attributes,
-	too-few-public-methods
+	too-few-public-methods,
+      too-many-statements,
 	
 
 # Enable the message, report, category or checker with the given id(s). You can

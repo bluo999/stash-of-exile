@@ -45,9 +45,7 @@ class LoginWidget(QWidget):
         self._dynamic_build()
         self._name_ui()
 
-    def on_show(
-        self, account: Optional[Account] = None
-    ) -> None:
+    def on_show(self, account: Optional[Account] = None) -> None:
         """Updates account if specified."""
         if account is not None:
             self.account = account
