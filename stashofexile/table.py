@@ -13,7 +13,7 @@ import log
 from consts import COLORS
 from item.filter import FILTERS, filter_is_active, MOD_FILTERS
 from item.item import Item, property_function
-from thread.ratelimiting import _get_time_ms
+from thread.ratelimiting import get_time_ms
 
 logger = log.get_logger(__name__)
 
@@ -60,11 +60,11 @@ class TableModel(QAbstractTableModel):
         self.headers = list(TableModel.PROPERTY_FUNCS.keys())
         self.table_view = table_view
 
-    def rowCount(self, _parent: QModelIndex) -> int:  # pylint: disable=invalid-name
+    def rowCount(self, parent: QModelIndex) -> int:  # pylint: disable=invalid-name
         """Returns the current number of current rows (excluding filtered)."""
         return len(self.current_items)
 
-    def columnCount(self, _parent: QModelIndex) -> int:  # pylint: disable=invalid-name
+    def columnCount(self, parent: QModelIndex) -> int:  # pylint: disable=invalid-name
         """Returns the number of columns / properties."""
         return len(self.property_funcs)
 
@@ -138,7 +138,7 @@ class TableModel(QAbstractTableModel):
         all_filters = FILTERS + MOD_FILTERS
 
         # Items that pass every filter
-        prev_time = _get_time_ms()
+        prev_time = get_time_ms()
         active_filters = [
             (filter, widgets)
             for filter, widgets in zip(all_filters, all_widgets)
@@ -152,7 +152,7 @@ class TableModel(QAbstractTableModel):
                 for (filter, filter_widgets) in active_filters
             )
         ]
-        logger.debug('Filtering took %sms', _get_time_ms() - prev_time)
+        logger.debug('Filtering took %sms', get_time_ms() - prev_time)
 
         key = list(TableModel.PROPERTY_FUNCS.keys())[index]
         sort_func = TableModel.PROPERTY_FUNCS[key]

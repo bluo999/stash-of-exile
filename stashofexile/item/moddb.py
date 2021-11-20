@@ -2,10 +2,64 @@
 Defines the database used to store mods.
 """
 
-from typing import List
+import re
+from typing import List, NamedTuple
 
 from item.item import Item
 
+MOD_CATEGORIES = [
+    'Bow',
+    'Claw',
+    'Dagger',
+    'Rune Dagger',
+    'One Handed Axe',
+    'One Handed Mace',
+    'One Handed Sword',
+    'Sceptre',
+    'Staff',
+    'Warstaff',
+    'Two Handed Axe',
+    'Two Handed Mace',
+    'Two Handed Sword',
+    'Wand',
+    'Fishing Rod',
+    'Body Armour',
+    'Boots',
+    'Gloves',
+    'Helmet',
+    'Shield',
+    'Quiver',
+    'Amulet',
+    'Ring',
+    'Belt',
+    'Trinket',
+    'Jewel',
+    'Abyss Jewel',
+    'Cluster Jewel',
+    'Flask',
+    'Map',
+    'Maven\'s Invitation',
+    'Watchstone',
+    'Leaguestone',
+    'Contract',
+    'Blueprint',
+    'Heist',
+]
+
+NUMERIC_REGEX = r'(\d+(\.\d+)?(\d+)?)'
+
+
+class Mod(NamedTuple):
+    """Represents an item mod."""
+
+    key: str
+    values: List[float]
+
+def _parse_mod(mod_str: str) -> Mod:
+    """Parses a mod string and returns Mod, with numeric values extracted."""
+    values = [float(x) for x, _, _ in re.findall(NUMERIC_REGEX, mod_str) if x != '']
+    key = re.sub(NUMERIC_REGEX, '#', mod_str)
+    return Mod(key, values)
 
 class ModDb(dict):
     """Stores mods."""
@@ -16,8 +70,17 @@ class ModDb(dict):
         suitable for searching.
         """
         for item in items:
-            if item.category != 'Boots':
+            if item.category not in MOD_CATEGORIES:
                 continue
-            for mod in item.explicit:
-                item.internal_mods[mod] = 0
-                self[mod] = 0
+            mod_groups = (
+                item.implicit,
+                item.fractured,
+                item.explicit,
+                item.crafted,
+                item.enchanted,
+            )
+            for mod_group in mod_groups:
+                for mod_str in mod_group:
+                    mod = _parse_mod(mod_str)
+                    item.internal_mods[mod.key] = mod.values
+                    self[mod.key] = len(mod.values)

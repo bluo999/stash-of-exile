@@ -77,7 +77,7 @@ class StashTab(ItemTab):
     def __init__(self, filepath: str, tab_num: Optional[int] = None):
         ItemTab.__init__(self, filepath)
         self.tab_num = int(util.get_file_name(filepath)) if tab_num is None else tab_num
-        self.tab_name = ''
+        self.tab_name: str = ''
 
     def get_tab_name(self) -> str:
         return f'{self.tab_num} ({self.tab_name})'

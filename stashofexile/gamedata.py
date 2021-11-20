@@ -1,6 +1,9 @@
 """
 Constants that involve game data.
 """
+import json
+
+from typing import Dict, List
 
 # API rarity number to named rarity
 RARITIES = {
@@ -17,17 +20,16 @@ RARITIES = {
 
 # Keywords in fragment items
 FRAGMENTS = [
-    'Sacrifice',
-    'Key',
-    'Mortal',
-    'Fragment',
-    'Emblem',
-    'Writ',
-    'Divine Vessel',
-    'Goddess',
+    'Sacrifice at',
+    'Mortal ',
+    '\'s Key',
+    'Fragment of ',
+    ' Breachstone',
+    ' Emblem',
+    ' to the Goddess',
+    ' Vessel',
+    'The Maven\'s Writ',
     'Sacred Blossom',
-    'Breachstone',
-    'Lure',
 ]
 
 # Selectable options for ComboBox filters
@@ -84,5 +86,30 @@ COMBO_ITEMS = {
         'Fossil',
         'Incubator',
         'Heist',
+        '',
     ],
 }
+
+PARSE_CATEGORIES = [
+    'Incubator',
+    'Quiver',
+    'Amulet',
+    'Ring',
+    'Belt',
+    'Trinket',
+    'Cluster Jewel',
+    'Jewel',
+    'Flask',
+    'Map',
+    'Maven\'s Invitation',
+    'Scarab',
+    'Watchstone',
+    'Leaguestone',
+    'Contract',
+    'Blueprint',
+    'Resonator',
+    'Fossil',
+]
+
+with open('bases.json', 'rb') as f:
+    BASE_TYPES: Dict[str, List[str]] = json.load(f)

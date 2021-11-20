@@ -2,14 +2,15 @@
 Defines an EditComboBox.
 """
 
-from PyQt6.QtCore import QSortFilterProxyModel, Qt
-from PyQt6.QtWidgets import QComboBox, QCompleter
+from typing import Optional
+from PyQt6.QtCore import QAbstractItemModel, QSortFilterProxyModel, Qt
+from PyQt6.QtWidgets import QComboBox, QCompleter, QWidget
 
 
 class EditComboBox(QComboBox):
     """QComboBox with a line edit to filter through the options."""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent:Optional[QWidget]=None):
         super().__init__(parent)
 
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
@@ -36,20 +37,20 @@ class EditComboBox(QComboBox):
         if text == '':
             self.setCurrentIndex(0)
 
-    def on_completer_activated(self, text):
+    def on_completer_activated(self, text: str):
         """Sets selection when completer is activated."""
         if text:
             index = self.findText(text)
             self.setCurrentIndex(index)
 
-    def setModel(self, model):  # pylint: disable=invalid-name
+    def setModel(self, model: QAbstractItemModel):  # pylint: disable=invalid-name
         """Sets model."""
         super().setModel(model)
         self.filter_model.setSourceModel(model)
         self.completer().setModel(self.filter_model)
 
-    def setModelColumn(self, column):  # pylint: disable=invalid-name
+    def setModelColumn(self, visibleColumn: int):  # pylint: disable=invalid-name
         """Sets model column."""
-        super().setModelColumn(column)
-        self.completer().setCompletionColumn(column)
-        self.filter_model.setFilterKeyColumn(column)
+        super().setModelColumn(visibleColumn)
+        self.completer().setCompletionColumn(visibleColumn)
+        self.filter_model.setFilterKeyColumn(visibleColumn)

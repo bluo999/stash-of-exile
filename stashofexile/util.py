@@ -32,7 +32,7 @@ def insert_values(text: str, values: List[List[Union[str, int]]]) -> ModifiedStr
         val_index = int(obj['text'][index + 1])
         val_num = values[val_index][1]
         assert isinstance(val_num, int)
-        color = COLORS[VALNUM_TO_COLOR[val_num]]
+        color = COLORS[VALNUM_TO_COLOR.get(val_num, 'white')]
         obj['text'] = (
             obj['text'][:index]
             + SPAN_TEMPLATE.format(color, values[val_index][0])

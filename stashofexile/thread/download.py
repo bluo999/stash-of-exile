@@ -23,7 +23,7 @@ class DownloadManager(ThreadManager):
     def __init__(self):
         ThreadManager.__init__(self, DownloadThread)
 
-    def get_image(self, icon: str, file_path: str) -> Tuple:
+    def get_image(self, icon: str, file_path: str) -> Tuple[None]:
         """Gets an image given item info."""
         # Extract file path from web url
         util.create_directories(file_path)

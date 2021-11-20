@@ -12,7 +12,7 @@ import pickle
 from typing import List, TYPE_CHECKING, Optional, Set, Tuple
 
 from PyQt6.QtCore import QItemSelection, QSize, Qt
-from PyQt6.QtGui import QFont, QTextCursor
+from PyQt6.QtGui import QDoubleValidator, QFont, QTextCursor
 from PyQt6.QtWidgets import (
     QAbstractItemView,
     QAbstractScrollArea,
@@ -56,6 +56,11 @@ ITEM_CACHE_DIR = os.path.join('..', 'item_cache')
 
 TABS_DIR = 'tabs'
 CHARACTER_DIR = 'characters'
+
+
+def _toggle_visibility(widget: QWidget) -> None:
+    """Toggles the visibility of a widget."""
+    widget.setVisible(not widget.isVisible())
 
 
 class MainWidget(QWidget):
@@ -247,6 +252,7 @@ class MainWidget(QWidget):
 
         # Filters Group Box
         self.filter_group_box = QGroupBox()
+        self.filter_group_box.setCheckable(True)
         self.filter_scroll_layout = QVBoxLayout(self.filter_group_box)
         self.filter_scroll_layout.setContentsMargins(0, 0, 0, 0)
         self.left_vlayout.addWidget(self.filter_group_box)
@@ -257,6 +263,9 @@ class MainWidget(QWidget):
         self.filter_scroll.setContentsMargins(0, 0, 0, 0)
         self.filter_scroll.setFrameShape(QFrame.Shape.NoFrame)
         self.filter_scroll_layout.addWidget(self.filter_scroll)
+        self.filter_group_box.clicked.connect(
+            partial(_toggle_visibility, self.filter_scroll)
+        )
 
         # Intermediate Filter Widget
         self.filter_scroll_widget = QWidget()
@@ -267,6 +276,7 @@ class MainWidget(QWidget):
 
         # Mods Group Box
         self.mods_group_box = QGroupBox()
+        self.mods_group_box.setCheckable(True)
         self.mods_scroll_layout = QVBoxLayout(self.mods_group_box)
         self.mods_scroll_layout.setContentsMargins(0, 0, 0, 0)
         self.left_vlayout.addWidget(self.mods_group_box)
@@ -277,6 +287,9 @@ class MainWidget(QWidget):
         self.mods_scroll.setContentsMargins(0, 0, 0, 0)
         self.mods_scroll.setFrameShape(QFrame.Shape.NoFrame)
         self.mods_scroll_layout.addWidget(self.mods_scroll)
+        self.mods_group_box.clicked.connect(
+            partial(_toggle_visibility, self.mods_scroll)
+        )
 
         # Intermediate Mods Widget
         self.mods_scroll_widget = QWidget()
@@ -284,6 +297,10 @@ class MainWidget(QWidget):
         self.mods_form_layout = QFormLayout()
         self.mods_vlayout = QVBoxLayout(self.mods_scroll_widget)
         self.mods_vlayout.addLayout(self.mods_form_layout)
+
+        # # Left Layout stretch
+        # self.left_vlayout.setStretch(0, 2)
+        # self.left_vlayout.setStretch(1, 1)
 
         # Tooltip
         self.tooltip = QTextEdit()
@@ -365,9 +382,9 @@ class MainWidget(QWidget):
             # Combo box
             widget = EditComboBox()
             if combo_width is None:
-                combo_width = (int)(self.filter_group_box.sizeHint().width() * 0.69)
+                combo_width = (int)(self.filter_group_box.sizeHint().width() * 0.65)
             widget.setFixedWidth(combo_width)
-            widget.addItems(self.mod_db.keys())
+            widget.addItems(search for search in self.mod_db)
             widget.currentIndexChanged.connect(self._apply_filters)
             widgets.append(widget)
             self.mods_form_layout.setWidget(i, QFormLayout.ItemRole.LabelRole, widget)
@@ -381,14 +398,18 @@ class MainWidget(QWidget):
                     range_size = QSize((int)(range_height * 1.5), range_height)
                 range_widget.setFixedSize(range_size)
                 range_widget.textChanged.connect(self._apply_filters)
+                range_widget.setValidator(QDoubleValidator())
                 widgets.append(range_widget)
                 layout.addWidget(range_widget)
             layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
             self.mods_form_layout.setLayout(i, QFormLayout.ItemRole.FieldRole, layout)
             self.mod_widgets.append(widgets)
 
-        # Resize scroll area width
-        self.filter_scroll.setMinimumWidth(self.filter_group_box.sizeHint().width())
+        # Resize left panel widths
+        width = self.filter_group_box.sizeHint().width()
+        self.filter_group_box.setMinimumWidth(width)
+        self.mods_group_box.setMinimumWidth(width)
+        # self.filter_scroll.setMinimumWidth(self.filter_group_box.sizeHint().width())
 
         # Send widgets to model
         self.model.set_filter_widgets(self.filter_widgets)
@@ -449,11 +470,6 @@ class MainWidget(QWidget):
 
         # Add items to combo boxes (dropdown)
         for filt, widgets in zip(FILTERS, self.filter_widgets):
-            if filt.name == 'Mod':
-                widget = widgets[0]
-                widget.setFixedWidth(self.filter_widgets[0][0].sizeHint().width())
-                assert isinstance(widget, EditComboBox)
-                widget.addItems(self.mod_db.keys())
             options = COMBO_ITEMS.get(filt.name)
             if options is not None:
                 widget = widgets[0]

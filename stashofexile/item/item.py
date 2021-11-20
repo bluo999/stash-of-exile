@@ -4,10 +4,13 @@ Defines parsing of the item API and converting into a local object.
 
 import os
 import re
+
 from typing import Any, Callable, Dict, List, NamedTuple
 
+import log
+
 from consts import COLORS, HEADER_TEMPLATE, SPAN_TEMPLATE
-from gamedata import COMBO_ITEMS, FRAGMENTS, RARITIES
+from gamedata import BASE_TYPES, COMBO_ITEMS, FRAGMENTS, PARSE_CATEGORIES, RARITIES
 from item.property import Property
 from item.requirement import Requirement
 
@@ -16,6 +19,8 @@ FLAT_PERCENT_REGEX = r'([0-9]{1,2}\.\d{2})%'  # xx.xx%
 NUM_RANGE_REGEX = r'(\d+)-(\d+)'  # x-x
 
 IMAGE_CACHE_DIR = os.path.join('..', 'image_cache')
+
+logger = log.get_logger(__name__)
 
 
 class ModGroup(NamedTuple):
@@ -160,7 +165,7 @@ class Item:
 
         self.category = self.get_category(item_json)
 
-        self.internal_mods = {}
+        self.internal_mods: Dict[str, List[float]] = {}
 
         self.icon = item_json['icon']
 
@@ -194,29 +199,52 @@ class Item:
         Determines and returns an item's category based on its other
         properties.
         """
-        # From basetype
-        categories = [
-            'Quiver',
-            'Trinket',
-            'Cluster Jewel',
-            'Flask',
-            'Map',
-            'Maven\'s Invitation',
-            'Scarab',
-            'Watchstone',
-            'Leaguestone',
-            'Fossil',
-            'Resonator',
-            'Incubator',
-        ]
-        for cat in categories:
-            if cat in item_json['baseType']:
+        # Gem
+        if item_json.get('support') is not None:
+            return 'Support Gem' if item_json['support'] else 'Skill Gem'
+
+        if item_json.get('prophecyText') is not None:
+            return 'Prophecy'
+
+        # Property
+        if item_json.get('properties') is not None:
+            cat = item_json['properties'][0]['name']
+            if cat == 'Abyss':
+                return 'Abyss Jewel'
+            if cat == 'Genus':
+                return 'Captured Beast'
+            if cat == 'Uses':
+                return 'Metamorph Sample'
+
+            if cat in COMBO_ITEMS['Category']:
                 return cat
+
+        item_base = item_json['baseType']
+
+        # Special base types
+        if 'Talisman' in item_base:
+            return 'Amulet'
+        if 'Lure' in item_base:
+            return 'Scarab'
+        if 'Piece' in item_base:
+            return 'Unique Fragment'
+        if item_base == 'Simulacrum':  # Avoid conflict with splinter
+            return 'Map Fragment'
 
         # Fragments
         for frag in FRAGMENTS:
-            if frag in item_json['baseType']:
+            if frag in item_base:
                 return 'Map Fragment'
+
+        # From basetype list
+        for base_type, search_list in BASE_TYPES.items():
+            if any(search == item_base for search in search_list):
+                return base_type
+
+        # From basetype word
+        for cat in PARSE_CATEGORIES:
+            if cat in item_base:
+                return cat
 
         # Rarity
         if self.rarity == 'divination':
@@ -224,41 +252,7 @@ class Item:
         if self.rarity == 'currency':
             return 'Currency'
 
-        # Add currency to ignore when searching in icon name
-        ignore_categories = categories
-        ignore_categories.append('Currency')
-
-        # Gem
-        if item_json.get('support') is not None:
-            return 'Support Gem' if item_json['support'] else 'Skill Gem'
-
-        # Property
-        if item_json.get('properties') is not None:
-            cat = item_json['properties'][0]['name']
-            if cat == 'Abyss':
-                return 'Abyss Jewel'
-
-            if cat in COMBO_ITEMS['Category']:
-                return cat
-
-        # Search in icon name
-        ignore_categories = [
-            cat for cat in COMBO_ITEMS['Category'] if cat not in ignore_categories
-        ]
-        for cat in ignore_categories:
-            # Remove spaces
-            if cat.replace(' ', '') in item_json['icon']:
-                return cat
-
-        # Alternate names in icon name
-        if 'Hat' in item_json['icon']:
-            return 'Helmet'
-        if 'Metamorph' in item_json['icon']:
-            return 'Metamorph Sample'
-        if 'BestiaryOrb' in item_json['icon']:
-            return 'Captured Beast'
-
-        # TODO: add warning
+        logger.warning('Unknown category %s', self.name)
         return ''
 
     def get_tooltip(self) -> List[str]:

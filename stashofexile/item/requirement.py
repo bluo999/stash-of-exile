@@ -29,7 +29,7 @@ class Requirement:
         else:
             valnum = self.values[0][1]
             assert isinstance(valnum, int)
-            color = COLORS[VALNUM_TO_COLOR[valnum]]
+            color = COLORS[VALNUM_TO_COLOR.get(valnum, 'white')]
             value = SPAN_TEMPLATE.format(color, self.values[0][0])
 
             # "Level 20" vs "100 Str"

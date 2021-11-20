@@ -15,7 +15,7 @@ import log
 logger = log.get_logger(__name__)
 
 
-def _get_time_ms() -> int:
+def get_time_ms() -> int:
     """
     Gets time in milliseconds (epoch doesn't matter since only used for
     relativity).
@@ -73,7 +73,7 @@ class RateLimiter:
     def insert(self) -> None:
         """Add timestamp to queue."""
         for queue in self.queues:
-            queue.append(_get_time_ms())
+            queue.append(get_time_ms())
 
     def block_until_ready(self) -> None:
         """Sleeps until the next API call won't be rejected (if necessary)."""
@@ -92,7 +92,7 @@ class RateLimiter:
             for queue in self.queues
             if len(queue) == queue.hits
         )
-        sleep_time = max((next_avail_time - _get_time_ms()) / 1000, 0.0)
+        sleep_time = max((next_avail_time - get_time_ms()) / 1000, 0.0)
         logger.info(sleep_time)
         if math.isclose(sleep_time, 0.0):
             return
