@@ -86,6 +86,8 @@ COMBO_ITEMS = {
         'Fossil',
         'Incubator',
         'Heist',
+        'Inscribed Ultimatum',
+        'Expedition Logbook',
         '',
     ],
 }
@@ -109,6 +111,8 @@ PARSE_CATEGORIES = [
     'Blueprint',
     'Resonator',
     'Fossil',
+    'Inscribed Ultimatum',
+    'Expedition Logbook',
 ]
 
 with open('bases.json', 'rb') as f:

@@ -26,6 +26,7 @@ from PyQt6.QtWidgets import (
     QLabel,
     QLineEdit,
     QScrollArea,
+    QSplitter,
     QTableView,
     QTextEdit,
     QVBoxLayout,
@@ -245,31 +246,33 @@ class MainWidget(QWidget):
     def _static_build(self) -> None:
         """Sets up the static base UI, including properties and widgets."""
         # Main Area
-        self.main_hlayout = QHBoxLayout(self)
+        main_hlayout = QHBoxLayout(self)
+        splitter = QSplitter(Qt.Orientation.Horizontal)
 
         # Left Area (Filters, Mods)
-        self.left_vlayout = QVBoxLayout()
+        left_widget = QWidget()
+        left_vlayout = QVBoxLayout(left_widget)
 
         # Filters Group Box
         self.filter_group_box = QGroupBox()
         self.filter_group_box.setCheckable(True)
-        self.filter_scroll_layout = QVBoxLayout(self.filter_group_box)
-        self.filter_scroll_layout.setContentsMargins(0, 0, 0, 0)
-        self.left_vlayout.addWidget(self.filter_group_box)
+        filter_scroll_layout = QVBoxLayout(self.filter_group_box)
+        filter_scroll_layout.setContentsMargins(0, 0, 0, 0)
 
         # Filters Scroll
-        self.filter_scroll = QScrollArea()
-        self.filter_scroll.setWidgetResizable(True)
-        self.filter_scroll.setContentsMargins(0, 0, 0, 0)
-        self.filter_scroll.setFrameShape(QFrame.Shape.NoFrame)
-        self.filter_scroll_layout.addWidget(self.filter_scroll)
+        filter_scroll = QScrollArea()
+        filter_scroll.setWidgetResizable(True)
+        filter_scroll.setContentsMargins(0, 0, 0, 0)
+        filter_scroll.setFrameShape(QFrame.Shape.NoFrame)
         self.filter_group_box.clicked.connect(
-            partial(_toggle_visibility, self.filter_scroll)
+            partial(_toggle_visibility, filter_scroll)
         )
+
+        filter_scroll_layout.addWidget(filter_scroll)
 
         # Intermediate Filter Widget
         self.filter_scroll_widget = QWidget()
-        self.filter_scroll.setWidget(self.filter_scroll_widget)
+        filter_scroll.setWidget(self.filter_scroll_widget)
         self.filter_form_layout = QFormLayout()
         self.filter_vlayout = QVBoxLayout(self.filter_scroll_widget)
         self.filter_vlayout.addLayout(self.filter_form_layout)
@@ -277,30 +280,28 @@ class MainWidget(QWidget):
         # Mods Group Box
         self.mods_group_box = QGroupBox()
         self.mods_group_box.setCheckable(True)
-        self.mods_scroll_layout = QVBoxLayout(self.mods_group_box)
-        self.mods_scroll_layout.setContentsMargins(0, 0, 0, 0)
-        self.left_vlayout.addWidget(self.mods_group_box)
+        mods_scroll_layout = QVBoxLayout(self.mods_group_box)
+        mods_scroll_layout.setContentsMargins(0, 0, 0, 0)
 
         # Mods Scroll
         self.mods_scroll = QScrollArea()
         self.mods_scroll.setWidgetResizable(True)
         self.mods_scroll.setContentsMargins(0, 0, 0, 0)
         self.mods_scroll.setFrameShape(QFrame.Shape.NoFrame)
-        self.mods_scroll_layout.addWidget(self.mods_scroll)
         self.mods_group_box.clicked.connect(
             partial(_toggle_visibility, self.mods_scroll)
         )
 
-        # Intermediate Mods Widget
-        self.mods_scroll_widget = QWidget()
-        self.mods_scroll.setWidget(self.mods_scroll_widget)
-        self.mods_form_layout = QFormLayout()
-        self.mods_vlayout = QVBoxLayout(self.mods_scroll_widget)
-        self.mods_vlayout.addLayout(self.mods_form_layout)
+        mods_scroll_layout.addWidget(self.mods_scroll)
 
-        # # Left Layout stretch
-        # self.left_vlayout.setStretch(0, 2)
-        # self.left_vlayout.setStretch(1, 1)
+        # Intermediate Mods Widget
+        mods_scroll_widget = QWidget()
+        self.mods_scroll.setWidget(mods_scroll_widget)
+        self.mods_vlayout = QVBoxLayout(mods_scroll_widget)
+        self.mods_vlayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        left_vlayout.addWidget(self.filter_group_box)
+        left_vlayout.addWidget(self.mods_group_box)
 
         # Tooltip
         self.tooltip = QTextEdit()
@@ -331,13 +332,12 @@ class MainWidget(QWidget):
         self.model = TableModel(self.table, parent=self)
         self.table.setModel(self.model)
 
-        # Add to main layout and set stretch ratios
-        self.main_hlayout.addLayout(self.left_vlayout)
-        self.main_hlayout.addWidget(self.tooltip)
-        self.main_hlayout.addWidget(self.table)
-        self.main_hlayout.setStretch(0, 1)
-        self.main_hlayout.setStretch(1, 2)
-        self.main_hlayout.setStretch(2, 3)
+        splitter.addWidget(left_widget)
+        splitter.addWidget(self.tooltip)
+        splitter.addWidget(self.table)
+        splitter.setSizes((700, 700, 1000))
+
+        main_hlayout.addWidget(splitter)
 
     def _load_mod_file(self) -> None:
         if os.path.isfile(MOD_DB_FILE):
@@ -375,22 +375,22 @@ class MainWidget(QWidget):
             self.filter_form_layout.setLayout(i, QFormLayout.ItemRole.FieldRole, layout)
 
         self.mod_widgets: List[List[QWidget]] = []
-        combo_width: Optional[int] = None
         range_size: Optional[QSize] = None
         for i, filt in enumerate(MOD_FILTERS):
             widgets: List[QWidget] = []
+            hlayout = QHBoxLayout()
             # Combo box
             widget = EditComboBox()
-            if combo_width is None:
-                combo_width = (int)(self.filter_group_box.sizeHint().width() * 0.65)
-            widget.setFixedWidth(combo_width)
+            widget.setMinimumContentsLength(0)
+            widget.setSizeAdjustPolicy(
+                QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+            )
             widget.addItems(search for search in self.mod_db)
             widget.currentIndexChanged.connect(self._apply_filters)
             widgets.append(widget)
-            self.mods_form_layout.setWidget(i, QFormLayout.ItemRole.LabelRole, widget)
+            hlayout.addWidget(widget)
 
             # Range widgets
-            layout = QHBoxLayout()
             for _ in range(2):
                 range_widget = QLineEdit()
                 if range_size is None:
@@ -400,16 +400,14 @@ class MainWidget(QWidget):
                 range_widget.textChanged.connect(self._apply_filters)
                 range_widget.setValidator(QDoubleValidator())
                 widgets.append(range_widget)
-                layout.addWidget(range_widget)
-            layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-            self.mods_form_layout.setLayout(i, QFormLayout.ItemRole.FieldRole, layout)
+                hlayout.addWidget(range_widget)
             self.mod_widgets.append(widgets)
+            self.mods_vlayout.addLayout(hlayout)
 
         # Resize left panel widths
         width = self.filter_group_box.sizeHint().width()
         self.filter_group_box.setMinimumWidth(width)
         self.mods_group_box.setMinimumWidth(width)
-        # self.filter_scroll.setMinimumWidth(self.filter_group_box.sizeHint().width())
 
         # Send widgets to model
         self.model.set_filter_widgets(self.filter_widgets)

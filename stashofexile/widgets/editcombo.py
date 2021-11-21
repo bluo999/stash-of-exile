@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import QComboBox, QCompleter, QWidget
 class EditComboBox(QComboBox):
     """QComboBox with a line edit to filter through the options."""
 
-    def __init__(self, parent:Optional[QWidget]=None):
+    def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
 
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)

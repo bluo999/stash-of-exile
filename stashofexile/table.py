@@ -60,11 +60,15 @@ class TableModel(QAbstractTableModel):
         self.headers = list(TableModel.PROPERTY_FUNCS.keys())
         self.table_view = table_view
 
-    def rowCount(self, parent: QModelIndex) -> int:  # pylint: disable=invalid-name
+    def rowCount(  # pylint: disable=invalid-name,unused-argument
+        self, parent: QModelIndex
+    ) -> int:
         """Returns the current number of current rows (excluding filtered)."""
         return len(self.current_items)
 
-    def columnCount(self, parent: QModelIndex) -> int:  # pylint: disable=invalid-name
+    def columnCount(  # pylint: disable=invalid-name,unused-argument
+        self, parent: QModelIndex
+    ) -> int:
         """Returns the number of columns / properties."""
         return len(self.property_funcs)
 
