@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
     """Custom Main Window."""
 
     def __init__(self):
-        QMainWindow.__init__(self)
+        super().__init__()
         self.resize(1280, 720)
         self.setWindowTitle('Stash of Exile')
 

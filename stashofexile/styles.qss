@@ -16,3 +16,16 @@ QGroupBox::title {
 QLabel#ErrorText {
 	color: red;
 }
+
+/* QCheckBox {
+	spacing: 0px;
+}
+
+QCheckBox::indicator {
+	width: 13px;
+	height: 13px;
+}
+
+QCheckBox::indicator:unchecked {
+	image:url('../assets/warlord.png');
+} */

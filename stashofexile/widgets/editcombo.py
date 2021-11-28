@@ -3,8 +3,25 @@ Defines an EditComboBox.
 """
 
 from typing import Optional
+from PyQt6 import QtGui
 from PyQt6.QtCore import QAbstractItemModel, QSortFilterProxyModel, Qt
-from PyQt6.QtWidgets import QComboBox, QCompleter, QWidget
+from PyQt6.QtWidgets import QComboBox, QCompleter, QLineEdit, QWidget
+
+
+class ClickLineEdit(QLineEdit):
+    """Line edit that pops up a completer on click."""
+
+    def __init__(self, completer: QCompleter, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self.test = completer
+
+    def mousePressEvent(
+        self, e: QtGui.QMouseEvent
+    ) -> None:  # pylint: disable=invalid-name
+        super().mousePressEvent(e)
+
+        if e.button() == Qt.MouseButton.LeftButton:
+            self.test.complete()
 
 
 class EditComboBox(QComboBox):
@@ -15,6 +32,7 @@ class EditComboBox(QComboBox):
 
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setEditable(True)
+        self.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
 
         # Filter Model
         self.filter_model = QSortFilterProxyModel(self)
@@ -24,11 +42,12 @@ class EditComboBox(QComboBox):
         # Completer
         completer = QCompleter(self.filter_model, self)
         completer.setCompletionMode(QCompleter.CompletionMode.UnfilteredPopupCompletion)
-        self.lineEdit().textChanged.connect(self.text_changed)
+        completer.activated.connect(self.on_completer_activated)
         self.setCompleter(completer)
 
+        # self.setLineEdit(ClickLineEdit(completer))
+        self.lineEdit().textChanged.connect(self.text_changed)
         self.lineEdit().textEdited.connect(self.filter_model.setFilterFixedString)
-        completer.activated.connect(self.on_completer_activated)
 
         self.addItems([''])
 

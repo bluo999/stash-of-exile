@@ -42,7 +42,7 @@ class RateQueue(deque):
     """Queue that stores call timestamps for rate limiting purposes."""
 
     def __init__(self, hits: int = 0, period: int = 0):
-        deque.__init__(self)
+        super().__init__()
         self.update_rate_limit(hits, period)
 
     def update_rate_limit(self, hits: int, period: int):

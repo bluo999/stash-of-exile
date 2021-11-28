@@ -81,7 +81,7 @@ class APIManager(ThreadManager):
     """Manages sending official API calls."""
 
     def __init__(self):
-        ThreadManager.__init__(self, APIThread)
+        super().__init__(APIThread)
 
     @_get
     def get_leagues(self) -> List[str]:  # pylint: disable=no-self-use
@@ -146,7 +146,7 @@ class APIThread(RetrieveThread):
     output = pyqtSignal(Ret)
 
     def __init__(self, api_manager: APIManager) -> None:
-        RetrieveThread.__init__(self, api_manager, RateLimiter(RATE_LIMITS))
+        super().__init__(api_manager, RateLimiter(RATE_LIMITS))
 
     def service_success(self, ret: Ret) -> None:
         """Emits the API output."""

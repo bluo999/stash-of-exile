@@ -2,12 +2,15 @@
 Defines Filter class and filter functions for each item filter.
 """
 
-from typing import Callable, Optional, Type, Union
 from dataclasses import dataclass
+import logging
+from typing import Callable, List, Optional, Type, Union
+
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QDoubleValidator, QIntValidator, QValidator
+from PyQt6.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLineEdit, QWidget
 
-from PyQt6.QtWidgets import QCheckBox, QComboBox, QLineEdit, QWidget
-
+from gamedata import Influences
 from item.item import Item
 from widgets.editcombo import EditComboBox
 
@@ -18,6 +21,46 @@ MIN_VAL = -100000
 MAX_VAL = 100000
 IV = QIntValidator()
 DV = QDoubleValidator()
+
+
+class InfluenceFilter(QWidget):
+    """Widget that includes 7 QCheckBoxes for influence filtering."""
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        hlayout = QHBoxLayout(self)
+        self.check = QCheckBox()
+        self.check.stateChanged.connect(self._main_unchecked)
+        hlayout.addWidget(self.check)
+        self.influences: List[QCheckBox] = []
+        for _ in range(6):
+            influence = QCheckBox()
+            influence.stateChanged.connect(self._influence_checked)
+            hlayout.addWidget(influence)
+            self.influences.append(influence)
+
+    def _main_unchecked(self, checked: int) -> None:
+        if checked == 0:
+            for influence in self.influences:
+                influence.setCheckState(Qt.CheckState.Unchecked)
+
+    def _influence_checked(self, checked: int) -> None:
+        if checked == 2:
+            self.check.setCheckState(Qt.CheckState.Checked)
+
+    def item_match(self, item: Item) -> bool:
+        """Returns whether an item conforms to the filter's selection."""
+        assert self.check.isChecked()
+        return len(item.influences) > 0 and all(
+            (not widget.isChecked()) or (influence in item.influences)
+            for widget, influence in zip(self.influences, Influences)
+        )
+
+    def connect(self, func: Callable) -> None:
+        """Connect subwidgets to apply filter on state change."""
+        self.check.stateChanged.connect(func)
+        for influence in self.influences:
+            influence.stateChanged.connect(func)
 
 
 @dataclass
@@ -38,6 +81,16 @@ class Filter:
     validator: Optional[QValidator] = None
 
 
+@dataclass
+class FilterGroup:
+    """
+    Represents a group of item filters.
+    """
+
+    name: str
+    filters: List[Filter]
+
+
 def filter_is_active(widget: QWidget) -> bool:
     """Determines whether a filter is active (based on widget type)."""
     if isinstance(widget, QCheckBox):
@@ -46,6 +99,8 @@ def filter_is_active(widget: QWidget) -> bool:
         return len(widget.text()) > 0
     if isinstance(widget, QComboBox):
         return widget.currentIndex() > 0
+    if isinstance(widget, InfluenceFilter):
+        return widget.check.isChecked()
     return False
 
 
@@ -119,8 +174,7 @@ def _duo_filt_num(field_str: str, conv_func: Callable[[str], Num]) -> FilterFunc
 
     def filt(item: Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
         field = vars(item).get(field_str)
-        assert field is not None
-        return _between_filter(field, elem1, elem2, conv_func)
+        return field is not None and _between_filter(field, elem1, elem2, conv_func)
 
     return filt
 
@@ -130,10 +184,9 @@ def _get_filter_ilevel() -> FilterFunction:
     return _duo_filt_num('ilvl', int)
 
 
-def _filter_influences(item: Item, elem: QCheckBox) -> bool:
+def _filter_influences(item: Item, elem: InfluenceFilter) -> bool:
     """Filter function that uses influence."""
-    assert elem.isChecked()
-    return len(item.influences) > 0
+    return elem.item_match(item)
 
 
 def _filter_mod(
@@ -152,8 +205,8 @@ def _filter_mod(
 
 FILTERS = [
     Filter('Name', QLineEdit, _filter_name),
-    Filter('Category', QComboBox, _filter_category),
-    Filter('Rarity', QComboBox, _filter_rarity),
+    Filter('Category', EditComboBox, _filter_category),
+    Filter('Rarity', EditComboBox, _filter_rarity),
     Filter('Damage', QLineEdit, _duo_filt_num('damage', float), DV),
     Filter('Attacks per Second', QLineEdit, _duo_filt_num('aps', float), DV),
     Filter('Critical Chance', QLineEdit, _duo_filt_num('crit', float), DV),
@@ -162,7 +215,7 @@ FILTERS = [
     Filter('Elemental DPS', QLineEdit, _duo_filt_num('edps', float), DV),
     Filter('Quality', QLineEdit, _duo_filt_num('quality_num', int), IV),
     Filter('Item Level', QLineEdit, _get_filter_ilevel(), IV),
-    Filter('Influenced', QCheckBox, _filter_influences),
+    Filter('Influenced', InfluenceFilter, _filter_influences),
 ]
 
 MOD_FILTERS = [Filter('', EditComboBox, _filter_mod) for _ in range(5)]

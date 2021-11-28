@@ -146,7 +146,6 @@ class Item:
         self.incubator = item_json.get('incubatedItem')
         self.prophecy = item_json.get('prophecyText')
         self.gem = item_json.get('secDescrText')
-        self.experience = item_json.get('additionalProperties')
 
         self.split = item_json.get('split', False)
         self.corrupted = item_json.get('corrupted', False)
@@ -164,6 +163,11 @@ class Item:
         self.tooltip = []
 
         self.category = self.get_category(item_json)
+        self.experience = (
+            item_json.get('additionalProperties')
+            if self.category in {'Skill Gem', 'Support Gem'}
+            else None
+        )
 
         self.internal_mods: Dict[str, List[float]] = {}
 
@@ -183,6 +187,7 @@ class Item:
 
     def __lt__(self, other: 'Item') -> bool:
         """Default ordering for Items."""
+        # TODO: deal with tab num, character names
         if self.tab < other.tab:
             return True
 
@@ -294,9 +299,8 @@ class Item:
             # Item level (metamorph, bestiary orb)
             self._get_ilevel_tooltip(),
             # Mods
-            _list_mods(
-                [ModGroup(self.enchanted, 'craft'), ModGroup(self.implicit, 'magic')]
-            ),
+            _list_mods([ModGroup(self.enchanted, 'craft')]),
+            _list_mods([ModGroup(self.implicit, 'magic')]),
             # Mods and Tags
             f'{mods}<br />{tags}' if len(mods) > 0 and len(tags) > 0 else mods + tags,
             # Gem experience

@@ -59,7 +59,7 @@ class CharacterTab(ItemTab):
     """Represents a character's items."""
 
     def __init__(self, filepath: str, char_name: Optional[str] = None):
-        ItemTab.__init__(self, filepath)
+        super().__init__(filepath)
         self.char_name = (
             util.get_file_name(filepath) if char_name is None else char_name
         )
@@ -75,7 +75,7 @@ class StashTab(ItemTab):
     """Represents a stash tab's items."""
 
     def __init__(self, filepath: str, tab_num: Optional[int] = None):
-        ItemTab.__init__(self, filepath)
+        super().__init__(filepath)
         self.tab_num = int(util.get_file_name(filepath)) if tab_num is None else tab_num
         self.tab_name: str = ''
 

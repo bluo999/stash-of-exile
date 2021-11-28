@@ -51,7 +51,7 @@ class TableModel(QAbstractTableModel):
     }
 
     def __init__(self, table_view: QTableView, parent: QObject) -> None:
-        QAbstractTableModel.__init__(self, parent)
+        super().__init__(parent)
         self.items: List[Item] = []
         self.current_items: List[Item] = []
         self.filter_widgets: List[List[QWidget]] = []

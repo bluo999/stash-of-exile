@@ -31,7 +31,7 @@ class TabsWidget(QWidget):
 
     def __init__(self, main_window: 'MainWindow') -> None:
         """Initialize the UI."""
-        QWidget.__init__(self)
+        super().__init__()
         self.main_window = main_window
         self.saved_data = None
         self.account = None

@@ -5,6 +5,8 @@ import json
 
 from typing import Dict, List
 
+Influences = ['shaper', 'elder', 'crusader', 'hunter', 'redeemer', 'warlord']
+
 # API rarity number to named rarity
 RARITIES = {
     0: 'normal',
@@ -34,9 +36,8 @@ FRAGMENTS = [
 
 # Selectable options for ComboBox filters
 COMBO_ITEMS = {
-    'Rarity': ['Any', 'Normal', 'Magic', 'Rare', 'Unique', 'Foil', 'Any Non-Unique'],
+    'Rarity': ['Normal', 'Magic', 'Rare', 'Unique', 'Foil', 'Any Non-Unique'],
     'Category': [
-        'Any',
         'Bow',
         'Claw',
         'Dagger',

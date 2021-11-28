@@ -4,11 +4,11 @@ Handles viewing items in tabs and characters.
 
 import json
 import os
+import pickle
 
 from dataclasses import field
 from functools import partial
 from inspect import signature
-import pickle
 from typing import List, TYPE_CHECKING, Optional, Set, Tuple
 
 from PyQt6.QtCore import QItemSelection, QSize, Qt
@@ -37,7 +37,7 @@ import log
 import util
 
 from consts import SEPARATOR_TEMPLATE
-from item.filter import FILTERS, MOD_FILTERS
+from item.filter import FILTERS, MOD_FILTERS, InfluenceFilter
 from item.item import Item
 from item.moddb import ModDb
 from gamedata import COMBO_ITEMS
@@ -69,7 +69,7 @@ class MainWidget(QWidget):
 
     def __init__(self, main_window: 'MainWindow') -> None:
         """Initialize the UI."""
-        QWidget.__init__(self)
+        super().__init__()
         self.main_window = main_window
         self.item_tabs: List[ItemTab] = []
         self.account = None
@@ -241,7 +241,7 @@ class MainWidget(QWidget):
 
         # Remaining resizing
         self.table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
-        self.table.resizeColumnToContents(0)
+        self.table.resizeColumnsToContents()
 
     def _static_build(self) -> None:
         """Sets up the static base UI, including properties and widgets."""
@@ -462,6 +462,8 @@ class MainWidget(QWidget):
                     signal = widget.currentIndexChanged
                 elif isinstance(widget, QCheckBox):
                     signal = widget.stateChanged
+                elif isinstance(widget, InfluenceFilter):
+                    widget.connect(self._apply_filters)
 
                 if signal is not None:
                     signal.connect(self._apply_filters)

@@ -124,7 +124,7 @@ class RetrieveThread(QThread, ABC, metaclass=QThreadABCMeta):
     def __init__(
         self, thread_manager: ThreadManager, rate_limiter: Optional[RateLimiter] = None
     ) -> None:
-        QThread.__init__(self)
+        super().__init__()
         self.thread_manager = thread_manager
         self.rate_limiter = rate_limiter
 

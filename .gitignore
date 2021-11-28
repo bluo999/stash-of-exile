@@ -5,3 +5,5 @@ image_cache/
 item_cache/
 *.pkl
 *.ui
+
+stashofexile.log

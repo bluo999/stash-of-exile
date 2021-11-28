@@ -21,11 +21,10 @@ class DownloadManager(ThreadManager):
     """Manages downloading images for items."""
 
     def __init__(self):
-        ThreadManager.__init__(self, DownloadThread)
+        super().__init__(DownloadThread)
 
     def get_image(self, icon: str, file_path: str) -> Tuple[None]:
         """Gets an image given item info."""
-        # Extract file path from web url
         util.create_directories(file_path)
         if not os.path.exists(file_path):
             logger.debug('Downloading image to %s', file_path)
@@ -39,8 +38,6 @@ class DownloadManager(ThreadManager):
                     self.too_many_reqs([])
             except URLError as e:
                 logger.error('URL error: %s', e.reason)
-        # else:
-        #     logger.error('Could not get image from path %s', icon)
 
         return (None,)
 
@@ -49,7 +46,7 @@ class DownloadThread(RetrieveThread):
     """Thread that downloads images."""
 
     def __init__(self, download_manager: DownloadManager) -> None:
-        RetrieveThread.__init__(self, download_manager)
+        super().__init__(download_manager)
 
     def service_success(self, ret: Ret) -> None:
         """Don't do anything for now."""
