@@ -32,6 +32,7 @@ URL_CHARACTERS = 'https://pathofexile.com/character-window/get-characters'
 URL_CHAR_ITEMS = (
     'https://pathofexile.com/character-window/get-items?accountName={}&character={}'
 )
+URL_PASSIVE_TREE = 'https://pathofexile.com/character-window/get-passive-skills?accountName={}&character={}&reqData=0'
 
 
 # Default rate limit values (hits, period (in ms))
@@ -58,7 +59,6 @@ def _get(func):
             return (func(self, *args, **kwargs), '')
         except HTTPError as e:
             if e.code == HTTPStatus.TOO_MANY_REQUESTS:
-                # TODO: update rate limiting variables on success
                 rules = e.headers.get('X-Rate-Limit-Rules').split(',')
                 rule = 'client' if 'client' in rules else rules[0]
                 rate_limits_str = e.headers.get(f'X-Rate-Limit-{rule}')
@@ -134,10 +134,20 @@ class APIManager(ThreadManager):
         """Retrieves character list."""
         logger.info('Sending GET request for character %s', character)
         req = _elevated_request(URL_CHAR_ITEMS.format(username, character), poesessid)
-        # TODO: also get jewels from passive tree
         with urllib.request.urlopen(req) as conn:
             char = json.loads(conn.read())
             return char
+
+    @_get
+    def get_character_jewels(  # pylint: disable=no-self-use
+        self, username: str, poesessid: str, character: str
+    ) -> Any:
+        """Retrieves socketed jewels in a character."""
+        logger.info('Sending GET request for character jewels %s', character)
+        req = _elevated_request(URL_PASSIVE_TREE.format(username, character), poesessid)
+        with urllib.request.urlopen(req) as conn:
+            tree = json.loads(conn.read())
+            return tree
 
 
 class APIThread(RetrieveThread):

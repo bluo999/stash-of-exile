@@ -57,6 +57,7 @@ ITEM_CACHE_DIR = os.path.join('..', 'item_cache')
 
 TABS_DIR = 'tabs'
 CHARACTER_DIR = 'characters'
+JEWELS_DIR = 'jewels'
 
 
 def _toggle_visibility(widget: QWidget) -> None:
@@ -94,11 +95,15 @@ class MainWidget(QWidget):
                 for leagues in util.get_subdirectories(accounts):
                     tab_dir = os.path.join(leagues, TABS_DIR)
                     character_dir = os.path.join(leagues, CHARACTER_DIR)
+                    jewels_dir = os.path.join(leagues, JEWELS_DIR)
                     self.item_tabs.extend(
                         StashTab(tab) for tab in util.get_jsons(tab_dir)
                     )
                     self.item_tabs.extend(
                         CharacterTab(char) for char in util.get_jsons(character_dir)
+                    )
+                    self.item_tabs.extend(
+                        CharacterTab(char) for char in util.get_jsons(jewels_dir)
                     )
         else:
             self._send_api(account, league, tabs, characters)
@@ -118,6 +123,7 @@ class MainWidget(QWidget):
         logger.debug('Begin checking cache')
 
         api_calls: List[Call] = []
+        # Queue stash tab API calls
         for tab_num in tabs:
             filename = os.path.join(
                 ITEM_CACHE_DIR, account.username, league, TABS_DIR, f'{tab_num}.json'
@@ -135,6 +141,7 @@ class MainWidget(QWidget):
             )
             api_calls.append(api_call)
 
+        # Queue character items API calls
         for char in characters:
             filename = os.path.join(
                 ITEM_CACHE_DIR, account.username, league, CHARACTER_DIR, f'{char}.json'
@@ -145,6 +152,24 @@ class MainWidget(QWidget):
                 continue
             api_call = Call(
                 api_manager.get_character_items,
+                (account.username, account.poesessid, char),
+                self,
+                self._get_char_callback,
+                (tab,),
+            )
+            api_calls.append(api_call)
+
+        # Queue jewels API calls
+        for char in characters:
+            filename = os.path.join(
+                ITEM_CACHE_DIR, account.username, league, JEWELS_DIR, f'{char}.json'
+            )
+            tab = CharacterTab(filename, char)
+            if os.path.exists(filename):
+                self.item_tabs.append(tab)
+                continue
+            api_call = Call(
+                api_manager.get_character_jewels,
                 (account.username, account.poesessid, char),
                 self,
                 self._get_char_callback,

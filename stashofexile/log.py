@@ -3,9 +3,12 @@ Logging functionality
 """
 
 import logging
+import os
 import sys
 
 from typing import List
+
+_LOG_PATH = os.path.join('..', 'stashofexile.log')
 
 
 def get_logger(name: str) -> logging.Logger:
@@ -18,7 +21,7 @@ def get_logger(name: str) -> logging.Logger:
     )
     handlers: List[logging.Handler] = [
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('stashofexile.log', 'a+'),
+        logging.FileHandler(_LOG_PATH, 'a+'),
     ]
 
     for handler in handlers:
