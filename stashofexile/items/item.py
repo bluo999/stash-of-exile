@@ -66,14 +66,14 @@ def _list_mods(mod_groups: List[ModGroup]) -> str:
             i += 1
 
     # Add mods on separate lines
-    text: str = ''
+    text: List[str] = []
     for i, (mods, color) in enumerate(filt_mod_lists):
         for j, mod in enumerate(mods):
-            text += consts.SPAN_TEMPLATE.format(consts.COLORS[color], mod)
+            text.append(consts.SPAN_TEMPLATE.format(consts.COLORS[color], mod))
             if i < len(filt_mod_lists) - 1 or j < len(mods) - 1:
-                text += '<br />'
+                text.append('<br />')
 
-    return text
+    return ''.join(text)
 
 
 def _list_tags(tag_info: List[Tag]) -> str:
@@ -89,13 +89,13 @@ def _list_tags(tag_info: List[Tag]) -> str:
     ]
 
     # Add tags on separate lines
-    text: str = ''
+    text: List[str] = []
     for i, tag in enumerate(formatted_tags):
-        text += tag
+        text.append(tag)
         if i < len(formatted_tags) - 1:
-            text += '<br />'
+            text.append('<br />')
 
-    return text
+    return ''.join(text)
 
 
 def property_function(prop_name: str) -> Callable[['Item'], str]:
@@ -366,15 +366,15 @@ class Item:
         Returns the header tooltip, including influence icons and a colorized
         name.
         """
-        influence_icons = ''
-        for infl in self.influences:
-            influence_icons += f'<img src="../assets/{infl}.png" />'
-
+        influence_icons = [
+            f'<img src="../assets/{infl}.png" />'
+            for infl in self.influences
+        ]
         name = consts.SPAN_TEMPLATE.format(
             consts.COLORS[self.rarity], self.name.replace(', ', '<br />')
         )
 
-        return influence_icons + consts.HEADER_TEMPLATE.format(name)
+        return ''.join(influence_icons) + consts.HEADER_TEMPLATE.format(name)
 
     def _get_prophecy_tooltip(self) -> str:
         """Returns the colorized prophecy tooltip."""
@@ -385,14 +385,14 @@ class Item:
 
     def _get_property_tooltip(self) -> str:
         """Returns the colorized, line separated properties tooltip."""
-        tooltip = ''
+        tooltip: List[str] = []
         if len(self.properties) > 0:
             for i, prop in enumerate(self.properties):
-                tooltip += prop.description
+                tooltip.append(prop.description)
                 if i < len(self.properties) - 1:
-                    tooltip += '<br />'
+                    tooltip.append('<br />')
 
-        return tooltip
+        return ''.join(tooltip)
 
     def _get_utility_tooltip(self) -> str:
         """Returns the colorized, line separated utility mods tooltip."""
@@ -404,15 +404,15 @@ class Item:
 
     def _get_requirement_tooltip(self) -> str:
         """Returns the colorized, line separated requirements tooltip."""
-        tooltip = ''
+        tooltip: List[str] = []
         if len(self.requirements) > 0:
-            tooltip += consts.SPAN_TEMPLATE.format('grey', 'Requires')
+            tooltip.append(consts.SPAN_TEMPLATE.format('grey', 'Requires'))
             for i, req in enumerate(self.requirements):
                 if i > 0:
-                    tooltip += ','
-                tooltip += ' ' + req.description
+                    tooltip.append(',')
+                tooltip.append(' ' + req.description)
 
-        return tooltip
+        return ''.join(tooltip)
 
     def _get_gem_secondary_tooltip(self) -> str:
         """Returns the colorized, line separated gem description tooltip."""

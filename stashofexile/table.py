@@ -22,10 +22,8 @@ def _influence_func(item: 'item.Item') -> str:
     Returns an influence string (list of capital letters for each influence) given an
     item.
     """
-    ret = ''
-    for infl in item.influences:
-        ret += infl[0]
-    return ret.upper()
+    influences = [infl[0].upper() for infl in item.influences]
+    return ''.join(influences)
 
 
 class TableModel(QAbstractTableModel):
