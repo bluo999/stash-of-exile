@@ -3,9 +3,10 @@ Defines the database used to store mods.
 """
 
 import re
+
 from typing import List, NamedTuple
 
-from item.item import Item
+from items import item
 
 MOD_CATEGORIES = [
     'Bow',
@@ -66,7 +67,7 @@ def _parse_mod(mod_str: str) -> Mod:
 class ModDb(dict):
     """Stores mods."""
 
-    def insert_items(self, items: List[Item]) -> None:
+    def insert_items(self, items: List[item.Item]) -> None:
         """
         Inserts items' mods into the db. Also adds a field which makes them
         suitable for searching.

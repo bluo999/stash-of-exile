@@ -2,22 +2,24 @@
 Contains image downloading related classes.
 """
 
+import http
 import os
 import urllib.request
+import urllib.error
 
-from http import HTTPStatus
 from typing import Tuple
-from urllib.error import HTTPError, URLError
 
 import log
 import util
 
-from thread.thread import Ret, RetrieveThread, ThreadManager
+from threads import thread
+
+# from threads.thread import Ret, RetrieveThread, ThreadManager
 
 logger = log.get_logger(__name__)
 
 
-class DownloadManager(ThreadManager):
+class DownloadManager(thread.ThreadManager):
     """Manages downloading images for items."""
 
     def __init__(self):
@@ -31,22 +33,22 @@ class DownloadManager(ThreadManager):
             # Download image
             try:
                 urllib.request.urlretrieve(icon, file_path)
-            except HTTPError as e:
+            except urllib.error.HTTPError as e:
                 logger.error('HTTP error: %s %s', e.code, e.reason)
-                if e.code == HTTPStatus.TOO_MANY_REQUESTS:
+                if e.code == http.HTTPStatus.TOO_MANY_REQUESTS:
                     logger.error('%s received, aborting image downloads', e.code)
                     self.too_many_reqs([])
-            except URLError as e:
+            except urllib.error.URLError as e:
                 logger.error('URL error: %s', e.reason)
 
         return (None,)
 
 
-class DownloadThread(RetrieveThread):
+class DownloadThread(thread.RetrieveThread):
     """Thread that downloads images."""
 
     def __init__(self, download_manager: DownloadManager) -> None:
         super().__init__(download_manager)
 
-    def service_success(self, ret: Ret) -> None:
+    def service_success(self, ret: thread.Ret) -> None:
         """Don't do anything for now."""

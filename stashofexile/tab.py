@@ -2,20 +2,20 @@
 Handles item tabs (character or stash tabs).
 """
 
+import abc
 import json
 
-from abc import ABC, abstractmethod
 from typing import List, Optional
 
 import log
 import util
 
-from item.item import Item
+from items import item
 
 logger = log.get_logger(__name__)
 
 
-class ItemTab(ABC):
+class ItemTab(abc.ABC):
     """
     Represents any type of tab (character or stash).
 
@@ -29,28 +29,28 @@ class ItemTab(ABC):
     def __repr__(self):
         return self.get_tab_name()
 
-    def get_items(self) -> List[Item]:
+    def get_items(self) -> List[item.Item]:
         """Gets items from this tab."""
-        items: List[Item] = []
+        tab_items: List[item.Item] = []
         with open(self.filepath, 'r') as f:
             data = json.load(f)
             self._parse_data(data)
             tab_name = self.get_tab_name()
             # Add each item
-            for item in data['items']:
-                items.append(Item(item, tab_name))
+            for item_data in data['items']:
+                tab_items.append(item.Item(item_data, tab_name))
                 # Add socketed items
-                if item.get('socketedItems') is not None:
-                    for socketed_item in item['socketedItems']:
-                        items.append(Item(socketed_item, tab_name))
-        items.sort()
-        return items
+                if item_data.get('socketedItems') is not None:
+                    for socketed_item in item_data['socketedItems']:
+                        tab_items.append(item.Item(socketed_item, tab_name))
+        tab_items.sort()
+        return tab_items
 
-    @abstractmethod
+    @abc.abstractmethod
     def get_tab_name(self) -> str:
         """Gets a tab's name."""
 
-    @abstractmethod
+    @abc.abstractmethod
     def _parse_data(self, data) -> None:
         """Parses a tab's data."""
 

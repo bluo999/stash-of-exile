@@ -7,12 +7,11 @@ import re
 
 from typing import Any, Callable, Dict, List, NamedTuple
 
+import consts
+import gamedata
 import log
 
-from consts import COLORS, HEADER_TEMPLATE, SPAN_TEMPLATE
-from gamedata import BASE_TYPES, COMBO_ITEMS, FRAGMENTS, PARSE_CATEGORIES, RARITIES
-from item.property import Property
-from item.requirement import Requirement
+from items import property, requirement
 
 PLUS_PERCENT_REGEX = r'\+(\d+)%'  # +x%
 FLAT_PERCENT_REGEX = r'([0-9]{1,2}\.\d{2})%'  # xx.xx%
@@ -70,7 +69,7 @@ def _list_mods(mod_groups: List[ModGroup]) -> str:
     text: str = ''
     for i, (mods, color) in enumerate(filt_mod_lists):
         for j, mod in enumerate(mods):
-            text += SPAN_TEMPLATE.format(COLORS[color], mod)
+            text += consts.SPAN_TEMPLATE.format(consts.COLORS[color], mod)
             if i < len(filt_mod_lists) - 1 or j < len(mods) - 1:
                 text += '<br />'
 
@@ -84,7 +83,7 @@ def _list_tags(tag_info: List[Tag]) -> str:
     """
     # Get rid of inactive tags then format them
     formatted_tags = [
-        SPAN_TEMPLATE.format(COLORS[tag.color], tag.name)
+        consts.SPAN_TEMPLATE.format(consts.COLORS[tag.color], tag.name)
         for tag in tag_info
         if tag.active
     ]
@@ -127,11 +126,11 @@ class Item:
         self.influences = list(item_json.get('influences', {}).keys())
 
         self.properties = [
-            Property({'name': p['name'], 'vals': p['values']})
+            property.Property({'name': p['name'], 'vals': p['values']})
             for p in item_json.get('properties', [])
         ]
         self.requirements = [
-            Requirement({'name': r['name'], 'vals': r['values']})
+            requirement.Requirement({'name': r['name'], 'vals': r['values']})
             for r in item_json.get('requirements', [])
         ]
 
@@ -154,7 +153,7 @@ class Item:
         self.fractured_tag = item_json.get('fractured', False)
 
         self.ilvl = item_json.get('ilvl')
-        self.rarity = RARITIES.get(item_json['frameType'], 'normal')
+        self.rarity = gamedata.RARITIES.get(item_json['frameType'], 'normal')
 
         self.sockets = item_json.get("sockets")
 
@@ -221,7 +220,7 @@ class Item:
             if cat == 'Uses':
                 return 'Metamorph Sample'
 
-            if cat in COMBO_ITEMS['Category']:
+            if cat in gamedata.COMBO_ITEMS['Category']:
                 return cat
 
         item_base = item_json['baseType']
@@ -237,17 +236,17 @@ class Item:
             return 'Map Fragment'
 
         # Fragments
-        for frag in FRAGMENTS:
+        for frag in gamedata.FRAGMENTS:
             if frag in item_base:
                 return 'Map Fragment'
 
         # From basetype list
-        for base_type, search_list in BASE_TYPES.items():
+        for base_type, search_list in gamedata.BASE_TYPES.items():
             if any(search == item_base for search in search_list):
                 return base_type
 
         # From basetype word
-        for cat in PARSE_CATEGORIES:
+        for cat in gamedata.PARSE_CATEGORIES:
             if cat in item_base:
                 return cat
 
@@ -371,16 +370,16 @@ class Item:
         for infl in self.influences:
             influence_icons += f'<img src="../assets/{infl}.png" />'
 
-        name = SPAN_TEMPLATE.format(
-            COLORS[self.rarity], self.name.replace(', ', '<br />')
+        name = consts.SPAN_TEMPLATE.format(
+            consts.COLORS[self.rarity], self.name.replace(', ', '<br />')
         )
 
-        return influence_icons + HEADER_TEMPLATE.format(name)
+        return influence_icons + consts.HEADER_TEMPLATE.format(name)
 
     def _get_prophecy_tooltip(self) -> str:
         """Returns the colorized prophecy tooltip."""
         if self.prophecy is not None:
-            return SPAN_TEMPLATE.format(COLORS['white'], self.prophecy)
+            return consts.SPAN_TEMPLATE.format(consts.COLORS['white'], self.prophecy)
 
         return ''
 
@@ -407,7 +406,7 @@ class Item:
         """Returns the colorized, line separated requirements tooltip."""
         tooltip = ''
         if len(self.requirements) > 0:
-            tooltip += SPAN_TEMPLATE.format('grey', 'Requires')
+            tooltip += consts.SPAN_TEMPLATE.format('grey', 'Requires')
             for i, req in enumerate(self.requirements):
                 if i > 0:
                     tooltip += ','
@@ -418,7 +417,7 @@ class Item:
     def _get_gem_secondary_tooltip(self) -> str:
         """Returns the colorized, line separated gem description tooltip."""
         if self.gem is not None:
-            return SPAN_TEMPLATE.format(COLORS['gem'], self.gem)
+            return consts.SPAN_TEMPLATE.format(consts.COLORS['gem'], self.gem)
 
         return ''
 
@@ -427,8 +426,8 @@ class Item:
         Returns the colorized item level tooltip for organs and bestiary orbs.
         """
         if 'Metamorph' in self.icon or 'BestiaryOrb' in self.icon:
-            label = SPAN_TEMPLATE.format(COLORS['grey'], 'Item Level: ')
-            value = SPAN_TEMPLATE.format(COLORS['white'], self.ilvl)
+            label = consts.SPAN_TEMPLATE.format(consts.COLORS['grey'], 'Item Level: ')
+            value = consts.SPAN_TEMPLATE.format(consts.COLORS['white'], self.ilvl)
             return label + value
 
         return ''
@@ -440,9 +439,9 @@ class Item:
             index = exp.index('/')
             current_exp = int(exp[0:index])
             max_exp = int(exp[index + 1 :])
-            label = SPAN_TEMPLATE.format(COLORS['grey'], 'Experience: ')
-            value = SPAN_TEMPLATE.format(
-                COLORS['white'], f'{current_exp:,}/{max_exp:,}'
+            label = consts.SPAN_TEMPLATE.format(consts.COLORS['grey'], 'Experience: ')
+            value = consts.SPAN_TEMPLATE.format(
+                consts.COLORS['white'], f'{current_exp:,}/{max_exp:,}'
             )
             return label + value
 
@@ -456,10 +455,16 @@ class Item:
             name = self.incubator['name']
             level = self.incubator['level']
             return (
-                SPAN_TEMPLATE.format(COLORS['craft'], f'Incubating {name}')
+                consts.SPAN_TEMPLATE.format(
+                    consts.COLORS['craft'], f'Incubating {name}'
+                )
                 + '<br />'
-                + SPAN_TEMPLATE.format(COLORS['white'], f'{progress:,}/{total:,}')
-                + SPAN_TEMPLATE.format(COLORS['grey'], f' level {level}+ monster kills')
+                + consts.SPAN_TEMPLATE.format(
+                    consts.COLORS['white'], f'{progress:,}/{total:,}'
+                )
+                + consts.SPAN_TEMPLATE.format(
+                    consts.COLORS['grey'], f' level {level}+ monster kills'
+                )
             )
 
         return ''

@@ -4,9 +4,10 @@ Utility classes and functions.
 
 import os
 import pathlib
+
 from typing import Generator, List, TypedDict, Union
 
-from consts import COLORS, SPAN_TEMPLATE, VALNUM_TO_COLOR
+import consts
 
 
 class ModifiedStr(TypedDict):
@@ -32,10 +33,10 @@ def insert_values(text: str, values: List[List[Union[str, int]]]) -> ModifiedStr
         val_index = int(obj['text'][index + 1])
         val_num = values[val_index][1]
         assert isinstance(val_num, int)
-        color = COLORS[VALNUM_TO_COLOR.get(val_num, 'white')]
+        color = consts.COLORS[consts.VALNUM_TO_COLOR.get(val_num, 'white')]
         obj['text'] = (
             obj['text'][:index]
-            + SPAN_TEMPLATE.format(color, values[val_index][0])
+            + consts.SPAN_TEMPLATE.format(color, values[val_index][0])
             + obj['text'][index + 3 :]
         )
         obj['inserted'] = True

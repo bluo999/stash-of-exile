@@ -8,17 +8,16 @@ from PyQt6.QtCore import QAbstractTableModel, QModelIndex, QObject, QVariant, Qt
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QTableView, QWidget
 
+import consts
 import log
 
-from consts import COLORS
-from item.filter import FILTERS, filter_is_active, MOD_FILTERS
-from item.item import Item, property_function
-from thread.ratelimiting import get_time_ms
+from items import filter, item
+from threads import ratelimiting
 
 logger = log.get_logger(__name__)
 
 
-def _influence_func(item: 'Item') -> str:
+def _influence_func(item: 'item.Item') -> str:
     """
     Returns an influence string (list of capital letters for each influence) given an
     item.
@@ -34,11 +33,12 @@ class TableModel(QAbstractTableModel):
 
     # Keys: name of the header
     # Values: function that computes the value
-    PROPERTY_FUNCS: Dict[str, Callable[[Item], str]] = {
+    PROPERTY_FUNCS: Dict[str, Callable[[item.Item], str]] = {
         'Name': lambda item: item.name,
         'Tab': lambda item: str(item.tab),
-        'Stack': property_function('Stack Size'),
+        'Stack': item.property_function('Stack Size'),
         'iLvl': lambda item: str(item.ilvl) if item.ilvl != 0 else '',
+        'Level': item.property_function('Level'),
         'Quality': lambda item: item.quality,
         'Split': lambda item: 'Split' if item.split else '',
         'Corr': lambda item: 'Corr' if item.corrupted else '',
@@ -52,8 +52,8 @@ class TableModel(QAbstractTableModel):
 
     def __init__(self, table_view: QTableView, parent: QObject) -> None:
         super().__init__(parent)
-        self.items: List[Item] = []
-        self.current_items: List[Item] = []
+        self.items: List[item.Item] = []
+        self.current_items: List[item.Item] = []
         self.filter_widgets: List[List[QWidget]] = []
         self.mod_widgets: List[List[QWidget]] = []
         self.property_funcs = [func for _, func in TableModel.PROPERTY_FUNCS.items()]
@@ -87,11 +87,11 @@ class TableModel(QAbstractTableModel):
             if column == 0:
                 # Color item name based on rarity
                 rarity = self.current_items[row].rarity
-                return QColor(COLORS[rarity])
-            return QColor(COLORS['white'])
+                return QColor(consts.COLORS[rarity])
+            return QColor(consts.COLORS['white'])
 
         if role == Qt.ItemDataRole.BackgroundRole:
-            return QColor(COLORS['darkgrey'])
+            return QColor(consts.COLORS['darkgrey'])
 
         return None
 
@@ -110,7 +110,7 @@ class TableModel(QAbstractTableModel):
 
         return None
 
-    def insert_items(self, items: List[Item]) -> None:
+    def insert_items(self, items: List[item.Item]) -> None:
         """Inserts a list of items into the table."""
         self.beginInsertRows(QModelIndex(), 0, len(items) - 1)
         self.items.extend(items)
@@ -139,14 +139,14 @@ class TableModel(QAbstractTableModel):
         )
 
         all_widgets = self.filter_widgets + self.mod_widgets
-        all_filters = FILTERS + MOD_FILTERS
+        all_filters = filter.FILTERS + filter.MOD_FILTERS
 
         # Items that pass every filter
-        prev_time = get_time_ms()
+        prev_time = ratelimiting.get_time_ms()
         active_filters = [
-            (filter, widgets)
-            for filter, widgets in zip(all_filters, all_widgets)
-            if any(filter_is_active(widget) for widget in widgets)
+            (item_filter, widgets)
+            for item_filter, widgets in zip(all_filters, all_widgets)
+            if any(filter.filter_is_active(widget) for widget in widgets)
         ]
         self.current_items = [
             item
@@ -156,7 +156,7 @@ class TableModel(QAbstractTableModel):
                 for (filter, filter_widgets) in active_filters
             )
         ]
-        logger.debug('Filtering took %sms', get_time_ms() - prev_time)
+        logger.debug('Filtering took %sms', ratelimiting.get_time_ms() - prev_time)
 
         key = list(TableModel.PROPERTY_FUNCS.keys())[index]
         sort_func = TableModel.PROPERTY_FUNCS[key]

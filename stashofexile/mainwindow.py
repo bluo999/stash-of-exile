@@ -13,12 +13,8 @@ from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QMenuBar, QStatusBar, QWid
 
 import log
 
-from thread.api import APIManager
-from thread.download import DownloadManager
-from thread.thread import Ret
-from widgets.loginwidget import LoginWidget
-from widgets.tabswidget import TabsWidget
-from widgets.mainwidget import MainWidget
+from threads import api, download, thread
+from widgets import loginwidget, tabswidget, mainwidget
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
@@ -57,16 +53,16 @@ class MainWindow(QMainWindow):
         self.central_layout = QHBoxLayout(self.center_widget)
 
         # Start API thread
-        self.api_manager = APIManager()
+        self.api_manager = api.APIManager()
         self.api_manager.thread.output.connect(MainWindow.callback)
 
         # Start download thread
-        self.download_manager = DownloadManager()
+        self.download_manager = download.DownloadManager()
 
         # Initialize (and build) widgets
-        self.login_widget = LoginWidget(self)
-        self.tabs_widget = TabsWidget(self)
-        self.main_widget = MainWidget(self)
+        self.login_widget = loginwidget.LoginWidget(self)
+        self.tabs_widget = tabswidget.TabsWidget(self)
+        self.main_widget = mainwidget.MainWidget(self)
         self.widgets: List[QWidget] = [
             self.login_widget,
             self.tabs_widget,
@@ -100,7 +96,7 @@ class MainWindow(QMainWindow):
         dest_widget.on_show(*args)
 
     @staticmethod
-    def callback(ret: Ret) -> None:
+    def callback(ret: thread.Ret) -> None:
         """Calls the callback function on an object with specified arguments."""
         if ret.cb_obj is None:
             return

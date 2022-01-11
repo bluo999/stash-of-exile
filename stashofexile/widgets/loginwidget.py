@@ -4,6 +4,7 @@ Handles league retrieving and login sequence.
 
 import os
 import pickle
+
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from PyQt6.QtCore import QSize, Qt
@@ -20,11 +21,12 @@ from PyQt6.QtWidgets import (
 )
 
 import log
-from save import Account, SavedData, TabId
-from thread.thread import Call
+import save
+
+from threads import thread
 
 if TYPE_CHECKING:
-    from mainwindow import MainWindow
+    import mainwindow
 
 logger = log.get_logger(__name__)
 
@@ -34,18 +36,18 @@ SAVE_FILE = os.path.join('..', 'saveddata.pkl')
 class LoginWidget(QWidget):
     """Widget for users to login"""
 
-    def __init__(self, main_window: 'MainWindow') -> None:
+    def __init__(self, main_window: 'mainwindow.MainWindow') -> None:
         """Initialize the UI."""
         super().__init__()
         self.main_window = main_window
-        self.saved_data = SavedData()
+        self.saved_data = save.SavedData()
         self.account = None
         self.league = None
         self._static_build()
         self._dynamic_build()
         self._name_ui()
 
-    def on_show(self, account: Optional[Account] = None) -> None:
+    def on_show(self, account: Optional[save.Account] = None) -> None:
         """Updates account if specified."""
         if account is not None:
             self.account = account
@@ -126,7 +128,7 @@ class LoginWidget(QWidget):
         if os.path.isfile(SAVE_FILE):
             logger.info('Found saved file')
             self.saved_data = pickle.load(open(SAVE_FILE, 'rb'))
-            assert isinstance(self.saved_data, SavedData)
+            assert isinstance(self.saved_data, save.SavedData)
             logger.info(self.saved_data.leagues)
             for account in self.saved_data.accounts:
                 logger.info('%s %s', account.username, account.poesessid)
@@ -146,7 +148,7 @@ class LoginWidget(QWidget):
         logger.debug('Getting leagues')
         api_manager = self.main_window.api_manager
         api_manager.insert(
-            [Call(api_manager.get_leagues, (), self, self._get_leagues_callback)]
+            [thread.Call(api_manager.get_leagues, (), self, self._get_leagues_callback)]
         )
 
     def _get_leagues_callback(
@@ -195,7 +197,7 @@ class LoginWidget(QWidget):
 
         if len(search_account) == 0:
             # Account not in saved data
-            self.account = Account(username, poesessid)
+            self.account = save.Account(username, poesessid)
             self._get_char_list_api()
             self._get_num_tabs_api()
             return
@@ -221,7 +223,7 @@ class LoginWidget(QWidget):
         assert self.league is not None
         logger.debug('Getting num tabs')
         api_manager = self.main_window.api_manager
-        api_call = Call(
+        api_call = thread.Call(
             api_manager.get_tab_info,
             (self.account.username, self.account.poesessid, self.league),
             self,
@@ -244,7 +246,9 @@ class LoginWidget(QWidget):
         if self.account not in self.saved_data.accounts:
             self.saved_data.accounts.append(self.account)
 
-        self.account.tab_ids = [TabId(tab['n'], tab['id']) for tab in tab_info['tabs']]
+        self.account.tab_ids = [
+            save.TabId(tab['n'], tab['id']) for tab in tab_info['tabs']
+        ]
         logger.info('Success: %s tabs', len(self.account.tab_ids))
         self.error_text.setText('')
         self._check_login_success()
@@ -255,7 +259,7 @@ class LoginWidget(QWidget):
         assert self.league is not None
         logger.debug('Getting character list')
         api_manager = self.main_window.api_manager
-        api_call = Call(
+        api_call = thread.Call(
             api_manager.get_character_list,
             (self.account.poesessid, self.league),
             self,

@@ -6,10 +6,11 @@ import sys
 
 from PyQt6.QtWidgets import QApplication
 
-from mainwindow import MainWindow
+import mainwindow
 
 if __name__ == '__main__':
+    print(__file__)
     app = QApplication(sys.argv)
 
-    main_window = MainWindow()
+    main_window = mainwindow.MainWindow()
     sys.exit(app.exec())

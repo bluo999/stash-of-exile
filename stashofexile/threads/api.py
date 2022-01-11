@@ -2,20 +2,20 @@
 Contains API related classes.
 """
 
+import functools
+import http
 import json
 import urllib.request
+import urllib.error
 
-from functools import wraps
-from http import HTTPStatus
 from typing import Any, List, Tuple
-from urllib.error import HTTPError, URLError
 
 from PyQt6.QtCore import pyqtSignal
 
 import log
 
-from thread.ratelimiting import RateLimit, RateLimiter
-from thread.thread import Ret, RetrieveThread, ThreadManager
+from threads import ratelimiting
+from threads import thread
 
 logger = log.get_logger(__name__)
 
@@ -36,7 +36,7 @@ URL_PASSIVE_TREE = 'https://pathofexile.com/character-window/get-passive-skills?
 
 
 # Default rate limit values (hits, period (in ms))
-RATE_LIMITS = [RateLimit(45, 60000), RateLimit(240, 240000)]
+RATE_LIMITS = [ratelimiting.RateLimit(45, 60000), ratelimiting.RateLimit(240, 240000)]
 
 
 def _elevated_request(url: str, poesessid: str) -> urllib.request.Request:
@@ -52,32 +52,34 @@ def _get(func):
     that involves a GET request.
     """
 
-    @wraps(func)
+    @functools.wraps(func)
     def wrapper(self, *args, **kwargs) -> Tuple:
         assert isinstance(self, APIManager)
         try:
             return (func(self, *args, **kwargs), '')
-        except HTTPError as e:
-            if e.code == HTTPStatus.TOO_MANY_REQUESTS:
+        except urllib.error.HTTPError as e:
+            if e.code == http.HTTPStatus.TOO_MANY_REQUESTS:
                 rules = e.headers.get('X-Rate-Limit-Rules').split(',')
                 rule = 'client' if 'client' in rules else rules[0]
                 rate_limits_str = e.headers.get(f'X-Rate-Limit-{rule}')
                 retry_after = int(e.headers.get('Retry-After'))
                 logger.warning('Received rate limits: %s', rate_limits_str)
                 logger.info('Retry after: %s', retry_after)
-                rate_limits: List[RateLimit] = []
+                rate_limits: List[ratelimiting.RateLimit] = []
                 for rate_limit in rate_limits_str.split(','):
                     hits, period, _ = rate_limit.split(':')
-                    rate_limits.append(RateLimit(int(hits), int(period) * 1000))
+                    rate_limits.append(
+                        ratelimiting.RateLimit(int(hits), int(period) * 1000)
+                    )
                 self.too_many_reqs(rate_limits, retry_after)
             return (None, f'HTTP Error {e.code} {e.reason}')
-        except URLError as e:
+        except urllib.error.URLError as e:
             return (None, f'URL Error {e.reason}')
 
     return wrapper
 
 
-class APIManager(ThreadManager):
+class APIManager(thread.ThreadManager):
     """Manages sending official API calls."""
 
     def __init__(self):
@@ -150,14 +152,14 @@ class APIManager(ThreadManager):
             return tree
 
 
-class APIThread(RetrieveThread):
+class APIThread(thread.RetrieveThread):
     """Thread that handles API calls."""
 
-    output = pyqtSignal(Ret)
+    output = pyqtSignal(thread.Ret)
 
     def __init__(self, api_manager: APIManager) -> None:
-        super().__init__(api_manager, RateLimiter(RATE_LIMITS))
+        super().__init__(api_manager, ratelimiting.RateLimiter(RATE_LIMITS))
 
-    def service_success(self, ret: Ret) -> None:
+    def service_success(self, ret: thread.Ret) -> None:
         """Emits the API output."""
         self.output.emit(ret)

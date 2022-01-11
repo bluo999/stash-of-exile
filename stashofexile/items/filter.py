@@ -1,18 +1,18 @@
 """
 Defines Filter class and filter functions for each item filter.
 """
+import dataclasses
 
-from dataclasses import dataclass
-import logging
 from typing import Callable, List, Optional, Type, Union
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QDoubleValidator, QIntValidator, QValidator
 from PyQt6.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLineEdit, QWidget
 
-from gamedata import Influences
-from item.item import Item
-from widgets.editcombo import EditComboBox
+import gamedata
+
+from items import item
+from widgets import editcombo
 
 FilterFunction = Callable[..., bool]
 Num = Union[int, float]
@@ -48,12 +48,12 @@ class InfluenceFilter(QWidget):
         if checked == 2:
             self.check.setCheckState(Qt.CheckState.Checked)
 
-    def item_match(self, item: Item) -> bool:
+    def item_match(self, item: item.Item) -> bool:
         """Returns whether an item conforms to the filter's selection."""
         assert self.check.isChecked()
         return len(item.influences) > 0 and all(
             (not widget.isChecked()) or (influence in item.influences)
-            for widget, influence in zip(self.influences, Influences)
+            for widget, influence in zip(self.influences, gamedata.Influences)
         )
 
     def connect(self, func: Callable) -> None:
@@ -63,7 +63,7 @@ class InfluenceFilter(QWidget):
             influence.stateChanged.connect(func)
 
 
-@dataclass
+@dataclasses.dataclass
 class Filter:
     """
     Represents an item filter.
@@ -81,7 +81,7 @@ class Filter:
     validator: Optional[QValidator] = None
 
 
-@dataclass
+@dataclasses.dataclass
 class FilterGroup:
     """
     Represents a group of item filters.
@@ -147,18 +147,18 @@ def _between_filter(  # pylint: disable=too-many-arguments
     return bot <= field <= top
 
 
-def _filter_name(item: Item, elem: QLineEdit) -> bool:
+def _filter_name(item: item.Item, elem: QLineEdit) -> bool:
     """Filter function that uses name."""
     return elem.text().lower() in item.name.lower()
 
 
-def _filter_category(item: Item, elem: QComboBox) -> bool:
+def _filter_category(item: item.Item, elem: QComboBox) -> bool:
     """Filter function that uses category."""
     text = elem.currentText()
     return text == item.category
 
 
-def _filter_rarity(item: Item, elem: QComboBox) -> bool:
+def _filter_rarity(item: item.Item, elem: QComboBox) -> bool:
     """Filter function that uses rarity."""
     text = elem.currentText()
     if item.rarity == text.lower():
@@ -172,7 +172,7 @@ def _filter_rarity(item: Item, elem: QComboBox) -> bool:
 def _duo_filt_num(field_str: str, conv_func: Callable[[str], Num]) -> FilterFunction:
     """Generic double QLineEditor filter function."""
 
-    def filt(item: Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
+    def filt(item: item.Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
         field = vars(item).get(field_str)
         return field is not None and _between_filter(field, elem1, elem2, conv_func)
 
@@ -184,13 +184,13 @@ def _get_filter_ilevel() -> FilterFunction:
     return _duo_filt_num('ilvl', int)
 
 
-def _filter_influences(item: Item, elem: InfluenceFilter) -> bool:
+def _filter_influences(item: item.Item, elem: InfluenceFilter) -> bool:
     """Filter function that uses influence."""
     return elem.item_match(item)
 
 
 def _filter_mod(
-    item: Item, elem: EditComboBox, range1: QLineEdit, range2: QLineEdit
+    item: item.Item, elem: editcombo.EditComboBox, range1: QLineEdit, range2: QLineEdit
 ) -> bool:
     """Filter function that searches for mods."""
     mod_str = elem.currentText()
@@ -205,8 +205,8 @@ def _filter_mod(
 
 FILTERS = [
     Filter('Name', QLineEdit, _filter_name),
-    Filter('Category', EditComboBox, _filter_category),
-    Filter('Rarity', EditComboBox, _filter_rarity),
+    Filter('Category', editcombo.EditComboBox, _filter_category),
+    Filter('Rarity', editcombo.EditComboBox, _filter_rarity),
     Filter('Damage', QLineEdit, _duo_filt_num('damage', float), DV),
     Filter('Attacks per Second', QLineEdit, _duo_filt_num('aps', float), DV),
     Filter('Critical Chance', QLineEdit, _duo_filt_num('crit', float), DV),
@@ -218,4 +218,4 @@ FILTERS = [
     Filter('Influenced', InfluenceFilter, _filter_influences),
 ]
 
-MOD_FILTERS = [Filter('', EditComboBox, _filter_mod) for _ in range(5)]
+MOD_FILTERS = [Filter('', editcombo.EditComboBox, _filter_mod) for _ in range(5)]

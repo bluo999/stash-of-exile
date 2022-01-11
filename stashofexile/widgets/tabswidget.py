@@ -17,11 +17,10 @@ from PyQt6.QtWidgets import (
 )
 
 import log
-
-from save import Account, SavedData
+import save
 
 if TYPE_CHECKING:
-    from mainwindow import MainWindow
+    import mainwindow
 
 logger = log.get_logger(__name__)
 
@@ -29,7 +28,7 @@ logger = log.get_logger(__name__)
 class TabsWidget(QWidget):
     """Widget for users to see and select stash tabs."""
 
-    def __init__(self, main_window: 'MainWindow') -> None:
+    def __init__(self, main_window: 'mainwindow.MainWindow') -> None:
         """Initialize the UI."""
         super().__init__()
         self.main_window = main_window
@@ -39,7 +38,9 @@ class TabsWidget(QWidget):
         self._static_build()
         self._name_ui()
 
-    def on_show(self, saved_data: SavedData, account: Account, league: str) -> None:
+    def on_show(
+        self, saved_data: save.SavedData, account: save.Account, league: str
+    ) -> None:
         """Sets up tree based on saved_data and account."""
         self.saved_data = saved_data
         self.account = account

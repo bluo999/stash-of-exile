@@ -2,11 +2,11 @@
 Handles rate limiting for Retrieve Threads.
 """
 
-from dataclasses import dataclass
+import collections
+import dataclasses
 import math
 import time
 
-from collections import deque
 from datetime import datetime
 from typing import List, NamedTuple
 
@@ -30,7 +30,7 @@ class RateLimit(NamedTuple):
     period: int
 
 
-@dataclass
+@dataclasses.dataclass
 class TooManyReq:
     """Class storing data from a too many requests HTTP error."""
 
@@ -38,7 +38,7 @@ class TooManyReq:
     retry_after: int
 
 
-class RateQueue(deque):
+class RateQueue(collections.deque):
     """Queue that stores call timestamps for rate limiting purposes."""
 
     def __init__(self, hits: int = 0, period: int = 0):

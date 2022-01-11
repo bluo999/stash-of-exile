@@ -2,7 +2,8 @@
 Stores dataclasses used to save and cache data.
 """
 
-from dataclasses import dataclass, field
+import dataclasses
+
 from typing import Any, Dict, List, NamedTuple
 
 
@@ -13,16 +14,16 @@ class TabId(NamedTuple):
     id: str
 
 
-@dataclass
+@dataclasses.dataclass
 class Account:
     """Represents an account with tabs and characters."""
 
     username: str = ''
     poesessid: str = ''
-    tabs: List[Dict[str, Any]] = field(default_factory=list)
-    tab_ids: List[TabId] = field(default_factory=list)
-    characters: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)
-    character_names: List[str] = field(default_factory=list)
+    tabs: List[Dict[str, Any]] = dataclasses.field(default_factory=list)
+    tab_ids: List[TabId] = dataclasses.field(default_factory=list)
+    characters: Dict[str, List[Dict[str, Any]]] = dataclasses.field(default_factory=dict)
+    character_names: List[str] = dataclasses.field(default_factory=list)
 
     def has_characters(self):
         """Returns whether the character list has been set."""
@@ -33,9 +34,9 @@ class Account:
         return len(self.tab_ids) != 0
 
 
-@dataclass
+@dataclasses.dataclass
 class SavedData:
     """Represents all saved data, including leagues and accounts."""
 
-    leagues: List[str] = field(default_factory=list)
-    accounts: List[Account] = field(default_factory=list)
+    leagues: List[str] = dataclasses.field(default_factory=list)
+    accounts: List[Account] = dataclasses.field(default_factory=list)

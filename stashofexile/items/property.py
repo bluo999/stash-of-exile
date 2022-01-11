@@ -2,15 +2,15 @@
 Defines parsing of properties.
 """
 
-from consts import COLORS, SPAN_TEMPLATE, VALNUM_TO_COLOR
-from util import ValInfo, insert_values
+import consts
+import util
 
 
 # TODO: Add multiline values (The Feared)
 class Property:
     """Class to represent an item property."""
 
-    def __init__(self, prop_info: ValInfo) -> None:
+    def __init__(self, prop_info: util.ValInfo) -> None:
         self.name = prop_info.get('name')
         self.values = prop_info.get('vals')
         self.tooltip = None
@@ -27,23 +27,29 @@ class Property:
             index = self.name.index('<')
             name = (
                 self.name[0:index]
-                + SPAN_TEMPLATE.format(COLORS['red'], self.name[index + 8])
+                + consts.SPAN_TEMPLATE.format(
+                    consts.COLORS['red'], self.name[index + 8]
+                )
                 + self.name[index + 10 :]
             )
 
         # Insert property arguments
-        obj = insert_values(name, self.values)
+        obj = util.insert_values(name, self.values)
 
         if obj['inserted'] or len(self.values) == 0 or self.values[0][0] == '':
             # Property without label
-            self.tooltip = SPAN_TEMPLATE.format(COLORS['grey'], obj['text'])
+            self.tooltip = consts.SPAN_TEMPLATE.format(
+                consts.COLORS['grey'], obj['text']
+            )
         else:
             # Property with label
             valnum = self.values[0][1]
             assert isinstance(valnum, int)
-            color = COLORS[VALNUM_TO_COLOR.get(valnum, 'white')]
-            label = SPAN_TEMPLATE.format(COLORS['grey'], obj['text'] + ': ')
-            value = SPAN_TEMPLATE.format(color, self.values[0][0])
+            color = consts.COLORS[consts.VALNUM_TO_COLOR.get(valnum, 'white')]
+            label = consts.SPAN_TEMPLATE.format(
+                consts.COLORS['grey'], obj['text'] + ': '
+            )
+            value = consts.SPAN_TEMPLATE.format(color, self.values[0][0])
             self.tooltip = label + value
 
         return self.tooltip

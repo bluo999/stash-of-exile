@@ -2,13 +2,13 @@
 Handles viewing items in tabs and characters.
 """
 
+import dataclasses
+import functools
+import inspect
 import json
 import os
 import pickle
 
-from dataclasses import field
-from functools import partial
-from inspect import signature
 from typing import List, TYPE_CHECKING, Optional, Set, Tuple
 
 from PyQt6.QtCore import QItemSelection, QSize, Qt
@@ -33,22 +33,20 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+import consts
+import gamedata
 import log
+import save
+import tab
+import table
 import util
 
-from consts import SEPARATOR_TEMPLATE
-from item.filter import FILTERS, MOD_FILTERS, InfluenceFilter
-from item.item import Item
-from item.moddb import ModDb
-from gamedata import COMBO_ITEMS
-from save import Account
-from tab import CharacterTab, ItemTab, StashTab
-from table import TableModel
-from thread.thread import Call
-from widgets.editcombo import EditComboBox
+from items import filter, item, moddb
+from threads import thread
+from widgets import editcombo
 
 if TYPE_CHECKING:
-    from mainwindow import MainWindow
+    import mainwindow
 
 logger = log.get_logger(__name__)
 
@@ -68,13 +66,13 @@ def _toggle_visibility(widget: QWidget) -> None:
 class MainWidget(QWidget):
     """Main Widget for the filter, tooltip, and table view."""
 
-    def __init__(self, main_window: 'MainWindow') -> None:
+    def __init__(self, main_window: 'mainwindow.MainWindow') -> None:
         """Initialize the UI."""
         super().__init__()
         self.main_window = main_window
-        self.item_tabs: List[ItemTab] = []
+        self.item_tabs: List[tab.ItemTab] = []
         self.account = None
-        self.mod_db: ModDb = ModDb()
+        self.mod_db: moddb.ModDb = moddb.ModDb()
         self._static_build()
         self._load_mod_file()
         self._dynamic_build_filters()
@@ -83,10 +81,10 @@ class MainWidget(QWidget):
 
     def on_show(
         self,
-        account: Optional[Account] = None,
+        account: Optional[save.Account] = None,
         league: str = '',
-        tabs: List[int] = field(default_factory=list),
-        characters: List[str] = field(default_factory=list),
+        tabs: List[int] = dataclasses.field(default_factory=list),
+        characters: List[str] = dataclasses.field(default_factory=list),
     ) -> None:
         """Retrieves existing tabs or send API calls, then build the table."""
         if account is None:
@@ -97,13 +95,13 @@ class MainWidget(QWidget):
                     character_dir = os.path.join(leagues, CHARACTER_DIR)
                     jewels_dir = os.path.join(leagues, JEWELS_DIR)
                     self.item_tabs.extend(
-                        StashTab(tab) for tab in util.get_jsons(tab_dir)
+                        tab.StashTab(char) for char in util.get_jsons(tab_dir)
                     )
                     self.item_tabs.extend(
-                        CharacterTab(char) for char in util.get_jsons(character_dir)
+                        tab.CharacterTab(char) for char in util.get_jsons(character_dir)
                     )
                     self.item_tabs.extend(
-                        CharacterTab(char) for char in util.get_jsons(jewels_dir)
+                        tab.CharacterTab(char) for char in util.get_jsons(jewels_dir)
                     )
         else:
             self._send_api(account, league, tabs, characters)
@@ -111,7 +109,7 @@ class MainWidget(QWidget):
         self._build_table()
 
     def _send_api(
-        self, account: Account, league: str, tabs: List[int], characters: List[str]
+        self, account: save.Account, league: str, tabs: List[int], characters: List[str]
     ) -> None:
         """
         Generates and sends API calls based on selected league, tabs, and characters.
@@ -122,22 +120,22 @@ class MainWidget(QWidget):
 
         logger.debug('Begin checking cache')
 
-        api_calls: List[Call] = []
+        api_calls: List[thread.Call] = []
         # Queue stash tab API calls
         for tab_num in tabs:
             filename = os.path.join(
                 ITEM_CACHE_DIR, account.username, league, TABS_DIR, f'{tab_num}.json'
             )
-            tab = StashTab(filename, tab_num)
+            item_tab = tab.StashTab(filename, tab_num)
             if os.path.exists(filename):
-                self.item_tabs.append(tab)
+                self.item_tabs.append(item_tab)
                 continue
-            api_call = Call(
+            api_call = thread.Call(
                 api_manager.get_tab_items,
                 (account.username, account.poesessid, league, tab_num),
                 self,
                 self._get_stash_tab_callback,
-                (tab,),
+                (item_tab,),
             )
             api_calls.append(api_call)
 
@@ -146,16 +144,16 @@ class MainWidget(QWidget):
             filename = os.path.join(
                 ITEM_CACHE_DIR, account.username, league, CHARACTER_DIR, f'{char}.json'
             )
-            tab = CharacterTab(filename, char)
+            item_tab = tab.CharacterTab(filename, char)
             if os.path.exists(filename):
-                self.item_tabs.append(tab)
+                self.item_tabs.append(item_tab)
                 continue
-            api_call = Call(
+            api_call = thread.Call(
                 api_manager.get_character_items,
                 (account.username, account.poesessid, char),
                 self,
                 self._get_char_callback,
-                (tab,),
+                (item_tab,),
             )
             api_calls.append(api_call)
 
@@ -164,32 +162,34 @@ class MainWidget(QWidget):
             filename = os.path.join(
                 ITEM_CACHE_DIR, account.username, league, JEWELS_DIR, f'{char}.json'
             )
-            tab = CharacterTab(filename, char)
+            item_tab = tab.CharacterTab(filename, char)
             if os.path.exists(filename):
-                self.item_tabs.append(tab)
+                self.item_tabs.append(item_tab)
                 continue
-            api_call = Call(
+            api_call = thread.Call(
                 api_manager.get_character_jewels,
                 (account.username, account.poesessid, char),
                 self,
                 self._get_char_callback,
-                (tab,),
+                (item_tab,),
             )
             api_calls.append(api_call)
 
         api_manager.insert(api_calls)
 
-    def _on_receive_items(self, items: List[Item]):
+    def _on_receive_items(self, items: List[item.Item]):
         """Inserts items in model and queues image downloading."""
         icons: Set[Tuple[str, str]] = set()
         download_manager = self.main_window.download_manager
         icons.update((item.icon, item.file_path) for item in items)
         download_manager.insert(
-            Call(download_manager.get_image, icon, None) for icon in icons
+            thread.Call(download_manager.get_image, icon, None) for icon in icons
         )
         self.model.insert_items(items)
 
-    def _get_stash_tab_callback(self, tab: StashTab, data, err_message: str) -> None:
+    def _get_stash_tab_callback(
+        self, tab: tab.StashTab, data, err_message: str
+    ) -> None:
         """Takes tab API data and inserts the items into the table."""
         if data is None:
             # Use error message
@@ -205,7 +205,7 @@ class MainWidget(QWidget):
 
         self._on_receive_items(tab.get_items())
 
-    def _get_char_callback(self, tab: CharacterTab, data, err_message: str) -> None:
+    def _get_char_callback(self, tab: tab.CharacterTab, data, err_message: str) -> None:
         """Takes character API data and inserts the items into the table."""
         if data is None:
             # Use error message
@@ -223,7 +223,7 @@ class MainWidget(QWidget):
         """Sets up the items, downloads their images, and sets up the table."""
         # Get available items
         download_manager = self.main_window.download_manager
-        items: List[Item] = []
+        items: List[item.Item] = []
         icons: Set[Tuple[str, str]] = set()
         for tab in self.item_tabs:
             # Open each tab
@@ -238,7 +238,7 @@ class MainWidget(QWidget):
             pickle.dump(self.mod_db, f)
 
         download_manager.insert(
-            Call(download_manager.get_image, icon, None) for icon in icons
+            thread.Call(download_manager.get_image, icon, None) for icon in icons
         )
         logger.debug('Cached tabs: %s, items: %s', len(self.item_tabs), len(items))
         self.item_tabs = []
@@ -254,7 +254,7 @@ class MainWidget(QWidget):
 
         # Connect selection to update tooltip
         self.table.selectionModel().selectionChanged.connect(
-            partial(self._update_tooltip, self.model)
+            functools.partial(self._update_tooltip, self.model)
         )
 
         # Connect sort
@@ -290,7 +290,7 @@ class MainWidget(QWidget):
         filter_scroll.setContentsMargins(0, 0, 0, 0)
         filter_scroll.setFrameShape(QFrame.Shape.NoFrame)
         self.filter_group_box.clicked.connect(
-            partial(_toggle_visibility, filter_scroll)
+            functools.partial(_toggle_visibility, filter_scroll)
         )
 
         filter_scroll_layout.addWidget(filter_scroll)
@@ -314,7 +314,7 @@ class MainWidget(QWidget):
         self.mods_scroll.setContentsMargins(0, 0, 0, 0)
         self.mods_scroll.setFrameShape(QFrame.Shape.NoFrame)
         self.mods_group_box.clicked.connect(
-            partial(_toggle_visibility, self.mods_scroll)
+            functools.partial(_toggle_visibility, self.mods_scroll)
         )
 
         mods_scroll_layout.addWidget(self.mods_scroll)
@@ -354,7 +354,7 @@ class MainWidget(QWidget):
         self.table.horizontalHeader().setSectionsMovable(True)
 
         # Custom Table Model
-        self.model = TableModel(self.table, parent=self)
+        self.model = table.TableModel(self.table, parent=self)
         self.table.setModel(self.model)
 
         splitter.addWidget(left_widget)
@@ -369,14 +369,14 @@ class MainWidget(QWidget):
             logger.info('Found mod db file')
             with open(MOD_DB_FILE, 'rb') as f:
                 self.mod_db = pickle.load(f)
-            assert isinstance(self.mod_db, ModDb)
+            assert isinstance(self.mod_db, moddb.ModDb)
             logger.info('Initial mods: %s', len(self.mod_db))
 
     def _dynamic_build_filters(self) -> None:
         """Sets up the filter widgets and labels."""
         self.filter_labels: List[QLabel] = []
         self.filter_widgets: List[List[QWidget]] = []
-        for i, filt in enumerate(FILTERS):
+        for i, filt in enumerate(filter.FILTERS):
             # Label
             label = QLabel(self.filter_scroll_widget)
             self.filter_labels.append(label)
@@ -386,7 +386,7 @@ class MainWidget(QWidget):
             layout = QHBoxLayout()
             widgets: List[QWidget] = []
             # Create widgets based on the number of arguments filterFunc takes in
-            for _ in range(len(signature(filt.filter_func).parameters) - 1):
+            for _ in range(len(inspect.signature(filt.filter_func).parameters) - 1):
                 # Create widget object
                 widget = filt.widget()
                 widgets.append(widget)
@@ -401,11 +401,11 @@ class MainWidget(QWidget):
 
         self.mod_widgets: List[List[QWidget]] = []
         range_size: Optional[QSize] = None
-        for i, filt in enumerate(MOD_FILTERS):
+        for i, filt in enumerate(filter.MOD_FILTERS):
             widgets: List[QWidget] = []
             hlayout = QHBoxLayout()
             # Combo box
-            widget = EditComboBox()
+            widget = editcombo.EditComboBox()
             widget.setMinimumContentsLength(0)
             widget.setSizeAdjustPolicy(
                 QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
@@ -444,10 +444,12 @@ class MainWidget(QWidget):
         self.mods_group_box.setTitle('Mods')
 
         # Name filters
-        for filt, label in zip(FILTERS, self.filter_labels):
+        for filt, label in zip(filter.FILTERS, self.filter_labels):
             label.setText(f'{filt.name}:')
 
-    def _update_tooltip(self, model: TableModel, selected: QItemSelection) -> None:
+    def _update_tooltip(
+        self, model: table.TableModel, selected: QItemSelection
+    ) -> None:
         """Updates item tooltip, triggered when a row is clicked."""
         if len(selected.indexes()) == 0:
             # Nothing selected
@@ -466,7 +468,9 @@ class MainWidget(QWidget):
             self.tooltip.setAlignment(Qt.AlignmentFlag.AlignCenter)
             if i != len(sections) - 1:
                 self.tooltip.append(
-                    SEPARATOR_TEMPLATE.format('../assets/SeparatorWhite.png', width)
+                    consts.SEPARATOR_TEMPLATE.format(
+                        '../assets/SeparatorWhite.png', width
+                    )
                 )
 
         # Reset scroll to top
@@ -477,7 +481,7 @@ class MainWidget(QWidget):
 
     def _setup_filters(self) -> None:
         """Initializes filters and links to widgets."""
-        for filt, widgets in zip(FILTERS, self.filter_widgets):
+        for filt, widgets in zip(filter.FILTERS, self.filter_widgets):
             signal = None
             for widget in widgets:
                 # Get signal based on widget type
@@ -487,15 +491,15 @@ class MainWidget(QWidget):
                     signal = widget.currentIndexChanged
                 elif isinstance(widget, QCheckBox):
                     signal = widget.stateChanged
-                elif isinstance(widget, InfluenceFilter):
+                elif isinstance(widget, filter.InfluenceFilter):
                     widget.connect(self._apply_filters)
 
                 if signal is not None:
                     signal.connect(self._apply_filters)
 
         # Add items to combo boxes (dropdown)
-        for filt, widgets in zip(FILTERS, self.filter_widgets):
-            options = COMBO_ITEMS.get(filt.name)
+        for filt, widgets in zip(filter.FILTERS, self.filter_widgets):
+            options = gamedata.COMBO_ITEMS.get(filt.name)
             if options is not None:
                 widget = widgets[0]
                 assert isinstance(widget, QComboBox)
