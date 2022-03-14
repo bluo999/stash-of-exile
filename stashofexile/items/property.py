@@ -11,8 +11,8 @@ class Property:
     """Class to represent an item property."""
 
     def __init__(self, prop_info: util.ValInfo) -> None:
-        self.name = prop_info.get('name')
-        self.values = prop_info.get('vals')
+        self.name = prop_info['name']
+        self.values = prop_info['vals']
         self.tooltip = None
 
     @property

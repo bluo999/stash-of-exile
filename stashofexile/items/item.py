@@ -367,8 +367,7 @@ class Item:
         name.
         """
         influence_icons = [
-            f'<img src="../assets/{infl}.png" />'
-            for infl in self.influences
+            f'<img src="../assets/{infl}.png" />' for infl in self.influences
         ]
         name = consts.SPAN_TEMPLATE.format(
             consts.COLORS[self.rarity], self.name.replace(', ', '<br />')

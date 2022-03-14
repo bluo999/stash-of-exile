@@ -2,7 +2,7 @@
 Defines a tab widget to select tabs and characters.
 """
 
-from typing import TYPE_CHECKING, List
+from typing import Any, List
 
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import (
@@ -19,8 +19,7 @@ from PyQt6.QtWidgets import (
 import log
 import save
 
-if TYPE_CHECKING:
-    import mainwindow
+mainwindow = Any
 
 logger = log.get_logger(__name__)
 
@@ -99,13 +98,15 @@ class TabsWidget(QWidget):
     def _setup_tree(self):
         """Sets up tabs in tree widget."""
         assert self.account is not None
-        self.tab_group.setText(0, f'Stash Tabs ({len(self.account.tab_ids)})')
+        assert self.league is not None
+        account_league = self.account.leagues[self.league]
+        self.tab_group.setText(0, f'Stash Tabs ({len(account_league.tab_ids)})')
         self.tab_group.setFlags(
             self.tab_group.flags()
             | Qt.ItemFlag.ItemIsAutoTristate
             | Qt.ItemFlag.ItemIsUserCheckable
         )
-        for i, tab in enumerate(self.account.tab_ids):
+        for i, tab in enumerate(account_league.tab_ids):
             tab_widget = QTreeWidgetItem(self.tab_group)
             tab_widget.setText(0, f'{i} ({tab.name})')
             tab_widget.setFlags(tab_widget.flags() | Qt.ItemFlag.ItemIsUserCheckable)
@@ -113,9 +114,11 @@ class TabsWidget(QWidget):
         # self.tab_group.setCheckState(0, Qt.CheckState.Checked)
 
         # Setup characters in tree widget
-        self.char_group.setText(0, f'Characters ({len(self.account.character_names)})')
+        self.char_group.setText(
+            0, f'Characters ({len(account_league.character_names)})'
+        )
         self.char_group.setFlags(self.tab_group.flags())
-        for char in self.account.character_names:
+        for char in account_league.character_names:
             char_widget = QTreeWidgetItem(self.char_group)
             char_widget.setText(0, char)
             char_widget.setFlags(char_widget.flags() | Qt.ItemFlag.ItemIsUserCheckable)
@@ -124,9 +127,10 @@ class TabsWidget(QWidget):
     def _import_items(self) -> None:
         """Sends the list of checked tabs and characters to the main widget."""
         assert self.account is not None
+        assert self.league is not None
         tabs = [
             i
-            for i, _ in enumerate(self.account.tab_ids)
+            for i, _ in enumerate(self.account.leagues[self.league].tab_ids)
             if self.tab_group.child(i).checkState(0) == Qt.CheckState.Checked
         ]
 

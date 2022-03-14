@@ -9,9 +9,9 @@ import util
 class Requirement:
     """Class to represent an item requirement."""
 
-    def __init__(self, reqInfo: util.ValInfo):
-        self.name = reqInfo['name']
-        self.values = reqInfo['vals']
+    def __init__(self, req_info: util.ValInfo):
+        self.name = req_info['name']
+        self.values = req_info['vals']
         self.tooltip = None
 
     @property

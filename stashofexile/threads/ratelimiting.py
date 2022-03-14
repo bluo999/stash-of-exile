@@ -93,12 +93,12 @@ class RateLimiter:
             if len(queue) == queue.hits
         )
         sleep_time = max((next_avail_time - get_time_ms()) / 1000, 0.0)
-        logger.info(sleep_time)
         if math.isclose(sleep_time, 0.0):
             return
 
         if sleep_time > 1:
-            logger.info('Cooling off API calls for %s', sleep_time)
+            logger.info('Cooling off API calls for %ss', sleep_time)
+
         # TODO: figure out a way to not block so that insert can be called during
         # this cool off period. Same with retry after.
         time.sleep(sleep_time)
