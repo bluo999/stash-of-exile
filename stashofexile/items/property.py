@@ -6,7 +6,6 @@ import consts
 import util
 
 
-# TODO: Add multiline values (The Feared)
 class Property:
     """Class to represent an item property."""
 
@@ -42,14 +41,13 @@ class Property:
                 consts.COLORS['grey'], obj['text']
             )
         else:
-            # Property with label
-            valnum = self.values[0][1]
-            assert isinstance(valnum, int)
-            color = consts.COLORS[consts.VALNUM_TO_COLOR.get(valnum, 'white')]
-            label = consts.SPAN_TEMPLATE.format(
+            self.tooltip = consts.SPAN_TEMPLATE.format(
                 consts.COLORS['grey'], obj['text'] + ': '
             )
-            value = consts.SPAN_TEMPLATE.format(color, self.values[0][0])
-            self.tooltip = label + value
+            for val, valnum in self.values:
+                # Property with label
+                assert isinstance(valnum, int)
+                color = consts.COLORS[consts.VALNUM_TO_COLOR.get(valnum, 'white')]
+                self.tooltip += consts.SPAN_TEMPLATE.format(color, str(val).replace('\n', '<br />'))
 
         return self.tooltip

@@ -232,8 +232,12 @@ class Item:
             return 'Scarab'
         if 'Piece' in item_base:
             return 'Unique Fragment'
+        if 'Crest' in item_base:
+            return 'Map Fragment'
         if item_base == 'Simulacrum':  # Avoid conflict with splinter
             return 'Map Fragment'
+        if item_base == 'Charged Compass':
+            return 'Currency'
 
         # Fragments
         for frag in gamedata.FRAGMENTS:
@@ -250,13 +254,17 @@ class Item:
             if cat in item_base:
                 return cat
 
+        # Eldritch Invitations
+        if 'Invitation' in item_base:
+            return 'Map'
+
         # Rarity
         if self.rarity == 'divination':
             return 'Divination Card'
         if self.rarity == 'currency':
             return 'Currency'
 
-        logger.warning('Unknown category %s', self.name)
+        logger.warning('Unknown category %s %s %s', self.name, item_base, self.rarity)
         return ''
 
     def get_tooltip(self) -> List[str]:
