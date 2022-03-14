@@ -47,8 +47,12 @@ class TabsWidget(QWidget):
 
         # TODO: clear tree then rebuild
         # Setup tree has not yet been called
-        if self.tree_widget.topLevelItemCount() == 2:
-            self._setup_tree()
+        for _ in range(self.tab_group.childCount()):
+            self.tab_group.removeChild(self.tab_group.child(0))
+        for _ in range(self.char_group.childCount()):
+            self.char_group.removeChild(self.char_group.child(0))
+
+        self._setup_tree()
 
     def _static_build(self) -> None:
         """Sets up the static base UI, including properties and widgets."""
@@ -84,7 +88,7 @@ class TabsWidget(QWidget):
             lambda _: self.main_window.switch_widget(self.main_window.login_widget)
         )
         # Not sure whether to remove or keep - maybe useful if selected wrong league?
-        self.back_button.setDisabled(True)
+        # self.back_button.setDisabled(True)
         self.button_layout.addWidget(self.back_button)
 
         # Import Button

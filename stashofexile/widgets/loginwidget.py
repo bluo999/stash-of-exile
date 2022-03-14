@@ -258,7 +258,6 @@ class LoginWidget(QWidget):
         tab_ids = [save.TabId(tab['n'], tab['id']) for tab in tab_info['tabs']]
         self.account.leagues[self.league].tab_ids = tab_ids
         logger.info('Success: %s tabs', len(tab_ids))
-        self.error_text.setText('')
         self._check_login_success()
 
     def _get_char_list_api(self) -> None:
@@ -280,6 +279,8 @@ class LoginWidget(QWidget):
     ) -> None:
         """Callback after get num tabs is returned."""
         if char_list is None or len(char_list) == 0:
+            if char_list is not None and len(char_list) == 0:
+                err_message = 'Error getting characters. Are there any in that league?'
             logger.error(err_message)
             self.error_text.setText(err_message)
             return
