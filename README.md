@@ -1,8 +1,25 @@
 # Stash of Exile
 
-Stash of Exile is a stash and character searcher for Path of Exile developed in Python with PyQt6. It is still early in development, so there are no releases yet.
+Stash of Exile is a stash and character searcher for Path of Exile developed in Python with PyQt6. The goal is to have better filtering and mod searching compared to the official trade site.
 
-Stash of Exile is finally in a usable state, so importing an entire account's worth of items will work, thought may be slow at the moment.
+Features:
+- [x] Load tab and character items using POESESSID
+- [x] Full item display
+- [x] Item caching
+- [x] Basic filter support
+- [x] Basic mod support
+- [ ] Sockets and links
+- [ ] Advanced filter support
+- [ ] Advanced mod support
+- [ ] Save and load preset mods/filters
+
+Installation
+```
+git clone git@github.com:bluo999/stash-of-exile.git
+pip install -r requirements.txt
+cd stashofexile
+python app.py
+```
 
 Tracker: https://trello.com/b/CPI3g4yw/stash-of-exile
 
