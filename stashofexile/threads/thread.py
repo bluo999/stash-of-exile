@@ -96,7 +96,7 @@ class ThreadManager(abc.ABC):
     def consume(self) -> Union[Ret, ratelimiting.TooManyReq, KillThread]:
         """Consumes an element from the API queue (blocking)."""
         self.cond.acquire()
-        while len(self.queue) == 0:
+        while not self.queue:
             self.cond.wait()
 
         ret = self.queue.popleft()

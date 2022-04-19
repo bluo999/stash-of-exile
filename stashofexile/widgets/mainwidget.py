@@ -451,7 +451,7 @@ class MainWidget(QWidget):
         self, model: table.TableModel, selected: QItemSelection
     ) -> None:
         """Updates item tooltip, triggered when a row is clicked."""
-        if len(selected.indexes()) == 0:
+        if not selected.indexes():
             # Nothing selected
             return
 

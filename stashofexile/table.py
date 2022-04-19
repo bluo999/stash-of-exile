@@ -124,9 +124,7 @@ class TableModel(QAbstractTableModel):
         """
         # Previously selected item
         selection = self.table_view.selectedIndexes()
-        selected_item = (
-            self.current_items[selection[0].row()] if len(selection) > 0 else None
-        )
+        selected_item = self.current_items[selection[0].row()] if selection else None
 
         # Build list of all filters
         all_filters: List[filter.Filter] = filter.MOD_FILTERS

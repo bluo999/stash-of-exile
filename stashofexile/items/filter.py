@@ -134,7 +134,7 @@ def _between_filter(  # pylint: disable=too-many-arguments
     bot_str = elem1.text()
     top_str = elem2.text()
 
-    if len(bot_str) == 0 and len(top_str) == 0:
+    if not bot_str and not top_str:
         # Filter field is blank
         return True
 
@@ -143,8 +143,8 @@ def _between_filter(  # pylint: disable=too-many-arguments
         return False
 
     # Field is between two inputs
-    bot = conv_func(bot_str) if len(bot_str) > 0 and bot_str != '.' else min_val
-    top = conv_func(top_str) if len(top_str) > 0 and top_str != '.' else max_val
+    bot = conv_func(bot_str) if bot_str and bot_str != '.' else min_val
+    top = conv_func(top_str) if top_str and top_str != '.' else max_val
     return bot <= field <= top
 
 

@@ -34,7 +34,7 @@ class Property:
         # Insert property arguments
         obj = util.insert_values(name, self.values)
 
-        if obj['inserted'] or len(self.values) == 0 or self.values[0][0] == '':
+        if obj['inserted'] or not self.values or self.values[0][0] == '':
             # Property without label
             self.tooltip = consts.SPAN_TEMPLATE.format(
                 consts.COLORS['grey'], obj['text']

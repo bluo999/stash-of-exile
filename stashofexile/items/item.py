@@ -42,12 +42,10 @@ def _list_mods(mod_groups: List[ModGroup]) -> str:
     """
     # Get rid of any empty mod list
     filt_mod_lists = [
-        (mod_group.mods, mod_group.color)
-        for mod_group in mod_groups
-        if len(mod_group.mods) > 0
+        (mod_group.mods, mod_group.color) for mod_group in mod_groups if mod_group.mods
     ]
 
-    if len(filt_mod_lists) == 0:
+    if not filt_mod_lists:
         return ''
 
     # Split mods with \n
@@ -271,7 +269,7 @@ class Item:
         Returns a list of strings, with each representing a single section of the
         entire tooltip.
         """
-        if len(self.tooltip) > 0:
+        if self.tooltip:
             return self.tooltip
 
         mods = _list_mods(
@@ -308,7 +306,7 @@ class Item:
             _list_mods([ModGroup(self.enchanted, 'craft')]),
             _list_mods([ModGroup(self.implicit, 'magic')]),
             # Mods and Tags
-            f'{mods}<br />{tags}' if len(mods) > 0 and len(tags) > 0 else mods + tags,
+            f'{mods}<br />{tags}' if mods and tags else mods + tags,
             # Gem experience
             self._get_gem_exp_tooltip(),
             # Incubator info
@@ -429,7 +427,7 @@ class Item:
     def _get_property_tooltip(self) -> str:
         """Returns the colorized, line separated properties tooltip."""
         tooltip: List[str] = []
-        if len(self.props) > 0:
+        if self.props:
             for i, prop in enumerate(self.props):
                 tooltip.append(prop.description)
                 if i < len(self.props) - 1:
@@ -440,7 +438,7 @@ class Item:
     def _get_utility_tooltip(self) -> str:
         """Returns the colorized, line separated utility mods tooltip."""
         mods = _list_mods([ModGroup(self.utility, 'magic')])
-        if len(mods) > 0:
+        if mods:
             return '<br />' + mods
 
         return ''
@@ -448,7 +446,7 @@ class Item:
     def _get_requirement_tooltip(self) -> str:
         """Returns the colorized, line separated requirements tooltip."""
         tooltip: List[str] = []
-        if len(self.reqs) > 0:
+        if self.reqs:
             tooltip.append(consts.SPAN_TEMPLATE.format('grey', 'Requires'))
             for i, req in enumerate(self.reqs):
                 if i > 0:

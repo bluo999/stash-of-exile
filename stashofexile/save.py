@@ -25,11 +25,11 @@ class League:
 
     def has_tabs(self):
         """Returns whether tab list has been set."""
-        return len(self.tab_ids) != 0
+        return self.tab_ids
 
     def has_characters(self):
         """Returns whether the character list has been set."""
-        return len(self.character_names) != 0
+        return self.character_names
 
 
 @dataclasses.dataclass

@@ -52,7 +52,7 @@ class LoginWidget(QWidget):
     def _dynamic_build(self) -> None:
         """Loads saved file and get leagues if necessary."""
         self._load_saved_file()
-        if len(self.saved_data.leagues) == 0:
+        if not self.saved_data.leagues:
             self._get_leagues_api()
         else:
             self._get_leagues_success()
@@ -131,7 +131,7 @@ class LoginWidget(QWidget):
                 logger.info('%s %s', account.username, account.poesessid)
             # Populatea user/poesessid
             # TODO: do by most recent
-            if len(self.saved_data.accounts) > 0:
+            if self.saved_data.accounts:
                 account = self.saved_data.accounts[0]
                 self.account_field.setText(self.saved_data.accounts[0].username)
                 self.poesessid_field.setText(self.saved_data.accounts[0].poesessid)
@@ -192,7 +192,7 @@ class LoginWidget(QWidget):
             if savedAccount.username == username
         ]
 
-        if len(search_account) == 0:
+        if not search_account:
             # Account not in saved data
             self.account = save.Account(username, poesessid)
             self.account.leagues[self.league] = save.League()
@@ -275,8 +275,8 @@ class LoginWidget(QWidget):
         self, char_list: Optional[List[str]], err_message: str = ''
     ) -> None:
         """Callback after get num tabs is returned."""
-        if char_list is None or len(char_list) == 0:
-            if char_list is not None and len(char_list) == 0:
+        if char_list is None or not char_list:
+            if char_list is not None and not char_list:
                 err_message = 'Error getting characters. Are there any in that league?'
             logger.error(err_message)
             self.error_text.setText(err_message)
