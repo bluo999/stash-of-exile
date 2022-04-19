@@ -371,22 +371,20 @@ class Item:
     def _calculate_arm_props(self) -> None:
         """Calculates armour properties of item from base stats (e.g. evasion)"""
         armour = property_function('Armour')(self)
-        self.armour = float(armour) if armour else None
+        self.armour = int(armour) if armour else None
 
         evasion = property_function('Evasion')(self)
-        self.evasion = float(evasion) if evasion else None
+        self.evasion = int(evasion) if evasion else None
 
         es = property_function('Energy Shield')(self)
-        self.es = float(es) if es else None
+        self.es = int(es) if es else None
 
         ward = property_function('Ward')(self)
-        self.ward = float(ward) if ward else None
+        self.ward = int(ward) if ward else None
 
         # Block
         z = re.search(PERCENT_REGEX, property_function('Chance to Block')(self))
-        self.block = float(z.group(1)) if z is not None else None
-        if self.name == 'Corruption Wing, Ezomyte Tower Shield':
-            print(property_function('Chance to Block')(self), z.groups() if z is not None else None, self.block)
+        self.block = int(z.group(1)) if z is not None else None
 
     def _get_header_tooltip(self) -> str:
         """

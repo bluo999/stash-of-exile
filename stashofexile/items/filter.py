@@ -224,11 +224,11 @@ FILTERS: List[Filter | FilterGroup] = [
     FilterGroup(
         'Armour Filters',
         [
-            Filter('Armour', QLineEdit, _duo(lambda i: i.armour, float), DV),
-            Filter('Evasion', QLineEdit, _duo(lambda i: i.evasion, float), DV),
-            Filter('Energy Shield', QLineEdit, _duo(lambda i: i.es, float), DV),
-            Filter('Ward', QLineEdit, _duo(lambda i: i.ward, float), DV),
-            Filter('Block', QLineEdit, _duo(lambda i: i.block, float), DV),
+            Filter('Armour', QLineEdit, _duo(lambda i: i.armour, int), IV),
+            Filter('Evasion', QLineEdit, _duo(lambda i: i.evasion, int), IV),
+            Filter('Energy Shield', QLineEdit, _duo(lambda i: i.es, int), IV),
+            Filter('Ward', QLineEdit, _duo(lambda i: i.ward, int), IV),
+            Filter('Block', QLineEdit, _duo(lambda i: i.block, int), IV),
         ],
     ),
     Filter('Quality', QLineEdit, _duo(lambda i: i.quality_num, int), IV),
