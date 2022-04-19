@@ -50,7 +50,6 @@ class TableModel(QAbstractTableModel):
         super().__init__(parent)
         self.items: List[item.Item] = []
         self.current_items: List[item.Item] = []
-        # self.filter_widgets: List[List[QWidget]] = []
         self.mod_widgets: List[List[QWidget]] = []
         self.property_funcs = [func for _, func in TableModel.PROPERTY_FUNCS.items()]
         self.headers = list(TableModel.PROPERTY_FUNCS.keys())
@@ -112,10 +111,6 @@ class TableModel(QAbstractTableModel):
         self.current_items.extend(items)
         self.endInsertRows()
 
-    # def set_filter_widgets(self, filter_widgets: List[List[QWidget]]) -> None:
-    #     """Sets the filter widgets for the table."""
-    #     self.filter_widgets = filter_widgets
-
     def set_mod_widgets(self, mod_widgets: List[List[QWidget]]) -> None:
         """Sets the mod filter widgets for the table."""
         self.mod_widgets = mod_widgets
@@ -149,6 +144,7 @@ class TableModel(QAbstractTableModel):
             for filt in all_filters
             if any(filter.filter_is_active(widget) for widget in filt.widgets)
         ]
+
         self.current_items = [
             item
             for item in self.items

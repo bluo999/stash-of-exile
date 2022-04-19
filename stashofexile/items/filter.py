@@ -170,11 +170,13 @@ def _filter_rarity(item: item.Item, elem: QComboBox) -> bool:
     return False
 
 
-def _duo_filt_num(field_str: str, conv_func: Callable[[str], Num]) -> FilterFunction:
+def _duo(
+    property: Callable[[item.Item], Optional[Num]], conv_func: Callable[[str], Num]
+) -> FilterFunction:
     """Generic double QLineEditor filter function."""
 
     def filt(item: item.Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
-        field = vars(item).get(field_str)
+        field = property(item)
         return field is not None and _between_filter(field, elem1, elem2, conv_func)
 
     return filt
@@ -182,7 +184,7 @@ def _duo_filt_num(field_str: str, conv_func: Callable[[str], Num]) -> FilterFunc
 
 def _get_filter_ilevel() -> FilterFunction:
     """Returns a filter function that uses item level."""
-    return _duo_filt_num('ilvl', int)
+    return _duo(lambda item: item.ilvl, int)
 
 
 def _filter_influences(item: item.Item, elem: InfluenceFilter) -> bool:
@@ -211,15 +213,25 @@ FILTERS: List[Filter | FilterGroup] = [
     FilterGroup(
         'Weapon Filters',
         [
-            Filter('Damage', QLineEdit, _duo_filt_num('damage', float), DV),
-            Filter('Attacks per Second', QLineEdit, _duo_filt_num('aps', float), DV),
-            Filter('Critical Chance', QLineEdit, _duo_filt_num('crit', float), DV),
-            Filter('Damage per Second', QLineEdit, _duo_filt_num('dps', float), DV),
-            Filter('Physical DPS', QLineEdit, _duo_filt_num('pdps', float), DV),
-            Filter('Elemental DPS', QLineEdit, _duo_filt_num('edps', float), DV),
+            Filter('Damage', QLineEdit, _duo(lambda i: i.damage, float), DV),
+            Filter('Attacks per Second', QLineEdit, _duo(lambda i: i.aps, float), DV),
+            Filter('Critical Chance', QLineEdit, _duo(lambda i: i.crit, float), DV),
+            Filter('Damage per Second', QLineEdit, _duo(lambda i: i.dps, float), DV),
+            Filter('Physical DPS', QLineEdit, _duo(lambda i: i.pdps, float), DV),
+            Filter('Elemental DPS', QLineEdit, _duo(lambda i: i.edps, float), DV),
         ],
     ),
-    Filter('Quality', QLineEdit, _duo_filt_num('quality_num', int), IV),
+    FilterGroup(
+        'Armour Filters',
+        [
+            Filter('Armour', QLineEdit, _duo(lambda i: i.armour, float), DV),
+            Filter('Evasion', QLineEdit, _duo(lambda i: i.evasion, float), DV),
+            Filter('Energy Shield', QLineEdit, _duo(lambda i: i.es, float), DV),
+            Filter('Ward', QLineEdit, _duo(lambda i: i.ward, float), DV),
+            Filter('Block', QLineEdit, _duo(lambda i: i.block, float), DV),
+        ],
+    ),
+    Filter('Quality', QLineEdit, _duo(lambda i: i.quality_num, int), IV),
     Filter('Item Level', QLineEdit, _get_filter_ilevel(), IV),
     Filter('Influenced', InfluenceFilter, _filter_influences),
 ]

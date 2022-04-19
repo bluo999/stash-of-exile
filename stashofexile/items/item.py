@@ -11,6 +11,7 @@ from stashofexile import consts, gamedata, log
 from stashofexile.items import property, requirement
 
 PLUS_PERCENT_REGEX = r'\+(\d+)%'  # +x%
+PERCENT_REGEX = r'(\d+)%'
 FLAT_PERCENT_REGEX = r'([0-9]{1,2}\.\d{2})%'  # xx.xx%
 NUM_RANGE_REGEX = r'(\d+)-(\d+)'  # x-x
 
@@ -179,7 +180,8 @@ class Item:
             #     paths = paths[0: index + 1] + paths[-1:]
             self.file_path = os.path.join(IMAGE_CACHE_DIR, *paths)
 
-        self._calculate_properties()
+        self._calculate_wep_props()
+        self._calculate_arm_props()
 
     def __lt__(self, other: 'Item') -> bool:
         """Default ordering for Items."""
@@ -318,8 +320,8 @@ class Item:
 
         return self.tooltip
 
-    def _calculate_properties(self) -> None:
-        """Calculates properties of item from base stats (e.g. pdps)."""
+    def _calculate_wep_props(self) -> None:
+        """Calculates weapon properties of item from base stats (e.g. pdps)."""
         # Pre-formatted properties
         self.quality = property_function('Quality')(self)
         z = re.search(PLUS_PERCENT_REGEX, self.quality)
@@ -365,6 +367,26 @@ class Item:
         self.dps = self.damage * self.aps if self.aps is not None else None
         self.pdps = physical_damage * self.aps if self.aps is not None else None
         self.edps = elemental_damage * self.aps if self.aps is not None else None
+
+    def _calculate_arm_props(self) -> None:
+        """Calculates armour properties of item from base stats (e.g. evasion)"""
+        armour = property_function('Armour')(self)
+        self.armour = float(armour) if armour else None
+
+        evasion = property_function('Evasion')(self)
+        self.evasion = float(evasion) if evasion else None
+
+        es = property_function('Energy Shield')(self)
+        self.es = float(es) if es else None
+
+        ward = property_function('Ward')(self)
+        self.ward = float(ward) if ward else None
+
+        # Block
+        z = re.search(PERCENT_REGEX, property_function('Chance to Block')(self))
+        self.block = float(z.group(1)) if z is not None else None
+        if self.name == 'Corruption Wing, Ezomyte Tower Shield':
+            print(property_function('Chance to Block')(self), z.groups() if z is not None else None, self.block)
 
     def _get_header_tooltip(self) -> str:
         """

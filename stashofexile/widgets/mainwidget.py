@@ -365,12 +365,13 @@ class MainWidget(QWidget):
             assert isinstance(self.mod_db, moddb.ModDb)
             logger.info('Initial mods: %s', len(self.mod_db))
 
-    def _build_individual_filter(self, filt: filter.Filter) -> None:
+    def _build_individual_filter(self, filt: filter.Filter, index: int) -> None:
         """Builds an individual filter and inserts it into the UI."""
         # Create label
         label = QLabel(self.filter_scroll_widget)
         label.setText(filt.name)
         self.filter_labels.append(label)
+        self.filter_form_layout.setWidget(index, QFormLayout.ItemRole.LabelRole, label)
 
         # Create filter inputs
         layout = QHBoxLayout()
@@ -381,26 +382,27 @@ class MainWidget(QWidget):
             if isinstance(widget, QLineEdit) and filt.validator is not None:
                 widget.setValidator(filt.validator)
         layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        self.filter_form_layout.setLayout(index, QFormLayout.ItemRole.FieldRole, layout)
 
-        # Keep track of all filter widgets
-        self.filter_widgets.append(filt.widgets)
+        if index == 0:
+            self.first_filt_widget = filt.widgets[0]
 
-        # Add form row
-        self.filter_form_layout.addRow(label, layout)
 
     def _dynamic_build_filters(self) -> None:
         """Sets up the filter widgets and labels."""
         # Setup regular filter widgets
         self.filter_labels: List[QLabel] = []
-        self.filter_widgets: List[List[QWidget]] = []
 
+        index = 0
         for filt in filter.FILTERS:
             match filt:
                 case filter.Filter():
-                    self._build_individual_filter(filt)
+                    self._build_individual_filter(filt, index)
+                    index += 1
                 case filter.FilterGroup(_, filters):
                     for ind_filter in filters:
-                        self._build_individual_filter(ind_filter)
+                        self._build_individual_filter(ind_filter, index)
+                        index += 1
 
         # Setup mod filter widgets
         self.mod_widgets: List[List[QWidget]] = []
@@ -423,7 +425,7 @@ class MainWidget(QWidget):
             for _ in range(2):
                 range_widget = QLineEdit()
                 if range_size is None:
-                    range_height = self.filter_widgets[0][0].sizeHint().height()
+                    range_height = self.first_filt_widget.sizeHint().height()
                     range_size = QSize((int)(range_height * 1.5), range_height)
                 range_widget.setFixedSize(range_size)
                 range_widget.textChanged.connect(self._apply_filters)
@@ -479,20 +481,20 @@ class MainWidget(QWidget):
 
     def _connect_signal(self, filt: filter.Filter) -> None:
         """Connects apply filters function to when a filter's input changes."""
-        widget = filt.widgets[0]
-        signal = None
-        match widget:
-            case QLineEdit():
-                signal = widget.textChanged
-            case QComboBox():
-                signal = widget.currentIndexChanged
-            case QCheckBox():
-                signal = widget.stateChanged
-            case filter.InfluenceFilter():
-                signal = widget
+        for widget in filt.widgets:
+            signal = None
+            match widget:
+                case QLineEdit():
+                    signal = widget.textChanged
+                case QComboBox():
+                    signal = widget.currentIndexChanged
+                case QCheckBox():
+                    signal = widget.stateChanged
+                case filter.InfluenceFilter():
+                    signal = widget
 
-        if signal is not None:
-            signal.connect(self._apply_filters)
+            if signal is not None:
+                signal.connect(self._apply_filters)
 
     def _populate_combo(self, filt: filter.Filter) -> None:
         """Populates a filter's combo box if necessary."""
