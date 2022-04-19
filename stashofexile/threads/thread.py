@@ -57,7 +57,7 @@ class ThreadManager(abc.ABC):
         ] = collections.deque()
         self.cond = threading.Condition()
         self.last_call: Optional[Call] = None
-        self.thread: QThread = thread_type(self)
+        self.thread = thread_type(self)
         self.thread.start()
 
     def kill_thread(self) -> None:

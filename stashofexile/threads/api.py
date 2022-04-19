@@ -82,6 +82,8 @@ class APIManager(thread.ThreadManager):
 
     def __init__(self):
         super().__init__(APIThread)
+        # Guarantee type to be APIThread
+        self.thread: APIThread = self.thread
 
     @_get
     def get_leagues(self) -> List[str]:  # pylint: disable=no-self-use

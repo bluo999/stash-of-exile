@@ -22,6 +22,8 @@ logger = log.get_logger(__name__)
 # A font by Jos Buivenga (exljbris) -> www.exljbris.com
 TTF_FILE = os.path.join('assets', 'FontinSmallCaps.ttf')
 
+Widget = loginwidget.LoginWidget | mainwidget.MainWidget | tabswidget.TabsWidget
+
 
 class MainWindow(QMainWindow):
     """Custom Main Window."""
@@ -53,6 +55,7 @@ class MainWindow(QMainWindow):
 
         # Start API thread
         self.api_manager = api.APIManager()
+        # assert(isinstance(self.api_manager.thread, api.APIThread))
         self.api_manager.thread.output.connect(MainWindow.callback)
 
         # Start download thread
@@ -81,7 +84,7 @@ class MainWindow(QMainWindow):
         self.download_manager.kill_thread()
         return super().closeEvent(a0)
 
-    def switch_widget(self, dest_widget: QWidget, *args):
+    def switch_widget(self, dest_widget: Widget, *args):
         """Switches to another widget."""
         assert dest_widget in self.widgets
         for widget in self.widgets:
