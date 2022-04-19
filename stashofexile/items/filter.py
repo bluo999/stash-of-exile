@@ -72,12 +72,14 @@ class Filter:
         widget (Type[QWidget]): Widget type of filter.
         filter_func (FilterFunction): Filter function.
         validator (QValidator, Optional): Field validator.
+        widgets (List[QWidget], Optional): List of widgets.
     """
 
     name: str
-    widget: Type[QWidget]
+    widget_type: Type[QWidget]
     filter_func: FilterFunction
     validator: Optional[QValidator] = None
+    widgets: List[QWidget] = dataclasses.field(default_factory=list)
 
 
 @dataclasses.dataclass
@@ -202,16 +204,21 @@ def _filter_mod(
     )
 
 
-FILTERS = [
+FILTERS: List[Filter | FilterGroup] = [
     Filter('Name', QLineEdit, _filter_name),
     Filter('Category', editcombo.EditComboBox, _filter_category),
     Filter('Rarity', editcombo.EditComboBox, _filter_rarity),
-    Filter('Damage', QLineEdit, _duo_filt_num('damage', float), DV),
-    Filter('Attacks per Second', QLineEdit, _duo_filt_num('aps', float), DV),
-    Filter('Critical Chance', QLineEdit, _duo_filt_num('crit', float), DV),
-    Filter('Damage per Second', QLineEdit, _duo_filt_num('dps', float), DV),
-    Filter('Physical DPS', QLineEdit, _duo_filt_num('pdps', float), DV),
-    Filter('Elemental DPS', QLineEdit, _duo_filt_num('edps', float), DV),
+    FilterGroup(
+        'Weapon Filters',
+        [
+            Filter('Damage', QLineEdit, _duo_filt_num('damage', float), DV),
+            Filter('Attacks per Second', QLineEdit, _duo_filt_num('aps', float), DV),
+            Filter('Critical Chance', QLineEdit, _duo_filt_num('crit', float), DV),
+            Filter('Damage per Second', QLineEdit, _duo_filt_num('dps', float), DV),
+            Filter('Physical DPS', QLineEdit, _duo_filt_num('pdps', float), DV),
+            Filter('Elemental DPS', QLineEdit, _duo_filt_num('edps', float), DV),
+        ],
+    ),
     Filter('Quality', QLineEdit, _duo_filt_num('quality_num', int), IV),
     Filter('Item Level', QLineEdit, _get_filter_ilevel(), IV),
     Filter('Influenced', InfluenceFilter, _filter_influences),

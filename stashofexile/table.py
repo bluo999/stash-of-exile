@@ -50,7 +50,7 @@ class TableModel(QAbstractTableModel):
         super().__init__(parent)
         self.items: List[item.Item] = []
         self.current_items: List[item.Item] = []
-        self.filter_widgets: List[List[QWidget]] = []
+        # self.filter_widgets: List[List[QWidget]] = []
         self.mod_widgets: List[List[QWidget]] = []
         self.property_funcs = [func for _, func in TableModel.PROPERTY_FUNCS.items()]
         self.headers = list(TableModel.PROPERTY_FUNCS.keys())
@@ -95,8 +95,7 @@ class TableModel(QAbstractTableModel):
         self, section: int, orientation: Qt.Orientation, role: int
     ) -> object:
         """
-        Returns the data for the given role and section in the header with the
-        specified orientation.
+        Returns the data for the given role and section in the header with the specified orientation.
         """
         if (
             role == Qt.ItemDataRole.DisplayRole
@@ -113,9 +112,9 @@ class TableModel(QAbstractTableModel):
         self.current_items.extend(items)
         self.endInsertRows()
 
-    def set_filter_widgets(self, filter_widgets: List[List[QWidget]]) -> None:
-        """Sets the filter widgets for the table."""
-        self.filter_widgets = filter_widgets
+    # def set_filter_widgets(self, filter_widgets: List[List[QWidget]]) -> None:
+    #     """Sets the filter widgets for the table."""
+    #     self.filter_widgets = filter_widgets
 
     def set_mod_widgets(self, mod_widgets: List[List[QWidget]]) -> None:
         """Sets the mod filter widgets for the table."""
@@ -134,23 +133,26 @@ class TableModel(QAbstractTableModel):
             self.current_items[selection[0].row()] if len(selection) > 0 else None
         )
 
-        all_widgets = self.filter_widgets + self.mod_widgets
-        all_filters = filter.FILTERS + filter.MOD_FILTERS
+        # Build list of all filters
+        all_filters: List[filter.Filter] = filter.MOD_FILTERS
+        for filt in filter.FILTERS:
+            match filt:
+                case filter.Filter():
+                    all_filters.append(filt)
+                case filter.FilterGroup(_, filters):
+                    all_filters.extend(filters)
 
         # Items that pass every filter
         prev_time = ratelimiting.get_time_ms()
         active_filters = [
-            (item_filter, widgets)
-            for item_filter, widgets in zip(all_filters, all_widgets)
-            if any(filter.filter_is_active(widget) for widget in widgets)
+            filt
+            for filt in all_filters
+            if any(filter.filter_is_active(widget) for widget in filt.widgets)
         ]
         self.current_items = [
             item
             for item in self.items
-            if all(
-                filter.filter_func(item, *filter_widgets)
-                for (filter, filter_widgets) in active_filters
-            )
+            if all(filt.filter_func(item, *filt.widgets) for filt in active_filters)
         ]
         logger.debug('Filtering took %sms', ratelimiting.get_time_ms() - prev_time)
 

@@ -365,36 +365,47 @@ class MainWidget(QWidget):
             assert isinstance(self.mod_db, moddb.ModDb)
             logger.info('Initial mods: %s', len(self.mod_db))
 
+    def _build_individual_filter(self, filt: filter.Filter) -> None:
+        """Builds an individual filter and inserts it into the UI."""
+        # Create label
+        label = QLabel(self.filter_scroll_widget)
+        label.setText(filt.name)
+        self.filter_labels.append(label)
+
+        # Create filter inputs
+        layout = QHBoxLayout()
+        for _ in range(len(inspect.signature(filt.filter_func).parameters) - 1):
+            widget = filt.widget_type()
+            filt.widgets.append(widget)
+            layout.addWidget(widget)
+            if isinstance(widget, QLineEdit) and filt.validator is not None:
+                widget.setValidator(filt.validator)
+        layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+
+        # Keep track of all filter widgets
+        self.filter_widgets.append(filt.widgets)
+
+        # Add form row
+        self.filter_form_layout.addRow(label, layout)
+
     def _dynamic_build_filters(self) -> None:
         """Sets up the filter widgets and labels."""
+        # Setup regular filter widgets
         self.filter_labels: List[QLabel] = []
         self.filter_widgets: List[List[QWidget]] = []
-        for i, filt in enumerate(filter.FILTERS):
-            # Label
-            label = QLabel(self.filter_scroll_widget)
-            self.filter_labels.append(label)
-            self.filter_form_layout.setWidget(i, QFormLayout.ItemRole.LabelRole, label)
 
-            # Widget layout
-            layout = QHBoxLayout()
-            widgets: List[QWidget] = []
-            # Create widgets based on the number of arguments filterFunc takes in
-            for _ in range(len(inspect.signature(filt.filter_func).parameters) - 1):
-                # Create widget object
-                widget = filt.widget()
-                widgets.append(widget)
-                layout.addWidget(widget)
-                if filt.widget == QLineEdit and filt.validator is not None:
-                    assert isinstance(widget, QLineEdit)
-                    widget.setValidator(filt.validator)
+        for filt in filter.FILTERS:
+            match filt:
+                case filter.Filter():
+                    self._build_individual_filter(filt)
+                case filter.FilterGroup(_, filters):
+                    for ind_filter in filters:
+                        self._build_individual_filter(ind_filter)
 
-            layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-            self.filter_widgets.append(widgets)
-            self.filter_form_layout.setLayout(i, QFormLayout.ItemRole.FieldRole, layout)
-
+        # Setup mod filter widgets
         self.mod_widgets: List[List[QWidget]] = []
         range_size: Optional[QSize] = None
-        for i, filt in enumerate(filter.MOD_FILTERS):
+        for filt in filter.MOD_FILTERS:
             widgets: List[QWidget] = []
             hlayout = QHBoxLayout()
             # Combo box
@@ -428,17 +439,12 @@ class MainWidget(QWidget):
         self.mods_group_box.setMinimumWidth(width)
 
         # Send widgets to model
-        self.model.set_filter_widgets(self.filter_widgets)
         self.model.set_mod_widgets(self.mod_widgets)
 
     def _name_ui(self) -> None:
         """Names the UI elements, including window title and labels."""
         self.filter_group_box.setTitle('Filters')
         self.mods_group_box.setTitle('Mods')
-
-        # Name filters
-        for filt, label in zip(filter.FILTERS, self.filter_labels):
-            label.setText(f'{filt.name}:')
 
     def _update_tooltip(
         self, model: table.TableModel, selected: QItemSelection
@@ -468,30 +474,42 @@ class MainWidget(QWidget):
         self.tooltip.moveCursor(QTextCursor.MoveOperation.Start)
 
     def _apply_filters(self) -> None:
+        """Function that applies filters."""
         self.model.apply_filters(index=1, order=Qt.SortOrder.AscendingOrder)
+
+    def _connect_signal(self, filt: filter.Filter) -> None:
+        """Connects apply filters function to when a filter's input changes."""
+        widget = filt.widgets[0]
+        signal = None
+        match widget:
+            case QLineEdit():
+                signal = widget.textChanged
+            case QComboBox():
+                signal = widget.currentIndexChanged
+            case QCheckBox():
+                signal = widget.stateChanged
+            case filter.InfluenceFilter():
+                signal = widget
+
+        if signal is not None:
+            signal.connect(self._apply_filters)
+
+    def _populate_combo(self, filt: filter.Filter) -> None:
+        """Populates a filter's combo box if necessary."""
+        options = gamedata.COMBO_ITEMS.get(filt.name)
+        if options is not None:
+            widget = filt.widgets[0]
+            assert isinstance(widget, QComboBox)
+            widget.addItems(options)
 
     def _setup_filters(self) -> None:
         """Initializes filters and links to widgets."""
-        for filt, widgets in zip(filter.FILTERS, self.filter_widgets):
-            signal = None
-            for widget in widgets:
-                # Get signal based on widget type
-                if isinstance(widget, QLineEdit):
-                    signal = widget.textChanged
-                elif isinstance(widget, QComboBox):
-                    signal = widget.currentIndexChanged
-                elif isinstance(widget, QCheckBox):
-                    signal = widget.stateChanged
-                elif isinstance(widget, filter.InfluenceFilter):
-                    widget.connect(self._apply_filters)
-
-                if signal is not None:
-                    signal.connect(self._apply_filters)
-
-        # Add items to combo boxes (dropdown)
-        for filt, widgets in zip(filter.FILTERS, self.filter_widgets):
-            options = gamedata.COMBO_ITEMS.get(filt.name)
-            if options is not None:
-                widget = widgets[0]
-                assert isinstance(widget, QComboBox)
-                widget.addItems(options)
+        for filt in filter.FILTERS:
+            match filt:
+                case filter.Filter():
+                    self._connect_signal(filt)
+                    self._populate_combo(filt)
+                case filter.FilterGroup(_, filters):
+                    for ind_filt in filters:
+                        self._connect_signal(ind_filt)
+                        self._populate_combo(ind_filt)
