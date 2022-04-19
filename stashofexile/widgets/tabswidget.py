@@ -16,8 +16,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-import log
-import save
+from stashofexile import log, save
 
 mainwindow = Any
 

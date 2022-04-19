@@ -8,7 +8,7 @@ import sys
 
 from typing import List
 
-_LOG_PATH = os.path.join('..', 'stashofexile.log')
+_LOG_PATH = os.path.join('stashofexile.log')
 
 
 def get_logger(name: str) -> logging.Logger:

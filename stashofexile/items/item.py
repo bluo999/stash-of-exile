@@ -7,17 +7,14 @@ import re
 
 from typing import Any, Callable, Dict, List, NamedTuple
 
-import consts
-import gamedata
-import log
-
-from items import property, requirement
+from stashofexile import consts, gamedata, log
+from stashofexile.items import property, requirement
 
 PLUS_PERCENT_REGEX = r'\+(\d+)%'  # +x%
 FLAT_PERCENT_REGEX = r'([0-9]{1,2}\.\d{2})%'  # xx.xx%
 NUM_RANGE_REGEX = r'(\d+)-(\d+)'  # x-x
 
-IMAGE_CACHE_DIR = os.path.join('..', 'image_cache')
+IMAGE_CACHE_DIR = os.path.join('image_cache')
 
 logger = log.get_logger(__name__)
 
@@ -375,7 +372,7 @@ class Item:
         name.
         """
         influence_icons = [
-            f'<img src="../assets/{infl}.png" />' for infl in self.influences
+            f'<img src="assets/{infl}.png" />' for infl in self.influences
         ]
         name = consts.SPAN_TEMPLATE.format(
             consts.COLORS[self.rarity], self.name.replace(', ', '<br />')

@@ -8,11 +8,9 @@ from PyQt6.QtCore import QAbstractTableModel, QModelIndex, QObject, QVariant, Qt
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QTableView, QWidget
 
-import consts
-import log
-
-from items import filter, item
-from threads import ratelimiting
+from stashofexile import consts, log
+from stashofexile.items import filter, item
+from stashofexile.threads import ratelimiting
 
 logger = log.get_logger(__name__)
 

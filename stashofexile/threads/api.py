@@ -12,10 +12,8 @@ from typing import Any, List, Tuple
 
 from PyQt6.QtCore import pyqtSignal
 
-import log
-
-from threads import ratelimiting
-from threads import thread
+from stashofexile import log
+from stashofexile.threads import ratelimiting, thread
 
 logger = log.get_logger(__name__)
 

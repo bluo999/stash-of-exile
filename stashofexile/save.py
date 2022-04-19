@@ -4,7 +4,7 @@ Stores dataclasses used to save and cache data.
 
 import dataclasses
 
-from typing import Any, Dict, List, NamedTuple, Tuple
+from typing import Any, Dict, List, NamedTuple
 
 
 class TabId(NamedTuple):

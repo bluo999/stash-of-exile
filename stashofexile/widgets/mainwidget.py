@@ -33,25 +33,18 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-import consts
-import gamedata
-import log
-import save
-import tab
-import table
-import util
-
-from items import filter, item, moddb
-from threads import thread
-from widgets import editcombo
+from stashofexile import consts, gamedata, log, save, tab, table, util
+from stashofexile.items import filter, item, moddb
+from stashofexile.threads import thread
+from stashofexile.widgets import editcombo
 
 if TYPE_CHECKING:
     import mainwindow
 
 logger = log.get_logger(__name__)
 
-MOD_DB_FILE = os.path.join('..', 'item_db.pkl')
-ITEM_CACHE_DIR = os.path.join('..', 'item_cache')
+MOD_DB_FILE = os.path.join('item_db.pkl')
+ITEM_CACHE_DIR = os.path.join('item_cache')
 
 TABS_DIR = 'tabs'
 CHARACTER_DIR = 'characters'
@@ -469,7 +462,7 @@ class MainWidget(QWidget):
             if i != len(sections) - 1:
                 self.tooltip.append(
                     consts.SEPARATOR_TEMPLATE.format(
-                        '../assets/SeparatorWhite.png', width
+                        'assets/SeparatorWhite.png', width
                     )
                 )
 

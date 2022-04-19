@@ -6,7 +6,7 @@ import re
 
 from typing import List, NamedTuple
 
-from items import item
+from stashofexile.items import item
 
 MOD_CATEGORIES = [
     'Bow',

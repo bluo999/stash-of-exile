@@ -2,8 +2,7 @@
 Defines parsing of properties.
 """
 
-import consts
-import util
+from stashofexile import consts, util
 
 
 class Property:

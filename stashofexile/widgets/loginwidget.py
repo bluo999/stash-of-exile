@@ -20,17 +20,14 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-import log
-import save
-
-from save import League
-from threads import thread
+from stashofexile import log, save
+from stashofexile.threads import thread
 
 mainwindow = Any
 
 logger = log.get_logger(__name__)
 
-SAVE_FILE = os.path.join('..', 'saveddata.pkl')
+SAVE_FILE = 'saveddata.pkl'
 
 
 class LoginWidget(QWidget):
@@ -198,14 +195,14 @@ class LoginWidget(QWidget):
         if len(search_account) == 0:
             # Account not in saved data
             self.account = save.Account(username, poesessid)
-            self.account.leagues[self.league] = League()
+            self.account.leagues[self.league] = save.League()
             self._get_char_list_api()
             self._get_num_tabs_api()
             return
 
         self.account = search_account[0]
         if self.league not in self.account.leagues.keys():
-            self.account.leagues[self.league] = League()
+            self.account.leagues[self.league] = save.League()
             self._get_char_list_api()
             self._get_num_tabs_api()
             return

@@ -2,8 +2,7 @@
 Defines parsing of requirements.
 """
 
-import consts
-import util
+from stashofexile import consts, util
 
 
 class Requirement:

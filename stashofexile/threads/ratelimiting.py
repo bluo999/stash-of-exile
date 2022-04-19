@@ -10,7 +10,7 @@ import time
 from datetime import datetime
 from typing import List, NamedTuple
 
-import log
+from stashofexile import log
 
 logger = log.get_logger(__name__)
 

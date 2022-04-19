@@ -13,9 +13,8 @@ from typing import Callable, Deque, Iterable, List, Optional, Tuple, Type, Union
 from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QWidget
 
-import log
-
-from threads import ratelimiting
+from stashofexile import log
+from stashofexile.threads import ratelimiting
 
 
 logger = log.get_logger(__name__)

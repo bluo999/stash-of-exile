@@ -7,7 +7,7 @@ import pathlib
 
 from typing import Generator, List, TypedDict, Union
 
-import consts
+from stashofexile import consts
 
 
 class ModifiedStr(TypedDict):

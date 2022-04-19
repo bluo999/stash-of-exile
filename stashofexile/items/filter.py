@@ -9,10 +9,9 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QDoubleValidator, QIntValidator, QValidator
 from PyQt6.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLineEdit, QWidget
 
-import gamedata
-
-from items import item
-from widgets import editcombo
+from stashofexile import gamedata
+from stashofexile.items import item
+from stashofexile.widgets import editcombo
 
 FilterFunction = Callable[..., bool]
 Num = Union[int, float]

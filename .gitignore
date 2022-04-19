@@ -3,10 +3,11 @@
 
 build/
 dist/
-*.spec
 image_cache/
 item_cache/
+
+*.exe
+*.spec
 *.pkl
 *.ui
-
-stashofexile.log
+*.log

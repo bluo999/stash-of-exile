@@ -9,10 +9,8 @@ import urllib.error
 
 from typing import Tuple
 
-import log
-import util
-
-from threads import thread
+from stashofexile import log, util
+from stashofexile.threads import thread
 
 # from threads.thread import Ret, RetrieveThread, ThreadManager
 

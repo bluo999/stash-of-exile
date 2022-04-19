@@ -7,10 +7,8 @@ import json
 
 from typing import List, Optional
 
-import log
-import util
-
-from items import item
+from stashofexile import log, util
+from stashofexile.items import item
 
 logger = log.get_logger(__name__)
 

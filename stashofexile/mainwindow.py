@@ -11,17 +11,16 @@ from PyQt6.QtCore import QRect
 from PyQt6.QtGui import QFontDatabase
 from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QMenuBar, QStatusBar, QWidget
 
-import log
+from stashofexile import log
+from stashofexile.threads import api, download, thread
+from stashofexile.widgets import loginwidget, tabswidget, mainwidget
 
-from threads import api, download, thread
-from widgets import loginwidget, tabswidget, mainwidget
-
-__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+# __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 logger = log.get_logger(__name__)
 
 # A font by Jos Buivenga (exljbris) -> www.exljbris.com
-TTF_FILE = os.path.join('..', 'assets', 'FontinSmallCaps.ttf')
+TTF_FILE = os.path.join('assets', 'FontinSmallCaps.ttf')
 
 
 class MainWindow(QMainWindow):
@@ -35,7 +34,7 @@ class MainWindow(QMainWindow):
         QFontDatabase.addApplicationFont(TTF_FILE)
 
         # QSS file
-        with open(os.path.join(__location__, 'styles.qss'), 'r') as f:
+        with open('styles.qss', 'r') as f:
             self.setStyleSheet(f.read())
 
         # Menu bar

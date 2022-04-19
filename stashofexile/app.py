@@ -6,9 +6,9 @@ import sys
 
 from PyQt6.QtWidgets import QApplication
 
-import mainwindow
+from stashofexile import mainwindow
 
-if __name__ == '__main__':
+def main() -> None:
     print(__file__)
     app = QApplication(sys.argv)
 
