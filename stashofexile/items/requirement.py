@@ -31,7 +31,7 @@ class Requirement:
             value = consts.SPAN_TEMPLATE.format(color, self.values[0][0])
 
             # "Level 20" vs "100 Str"
-            if obj['text'] == 'Level':
+            if obj['text'] in ('Level', 'Class:'):
                 self.tooltip = f'{name} {value}'
             else:
                 self.tooltip = f'{value} {name}'

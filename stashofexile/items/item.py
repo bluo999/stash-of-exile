@@ -100,7 +100,7 @@ def property_function(prop_name: str) -> Callable[['Item'], str]:
     """Returns the function that returns a specific property given an item."""
 
     def func(item: 'Item') -> str:
-        prop = next((x for x in item.properties if x.name == prop_name), None)
+        prop = next((x for x in item.props if x.name == prop_name), None)
         if prop is not None:
             val = prop.values[0][0]
             assert isinstance(val, str)
@@ -123,11 +123,11 @@ class Item:
 
         self.influences = list(item_json.get('influences', {}).keys())
 
-        self.properties = [
+        self.props = [
             property.Property({'name': p['name'], 'vals': p['values']})
             for p in item_json.get('properties', [])
         ]
-        self.requirements = [
+        self.reqs = [
             requirement.Requirement({'name': r['name'], 'vals': r['values']})
             for r in item_json.get('requirements', [])
         ]
@@ -153,7 +153,7 @@ class Item:
         self.ilvl = item_json.get('ilvl')
         self.rarity = gamedata.RARITIES.get(item_json['frameType'], 'normal')
 
-        self.sockets = item_json.get("sockets")
+        self.sockets = item_json.get('sockets')
 
         self.visible = True
         self.tab = tab
@@ -171,8 +171,7 @@ class Item:
         self.icon = item_json['icon']
 
         self.file_path = ''
-        z = re.search(r'\/([^.]+\.png)', self.icon)
-        if z is not None:
+        if (z := re.search(r'\/([^.]+\.png)', self.icon)) is not None:
             paths = z.group().split('/')
             # Some generated file names are the same for different images:
             # if 'gen' in paths:
@@ -180,8 +179,9 @@ class Item:
             #     paths = paths[0: index + 1] + paths[-1:]
             self.file_path = os.path.join(IMAGE_CACHE_DIR, *paths)
 
-        self._calculate_wep_props()
-        self._calculate_arm_props()
+        self._wep_props()
+        self._arm_props()
+        self._req_props()
 
     def __lt__(self, other: 'Item') -> bool:
         """Default ordering for Items."""
@@ -203,15 +203,15 @@ class Item:
         properties.
         """
         # Gem
-        if item_json.get('support') is not None:
-            return 'Support Gem' if item_json['support'] else 'Skill Gem'
+        if (support := item_json.get('support')) is not None:
+            return 'Support Gem' if support else 'Skill Gem'
 
         if item_json.get('prophecyText') is not None:
             return 'Prophecy'
 
         # Property
-        if item_json.get('properties') is not None:
-            cat = item_json['properties'][0]['name']
+        if (properties := item_json.get('properties')) is not None:
+            cat = properties[0]['name']
             if cat == 'Abyss':
                 return 'Abyss Jewel'
             if cat == 'Genus':
@@ -320,12 +320,11 @@ class Item:
 
         return self.tooltip
 
-    def _calculate_wep_props(self) -> None:
-        """Calculates weapon properties of item from base stats (e.g. pdps)."""
+    def _wep_props(self) -> None:
+        """Populates weapon properties of item from base stats (e.g. pdps)."""
         # Pre-formatted properties
         self.quality = property_function('Quality')(self)
-        z = re.search(PLUS_PERCENT_REGEX, self.quality)
-        if z is not None:
+        if (z := re.search(PLUS_PERCENT_REGEX, self.quality)) is not None:
             self.quality_num = int(z.group(1))
 
         # Physical damage
@@ -341,13 +340,12 @@ class Item:
         )
 
         # Multiple elements damage
-        prop = next((x for x in self.properties if x.name == 'Elemental Damage'), None)
         elemental_damage = 0
+        prop = next((x for x in self.props if x.name == 'Elemental Damage'), None)
         if prop is not None:
             for val in prop.values:
                 assert isinstance(val[0], str)
-                z = re.search(NUM_RANGE_REGEX, val[0])
-                if z is not None:
+                if (z := re.search(NUM_RANGE_REGEX, val[0])) is not None:
                     elemental_damage += (float(z.group(1)) + float(z.group(2))) / 2.0
 
         # Total damage
@@ -368,8 +366,8 @@ class Item:
         self.pdps = physical_damage * self.aps if self.aps is not None else None
         self.edps = elemental_damage * self.aps if self.aps is not None else None
 
-    def _calculate_arm_props(self) -> None:
-        """Calculates armour properties of item from base stats (e.g. evasion)"""
+    def _arm_props(self) -> None:
+        """Populates armour properties of item from base stats (e.g. evasion)."""
         armour = property_function('Armour')(self)
         self.armour = int(armour) if armour else None
 
@@ -386,11 +384,31 @@ class Item:
         z = re.search(PERCENT_REGEX, property_function('Chance to Block')(self))
         self.block = int(z.group(1)) if z is not None else None
 
+    def _req_props(self) -> None:
+        """Populates requirement properties."""
+        req_level = next((req for req in self.reqs if req.name == 'Level'), None)
+        self.req_level = int(req_level.values[0][0]) if req_level is not None else None
+
+        req_str = next(
+            (req for req in self.reqs if req.name in ('Strength', 'Str')), None
+        )
+        self.req_str = int(req_str.values[0][0]) if req_str is not None else None
+
+        req_dex = next(
+            (req for req in self.reqs if req.name in ('Dexterity', 'Dex')), None
+        )
+        self.req_dex = int(req_dex.values[0][0]) if req_dex is not None else None
+
+        req_int = next(
+            (req for req in self.reqs if req.name in ('Intelligence', 'Int')), None
+        )
+        self.req_int = int(req_int.values[0][0]) if req_int is not None else None
+
+        req_class = next((req for req in self.reqs if req.name == 'Class:'), None)
+        self.req_class = req_class.values[0][0] if req_class is not None else None
+
     def _get_header_tooltip(self) -> str:
-        """
-        Returns the header tooltip, including influence icons and a colorized
-        name.
-        """
+        """Returns the header tooltip, including influence icons and a colorized name."""
         influence_icons = [
             f'<img src="assets/{infl}.png" />' for infl in self.influences
         ]
@@ -402,18 +420,19 @@ class Item:
 
     def _get_prophecy_tooltip(self) -> str:
         """Returns the colorized prophecy tooltip."""
-        if self.prophecy is not None:
-            return consts.SPAN_TEMPLATE.format(consts.COLORS['white'], self.prophecy)
-
-        return ''
+        return (
+            consts.SPAN_TEMPLATE.format(consts.COLORS['white'], self.prophecy)
+            if self.prophecy is not None
+            else ''
+        )
 
     def _get_property_tooltip(self) -> str:
         """Returns the colorized, line separated properties tooltip."""
         tooltip: List[str] = []
-        if len(self.properties) > 0:
-            for i, prop in enumerate(self.properties):
+        if len(self.props) > 0:
+            for i, prop in enumerate(self.props):
                 tooltip.append(prop.description)
-                if i < len(self.properties) - 1:
+                if i < len(self.props) - 1:
                     tooltip.append('<br />')
 
         return ''.join(tooltip)
@@ -429,9 +448,9 @@ class Item:
     def _get_requirement_tooltip(self) -> str:
         """Returns the colorized, line separated requirements tooltip."""
         tooltip: List[str] = []
-        if len(self.requirements) > 0:
+        if len(self.reqs) > 0:
             tooltip.append(consts.SPAN_TEMPLATE.format('grey', 'Requires'))
-            for i, req in enumerate(self.requirements):
+            for i, req in enumerate(self.reqs):
                 if i > 0:
                     tooltip.append(',')
                 tooltip.append(' ' + req.description)
@@ -440,10 +459,11 @@ class Item:
 
     def _get_gem_secondary_tooltip(self) -> str:
         """Returns the colorized, line separated gem description tooltip."""
-        if self.gem is not None:
-            return consts.SPAN_TEMPLATE.format(consts.COLORS['gem'], self.gem)
-
-        return ''
+        return (
+            consts.SPAN_TEMPLATE.format(consts.COLORS['gem'], self.gem)
+            if self.gem is not None
+            else ''
+        )
 
     def _get_ilevel_tooltip(self) -> str:
         """

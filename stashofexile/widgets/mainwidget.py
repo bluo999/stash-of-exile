@@ -387,7 +387,6 @@ class MainWidget(QWidget):
         if index == 0:
             self.first_filt_widget = filt.widgets[0]
 
-
     def _dynamic_build_filters(self) -> None:
         """Sets up the filter widgets and labels."""
         # Setup regular filter widgets
@@ -498,8 +497,7 @@ class MainWidget(QWidget):
 
     def _populate_combo(self, filt: filter.Filter) -> None:
         """Populates a filter's combo box if necessary."""
-        options = gamedata.COMBO_ITEMS.get(filt.name)
-        if options is not None:
+        if (options := gamedata.COMBO_ITEMS.get(filt.name)) is not None:
             widget = filt.widgets[0]
             assert isinstance(widget, QComboBox)
             widget.addItems(options)

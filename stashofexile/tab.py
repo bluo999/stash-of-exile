@@ -38,8 +38,8 @@ class ItemTab(abc.ABC):
             for item_data in data['items']:
                 tab_items.append(item.Item(item_data, tab_name))
                 # Add socketed items
-                if item_data.get('socketedItems') is not None:
-                    for socketed_item in item_data['socketedItems']:
+                if (socketed_items := item_data.get('socketedItems')) is not None:
+                    for socketed_item in socketed_items:
                         tab_items.append(item.Item(socketed_item, tab_name))
         tab_items.sort()
         return tab_items

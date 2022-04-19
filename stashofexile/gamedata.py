@@ -91,6 +91,15 @@ COMBO_ITEMS = {
         'Expedition Logbook',
         '',
     ],
+    'Character Class': [
+        'Scion',
+        'Marauder',
+        'Ranger',
+        'Witch',
+        'Duelist',
+        'Templar',
+        'Shadow',
+    ],
 }
 
 PARSE_CATEGORIES = [

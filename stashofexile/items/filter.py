@@ -170,6 +170,12 @@ def _filter_rarity(item: item.Item, elem: QComboBox) -> bool:
     return False
 
 
+def _filter_class(item: item.Item, elem: QComboBox) -> bool:
+    """Filter function that uses character class."""
+    text = elem.currentText()
+    return text == item.req_class
+
+
 def _duo(
     property: Callable[[item.Item], Optional[Num]], conv_func: Callable[[str], Num]
 ) -> FilterFunction:
@@ -229,6 +235,16 @@ FILTERS: List[Filter | FilterGroup] = [
             Filter('Energy Shield', QLineEdit, _duo(lambda i: i.es, int), IV),
             Filter('Ward', QLineEdit, _duo(lambda i: i.ward, int), IV),
             Filter('Block', QLineEdit, _duo(lambda i: i.block, int), IV),
+        ],
+    ),
+    FilterGroup(
+        'Requirements',
+        [
+            Filter('Level', QLineEdit, _duo(lambda i: i.req_level, int), IV),
+            Filter('Strength', QLineEdit, _duo(lambda i: i.req_str, int), IV),
+            Filter('Dexterity', QLineEdit, _duo(lambda i: i.req_dex, int), IV),
+            Filter('Intelligence', QLineEdit, _duo(lambda i: i.req_int, int), IV),
+            Filter('Character Class', editcombo.EditComboBox, _filter_class),
         ],
     ),
     Filter('Quality', QLineEdit, _duo(lambda i: i.quality_num, int), IV),
