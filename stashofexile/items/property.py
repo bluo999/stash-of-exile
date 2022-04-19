@@ -47,6 +47,8 @@ class Property:
                 # Property with label
                 assert isinstance(valnum, int)
                 color = consts.COLORS[consts.VALNUM_TO_COLOR.get(valnum, 'white')]
-                self.tooltip += consts.SPAN_TEMPLATE.format(color, str(val).replace('\n', '<br />'))
+                self.tooltip += consts.SPAN_TEMPLATE.format(
+                    color, str(val).replace('\n', '<br />')
+                )
 
         return self.tooltip

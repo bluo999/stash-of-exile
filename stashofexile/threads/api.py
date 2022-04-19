@@ -98,7 +98,9 @@ class APIManager(thread.ThreadManager):
     ) -> Any:
         """Retrieves number of tabs."""
         logger.info('Sending GET request for num tabs')
-        req = _elevated_request(URL_TAB_INFO.format(username, league).replace(' ', '%20'), poesessid)
+        req = _elevated_request(
+            URL_TAB_INFO.format(username, league).replace(' ', '%20'), poesessid
+        )
         with urllib.request.urlopen(req) as conn:
             tab_info = json.loads(conn.read())
             return tab_info
@@ -110,7 +112,8 @@ class APIManager(thread.ThreadManager):
         """Retrieves items from a specific tab."""
         logger.info('Sending GET request for tab %s', tab_index)
         req = _elevated_request(
-            URL_TAB_ITEMS.format(username, league, tab_index).replace(' ', '%20'), poesessid
+            URL_TAB_ITEMS.format(username, league, tab_index).replace(' ', '%20'),
+            poesessid,
         )
         with urllib.request.urlopen(req) as conn:
             tab = json.loads(conn.read())

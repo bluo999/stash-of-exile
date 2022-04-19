@@ -461,9 +461,7 @@ class MainWidget(QWidget):
             self.tooltip.setAlignment(Qt.AlignmentFlag.AlignCenter)
             if i != len(sections) - 1:
                 self.tooltip.append(
-                    consts.SEPARATOR_TEMPLATE.format(
-                        'assets/SeparatorWhite.png', width
-                    )
+                    consts.SEPARATOR_TEMPLATE.format('assets/SeparatorWhite.png', width)
                 )
 
         # Reset scroll to top
