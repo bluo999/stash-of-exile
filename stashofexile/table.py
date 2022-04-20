@@ -127,13 +127,14 @@ class TableModel(QAbstractTableModel):
         selected_item = self.current_items[selection[0].row()] if selection else None
 
         # Build list of all filters
-        all_filters: List[filter.Filter] = filter.MOD_FILTERS
+        all_filters: List[filter.Filter] = filter.MOD_FILTERS.copy()
         for filt in filter.FILTERS:
             match filt:
                 case filter.Filter():
                     all_filters.append(filt)
-                case filter.FilterGroup(_, filters):
-                    all_filters.extend(filters)
+                case filter.FilterGroup(_, filters, group_box):
+                    if group_box is not None and group_box.isChecked():
+                        all_filters.extend(filters)
 
         # Items that pass every filter
         prev_time = ratelimiting.get_time_ms()

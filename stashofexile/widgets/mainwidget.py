@@ -363,13 +363,17 @@ class MainWidget(QWidget):
             assert isinstance(self.mod_db, moddb.ModDb)
             logger.info('Initial mods: %s', len(self.mod_db))
 
-    def _build_individual_filter(self, filt: filter.Filter, index: int) -> None:
+    def _build_individual_filter(
+        self,
+        filt: filter.Filter,
+        form_layout: QFormLayout,
+        index: int,
+    ) -> None:
         """Builds an individual filter and inserts it into the UI."""
         # Create label
         label = QLabel(self.filter_scroll_widget)
         label.setText(filt.name)
-        self.filter_labels.append(label)
-        self.filter_form_layout.setWidget(index, QFormLayout.ItemRole.LabelRole, label)
+        form_layout.setWidget(index, QFormLayout.ItemRole.LabelRole, label)
 
         # Create filter inputs
         layout = QHBoxLayout()
@@ -380,26 +384,32 @@ class MainWidget(QWidget):
             if isinstance(widget, QLineEdit) and filt.validator is not None:
                 widget.setValidator(filt.validator)
         layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-        self.filter_form_layout.setLayout(index, QFormLayout.ItemRole.FieldRole, layout)
-
-        if index == 0:
-            self.first_filt_widget = filt.widgets[0]
+        form_layout.setLayout(index, QFormLayout.ItemRole.FieldRole, layout)
 
     def _dynamic_build_filters(self) -> None:
         """Sets up the filter widgets and labels."""
         # Setup regular filter widgets
-        self.filter_labels: List[QLabel] = []
-
         index = 0
         for filt in filter.FILTERS:
             match filt:
                 case filter.Filter():
-                    self._build_individual_filter(filt, index)
+                    self._build_individual_filter(filt, self.filter_form_layout, index)
+                    if index == 0:
+                        self.first_filt_widget = filt.widgets[0]
                     index += 1
-                case filter.FilterGroup(_, filters):
-                    for ind_filter in filters:
-                        self._build_individual_filter(ind_filter, index)
-                        index += 1
+                case filter.FilterGroup(group_name, filters, _):
+                    # Filter group box
+                    filt.group_box = QGroupBox(self.filter_scroll_widget)
+                    filt.group_box.setTitle(group_name)
+                    filt.group_box.setCheckable(True)
+                    filt.group_box.toggled.connect(self._apply_filters)
+                    group_form = QFormLayout(filt.group_box)
+                    self.filter_form_layout.setWidget(
+                        index, QFormLayout.ItemRole.SpanningRole, filt.group_box
+                    )
+                    for i, ind_filter in enumerate(filters):
+                        self._build_individual_filter(ind_filter, group_form, i)
+                    index += 1
 
         # Setup mod filter widgets
         self.mod_widgets: List[List[QWidget]] = []
@@ -507,7 +517,7 @@ class MainWidget(QWidget):
                 case filter.Filter():
                     self._connect_signal(filt)
                     self._populate_combo(filt)
-                case filter.FilterGroup(_, filters):
+                case filter.FilterGroup(_, filters, _):
                     for ind_filt in filters:
                         self._connect_signal(ind_filt)
                         self._populate_combo(ind_filt)

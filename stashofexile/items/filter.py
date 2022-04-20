@@ -7,7 +7,14 @@ from typing import Callable, List, Optional, Type, Union
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QDoubleValidator, QIntValidator, QValidator
-from PyQt6.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLineEdit, QWidget
+from PyQt6.QtWidgets import (
+    QCheckBox,
+    QComboBox,
+    QGroupBox,
+    QHBoxLayout,
+    QLineEdit,
+    QWidget,
+)
 
 from stashofexile import gamedata
 from stashofexile.items import item
@@ -81,6 +88,9 @@ class Filter:
     validator: Optional[QValidator] = None
     widgets: List[QWidget] = dataclasses.field(default_factory=list)
 
+    def __repr__(self) -> str:
+        return self.name
+
 
 @dataclasses.dataclass
 class FilterGroup:
@@ -90,6 +100,7 @@ class FilterGroup:
 
     name: str
     filters: List[Filter]
+    group_box: Optional[QGroupBox] = None
 
 
 def filter_is_active(widget: QWidget) -> bool:
@@ -187,6 +198,7 @@ def _duo(
 
     return filt
 
+
 def _bool(property: Callable[[item.Item], bool]) -> FilterFunction:
     """Generic boolean filter function."""
 
@@ -274,7 +286,9 @@ FILTERS: List[Filter | FilterGroup] = [
             Filter('Gem Experience %', QLineEdit, _duo(lambda i: i.gem_exp, float), DV),
             Filter('Gem Quality Type', editcombo.ECBox, _filter_gem_quality),
             Filter('Fractured', editcombo.BoolECBox, _bool(lambda i: i.fractured_tag)),
-            Filter('Synthesised', editcombo.BoolECBox, _bool(lambda i: i.synthesised_tag)),
+            Filter(
+                'Synthesised', editcombo.BoolECBox, _bool(lambda i: i.synthesised_tag)
+            ),
             Filter('Influenced', InfluenceFilter, _filter_influences),
         ],
     ),

@@ -74,6 +74,7 @@ class ECBox(QComboBox):
         self.completer().setCompletionColumn(visibleColumn)
         self.filter_model.setFilterKeyColumn(visibleColumn)
 
+
 class BoolECBox(ECBox):
     """EditComboBox with blank, yes, and no."""
 
