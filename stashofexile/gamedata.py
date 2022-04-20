@@ -100,6 +100,13 @@ COMBO_ITEMS = {
         'Templar',
         'Shadow',
     ],
+    'Gem Quality Type': [
+        'Superior (Default)',
+        'Any Alternate',
+        'Anomalous',
+        'Divergent',
+        'Phantasmal',
+    ],
 }
 
 PARSE_CATEGORIES = [

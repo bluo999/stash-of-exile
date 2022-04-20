@@ -408,7 +408,7 @@ class MainWidget(QWidget):
             widgets: List[QWidget] = []
             hlayout = QHBoxLayout()
             # Combo box
-            widget = editcombo.EditComboBox()
+            widget = editcombo.ECBox()
             widget.setMinimumContentsLength(0)
             widget.setSizeAdjustPolicy(
                 QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon

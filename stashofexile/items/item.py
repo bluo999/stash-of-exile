@@ -11,7 +11,8 @@ from stashofexile import consts, gamedata, log
 from stashofexile.items import property, requirement
 
 PLUS_PERCENT_REGEX = r'\+(\d+)%'  # +x%
-PERCENT_REGEX = r'(\d+)%'
+PERCENT_REGEX = r'(\d+)%'  # x%
+NUMBER_REGEX = r'(\d+)'
 FLAT_PERCENT_REGEX = r'([0-9]{1,2}\.\d{2})%'  # xx.xx%
 NUM_RANGE_REGEX = r'(\d+)-(\d+)'  # x-x
 
@@ -147,6 +148,7 @@ class Item:
         self.unidentified = not item_json.get('identified', False)
         self.mirrored = item_json.get('mirrored', False)
         self.fractured_tag = item_json.get('fractured', False)
+        self.synthesised_tag = item_json.get('synthesised', False)
 
         self.ilvl = item_json.get('ilvl')
         self.rarity = gamedata.RARITIES.get(item_json['frameType'], 'normal')
@@ -164,6 +166,15 @@ class Item:
             else None
         )
 
+        gen = (
+            qtype
+            for qtype in gamedata.COMBO_ITEMS['Gem Quality Type'][-3:]
+            if qtype in item_json['typeLine']
+        )
+        self.gem_quality = next(gen, None)
+        if self.gem_quality is None and self.category in {'Skill Gem', 'Support Gem'}:
+            self.gem_quality = 'Superior (Default)'
+
         self.internal_mods: Dict[str, List[float]] = {}
 
         self.icon = item_json['icon']
@@ -180,6 +191,7 @@ class Item:
         self._wep_props()
         self._arm_props()
         self._req_props()
+        self._misc_props()
 
     def __lt__(self, other: 'Item') -> bool:
         """Default ordering for Items."""
@@ -320,11 +332,6 @@ class Item:
 
     def _wep_props(self) -> None:
         """Populates weapon properties of item from base stats (e.g. pdps)."""
-        # Pre-formatted properties
-        self.quality = property_function('Quality')(self)
-        if (z := re.search(PLUS_PERCENT_REGEX, self.quality)) is not None:
-            self.quality_num = int(z.group(1))
-
         # Physical damage
         z = re.search(NUM_RANGE_REGEX, property_function('Physical Damage')(self))
         physical_damage = (
@@ -405,6 +412,27 @@ class Item:
         req_class = next((req for req in self.reqs if req.name == 'Class:'), None)
         self.req_class = req_class.values[0][0] if req_class is not None else None
 
+    def _misc_props(self) -> None:
+        """Populates miscelaneous properties."""
+        # Pre-formatted properties
+        self.quality = property_function('Quality')(self)
+        z = re.search(PLUS_PERCENT_REGEX, self.quality)
+        self.quality_num = int(z.group(1)) if z is not None else None
+
+        z = re.search(NUMBER_REGEX, property_function('Level')(self))
+        self.gem_lvl = int(z.group(1)) if z is not None else None
+
+        if self.experience is not None:
+            exp = self.experience[0]['values'][0][0]
+            index = exp.index('/')
+            self.current_exp = int(exp[0:index])
+            self.max_exp = int(exp[index + 1 :])
+            self.gem_exp = self.current_exp / self.max_exp * 100
+        else:
+            self.current_exp = None
+            self.max_exp = None
+            self.gem_exp = None
+
     def _get_header_tooltip(self) -> str:
         """Returns the header tooltip, including influence icons and a colorized name."""
         influence_icons = [
@@ -477,13 +505,9 @@ class Item:
     def _get_gem_exp_tooltip(self) -> str:
         """Returns the colorized gem experience tooltip."""
         if self.experience is not None:
-            exp = self.experience[0]['values'][0][0]
-            index = exp.index('/')
-            current_exp = int(exp[0:index])
-            max_exp = int(exp[index + 1 :])
             label = consts.SPAN_TEMPLATE.format(consts.COLORS['grey'], 'Experience: ')
             value = consts.SPAN_TEMPLATE.format(
-                consts.COLORS['white'], f'{current_exp:,}/{max_exp:,}'
+                consts.COLORS['white'], f'{self.current_exp:,}/{self.max_exp:,}'
             )
             return label + value
 

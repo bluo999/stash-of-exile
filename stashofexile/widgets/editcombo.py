@@ -24,7 +24,7 @@ class ClickLineEdit(QLineEdit):
             self.test.complete()
 
 
-class EditComboBox(QComboBox):
+class ECBox(QComboBox):
     """QComboBox with a line edit to filter through the options."""
 
     def __init__(self, parent: Optional[QWidget] = None):
@@ -49,7 +49,7 @@ class EditComboBox(QComboBox):
         self.lineEdit().textChanged.connect(self.text_changed)
         self.lineEdit().textEdited.connect(self.filter_model.setFilterFixedString)
 
-        self.addItems([''])
+        self.addItems(('',))
 
     def text_changed(self, text: str) -> None:
         """Clears selection when text is set to empty."""
@@ -73,3 +73,10 @@ class EditComboBox(QComboBox):
         super().setModelColumn(visibleColumn)
         self.completer().setCompletionColumn(visibleColumn)
         self.filter_model.setFilterKeyColumn(visibleColumn)
+
+class BoolECBox(ECBox):
+    """EditComboBox with blank, yes, and no."""
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self.addItems(('Yes', 'No'))

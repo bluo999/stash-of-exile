@@ -187,10 +187,28 @@ def _duo(
 
     return filt
 
+def _bool(property: Callable[[item.Item], bool]) -> FilterFunction:
+    """Generic boolean filter function."""
 
-def _get_filter_ilevel() -> FilterFunction:
-    """Returns a filter function that uses item level."""
-    return _duo(lambda item: item.ilvl, int)
+    def filt(item: item.Item, elem: QComboBox) -> bool:
+        field = property(item)
+        text = elem.currentText()
+        return text == '' or (text == 'Yes') == field
+
+    return filt
+
+
+def _filter_gem_quality(item: item.Item, elem: QComboBox) -> bool:
+    """Filter function that uses gem quality type."""
+    text = elem.currentText()
+    if item.gem_quality == text:
+        return True
+
+    alternates = ('Anomalous', 'Divergent', 'Phantsmal')
+    if text == 'Any Alternate' and item.gem_quality in alternates:
+        return True
+
+    return False
 
 
 def _filter_influences(item: item.Item, elem: InfluenceFilter) -> bool:
@@ -199,7 +217,7 @@ def _filter_influences(item: item.Item, elem: InfluenceFilter) -> bool:
 
 
 def _filter_mod(
-    item: item.Item, elem: editcombo.EditComboBox, range1: QLineEdit, range2: QLineEdit
+    item: item.Item, elem: editcombo.ECBox, range1: QLineEdit, range2: QLineEdit
 ) -> bool:
     """Filter function that searches for mods."""
     mod_str = elem.currentText()
@@ -214,8 +232,8 @@ def _filter_mod(
 
 FILTERS: List[Filter | FilterGroup] = [
     Filter('Name', QLineEdit, _filter_name),
-    Filter('Category', editcombo.EditComboBox, _filter_category),
-    Filter('Rarity', editcombo.EditComboBox, _filter_rarity),
+    Filter('Category', editcombo.ECBox, _filter_category),
+    Filter('Rarity', editcombo.ECBox, _filter_rarity),
     FilterGroup(
         'Weapon Filters',
         [
@@ -244,12 +262,22 @@ FILTERS: List[Filter | FilterGroup] = [
             Filter('Strength', QLineEdit, _duo(lambda i: i.req_str, int), IV),
             Filter('Dexterity', QLineEdit, _duo(lambda i: i.req_dex, int), IV),
             Filter('Intelligence', QLineEdit, _duo(lambda i: i.req_int, int), IV),
-            Filter('Character Class', editcombo.EditComboBox, _filter_class),
+            Filter('Character Class', editcombo.ECBox, _filter_class),
         ],
     ),
-    Filter('Quality', QLineEdit, _duo(lambda i: i.quality_num, int), IV),
-    Filter('Item Level', QLineEdit, _get_filter_ilevel(), IV),
-    Filter('Influenced', InfluenceFilter, _filter_influences),
+    FilterGroup(
+        'Miscellaneous',
+        [
+            Filter('Quality', QLineEdit, _duo(lambda i: i.quality_num, int), IV),
+            Filter('Item Level', QLineEdit, _duo(lambda i: i.ilvl, int), IV),
+            Filter('Gem Level', QLineEdit, _duo(lambda i: i.gem_lvl, int), IV),
+            Filter('Gem Experience %', QLineEdit, _duo(lambda i: i.gem_exp, float), DV),
+            Filter('Gem Quality Type', editcombo.ECBox, _filter_gem_quality),
+            Filter('Fractured', editcombo.BoolECBox, _bool(lambda i: i.fractured_tag)),
+            Filter('Synthesised', editcombo.BoolECBox, _bool(lambda i: i.synthesised_tag)),
+            Filter('Influenced', InfluenceFilter, _filter_influences),
+        ],
+    ),
 ]
 
-MOD_FILTERS = [Filter('', editcombo.EditComboBox, _filter_mod) for _ in range(5)]
+MOD_FILTERS = [Filter('', editcombo.ECBox, _filter_mod) for _ in range(5)]
