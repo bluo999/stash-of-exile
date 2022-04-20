@@ -10,8 +10,9 @@ from stashofexile import mainwindow
 
 
 def main() -> None:
+    """Entrypoint function."""
     print(__file__)
     app = QApplication(sys.argv)
 
-    main_window = mainwindow.MainWindow()
+    _ = mainwindow.MainWindow()
     sys.exit(app.exec())

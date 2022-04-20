@@ -6,7 +6,7 @@ import re
 
 from typing import List, NamedTuple
 
-from stashofexile.items import item
+from stashofexile.items import item as m_item
 
 MOD_CATEGORIES = [
     'Bow',
@@ -67,7 +67,7 @@ def _parse_mod(mod_str: str) -> Mod:
 class ModDb(dict):
     """Stores mods."""
 
-    def insert_items(self, items: List[item.Item]) -> None:
+    def insert_items(self, items: List[m_item.Item]) -> None:
         """
         Inserts items' mods into the db. Also adds a field which makes them
         suitable for searching.

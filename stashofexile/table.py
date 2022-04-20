@@ -9,13 +9,14 @@ from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QTableView
 
 from stashofexile import consts, log
-from stashofexile.items import filter, item
+from stashofexile.items import filter as m_filter
+from stashofexile.items import item as m_item
 from stashofexile.threads import ratelimiting
 
 logger = log.get_logger(__name__)
 
 
-def _influence_func(item: 'item.Item') -> str:
+def _influence_func(item: m_item.Item) -> str:
     """
     Returns an influence string (list of capital letters for each influence) given an
     item.
@@ -25,16 +26,16 @@ def _influence_func(item: 'item.Item') -> str:
 
 
 class TableModel(QAbstractTableModel):
-    """Custom table model used to store, filter, and sort Items."""
+    """Custom table model used to store, filter, and sort m_item.Items."""
 
     # Keys: name of the header
     # Values: function that computes the value
-    PROPERTY_FUNCS: Dict[str, Callable[[item.Item], str]] = {
+    PROPERTY_FUNCS: Dict[str, Callable[[m_item.Item], str]] = {
         'Name': lambda item: item.name,
         'Tab': lambda item: str(item.tab),
-        'Stack': item.property_function('Stack Size'),
+        'Stack': m_item.property_function('Stack Size'),
         'iLvl': lambda item: str(item.ilvl) if item.ilvl != 0 else '',
-        'Level': item.property_function('Level'),
+        'Level': m_item.property_function('Level'),
         'Quality': lambda item: item.quality,
         'Split': lambda item: 'Split' if item.split else '',
         'Corr': lambda item: 'Corr' if item.corrupted else '',
@@ -48,8 +49,8 @@ class TableModel(QAbstractTableModel):
 
     def __init__(self, table_view: QTableView, parent: QObject) -> None:
         super().__init__(parent)
-        self.items: List[item.Item] = []
-        self.current_items: List[item.Item] = []
+        self.items: List[m_item.Item] = []
+        self.current_items: List[m_item.Item] = []
         self.property_funcs = [func for _, func in TableModel.PROPERTY_FUNCS.items()]
         self.headers = list(TableModel.PROPERTY_FUNCS.keys())
         self.table_view = table_view
@@ -93,7 +94,8 @@ class TableModel(QAbstractTableModel):
         self, section: int, orientation: Qt.Orientation, role: int
     ) -> object:
         """
-        Returns the data for the given role and section in the header with the specified orientation.
+        Returns the data for the given role and section in the header with the specified
+        orientation.
         """
         if (
             role == Qt.ItemDataRole.DisplayRole
@@ -103,7 +105,7 @@ class TableModel(QAbstractTableModel):
 
         return None
 
-    def insert_items(self, items: List[item.Item]) -> None:
+    def insert_items(self, items: List[m_item.Item]) -> None:
         """Inserts a list of items into the table."""
         self.beginInsertRows(QModelIndex(), 0, len(items) - 1)
         self.items.extend(items)
@@ -122,21 +124,21 @@ class TableModel(QAbstractTableModel):
         selected_item = self.current_items[selection[0].row()] if selection else None
 
         # Build list of all filters
-        all_filters: List[filter.Filter] = filter.MOD_FILTERS.copy()
-        for filt in filter.FILTERS:
+        all_filters: List[m_filter.Filter] = m_filter.MOD_FILTERS.copy()
+        for filt in m_filter.FILTERS:
             match filt:
-                case filter.Filter():
+                case m_filter.Filter():
                     all_filters.append(filt)
-                case filter.FilterGroup(_, filters, _, group_box):
+                case m_filter.FilterGroup(_, filters, _, group_box):
                     if group_box is not None and group_box.isChecked():
                         all_filters.extend(filters)
 
-        # Items that pass every filter
+        # m_item.Items that pass every filter
         prev_time = ratelimiting.get_time_ms()
         active_filters = [
             filt
             for filt in all_filters
-            if any(filter.filter_is_active(widget) for widget in filt.widgets)
+            if any(m_filter.filter_is_active(widget) for widget in filt.widgets)
         ]
 
         self.current_items = [

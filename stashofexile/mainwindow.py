@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
         QFontDatabase.addApplicationFont(TTF_FILE)
 
         # QSS file
-        with open('styles.qss', 'r') as f:
+        with open('styles.qss', 'r', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
         # Menu bar

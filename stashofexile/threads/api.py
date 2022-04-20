@@ -30,7 +30,10 @@ URL_CHARACTERS = 'https://pathofexile.com/character-window/get-characters'
 URL_CHAR_ITEMS = (
     'https://pathofexile.com/character-window/get-items?accountName={}&character={}'
 )
-URL_PASSIVE_TREE = 'https://pathofexile.com/character-window/get-passive-skills?accountName={}&character={}&reqData=0'
+URL_PASSIVE_TREE = (
+    'https://pathofexile.com/character-window/get-passive-skills?'
+    'accountName={}&character={}&reqData=0'
+)
 
 
 # Default rate limit values (hits, period (in ms))

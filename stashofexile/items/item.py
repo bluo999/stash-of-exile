@@ -8,7 +8,7 @@ import re
 from typing import Any, Callable, Dict, List, NamedTuple
 
 from stashofexile import consts, gamedata, log
-from stashofexile.items import property, requirement
+from stashofexile.items import property as m_property, requirement
 
 PLUS_PERCENT_REGEX = r'\+(\d+)%'  # +x%
 PERCENT_REGEX = r'(\d+)%'  # x%
@@ -99,9 +99,9 @@ def property_function(prop_name: str) -> Callable[['Item'], str]:
     """Returns the function that returns a specific property given an item."""
 
     def func(item: 'Item') -> str:
-        prop = next((x for x in item.props if x.name == prop_name), None)
-        if prop is not None:
-            val = prop.values[0][0]
+        item_prop = next((x for x in item.props if x.name == prop_name), None)
+        if item_prop is not None:
+            val = item_prop.values[0][0]
             assert isinstance(val, str)
             return val
         return ''
@@ -123,7 +123,7 @@ class Item:
         self.influences = list(item_json.get('influences', {}).keys())
 
         self.props = [
-            property.Property({'name': p['name'], 'vals': p['values']})
+            m_property.Property({'name': p['name'], 'vals': p['values']})
             for p in item_json.get('properties', [])
         ]
         self.reqs = [
@@ -349,9 +349,9 @@ class Item:
 
         # Multiple elements damage
         elemental_damage = 0
-        prop = next((x for x in self.props if x.name == 'Elemental Damage'), None)
-        if prop is not None:
-            for val in prop.values:
+        item_prop = next((x for x in self.props if x.name == 'Elemental Damage'), None)
+        if item_prop is not None:
+            for val in item_prop.values:
                 assert isinstance(val[0], str)
                 if (z := re.search(NUM_RANGE_REGEX, val[0])) is not None:
                     elemental_damage += (float(z.group(1)) + float(z.group(2))) / 2.0
@@ -382,8 +382,8 @@ class Item:
         evasion = property_function('Evasion')(self)
         self.evasion = int(evasion) if evasion else None
 
-        es = property_function('Energy Shield')(self)
-        self.es = int(es) if es else None
+        energy_shield = property_function('Energy Shield')(self)
+        self.energy_shield = int(energy_shield) if energy_shield else None
 
         ward = property_function('Ward')(self)
         self.ward = int(ward) if ward else None
@@ -464,8 +464,8 @@ class Item:
         """Returns the colorized, line separated properties tooltip."""
         tooltip: List[str] = []
         if self.props:
-            for i, prop in enumerate(self.props):
-                tooltip.append(prop.description)
+            for i, item_prop in enumerate(self.props):
+                tooltip.append(item_prop.description)
                 if i < len(self.props) - 1:
                     tooltip.append('<br />')
 

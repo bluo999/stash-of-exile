@@ -57,8 +57,7 @@ def get_jsons(directory: str) -> Optional[Generator[str, None, None]]:
             for f in os.scandir(directory)
             if f.is_file() and os.path.splitext(f)[1] == '.json'
         )
-    else:
-        return None
+    return None
 
 
 def get_file_name(filepath: str) -> str:

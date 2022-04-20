@@ -33,8 +33,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from stashofexile import consts, gamedata, log, save, tab, table, util
-from stashofexile.items import filter, item, moddb
+from stashofexile import consts, gamedata, log, save, tab as m_tab, table, util
+from stashofexile.items import filter as m_filter, item as m_item, moddb
 from stashofexile.threads import thread
 from stashofexile.widgets import editcombo
 
@@ -56,6 +56,14 @@ def _toggle_visibility(widget: QWidget) -> None:
     widget.setVisible(not widget.isVisible())
 
 
+def _populate_combo(filt: m_filter.Filter) -> None:
+    """Populates a filter's combo box if necessary."""
+    if (options := gamedata.COMBO_ITEMS.get(filt.name)) is not None:
+        widget = filt.widgets[0]
+        assert isinstance(widget, QComboBox)
+        widget.addItems(options)
+
+
 class MainWidget(QWidget):
     """Main Widget for the filter, tooltip, and table view."""
 
@@ -63,7 +71,7 @@ class MainWidget(QWidget):
         """Initialize the UI."""
         super().__init__()
         self.main_window = main_window
-        self.item_tabs: List[tab.ItemTab] = []
+        self.item_tabs: List[m_tab.ItemTab] = []
         self.account = None
         self.mod_db: moddb.ModDb = moddb.ModDb()
         self._static_build()
@@ -89,11 +97,11 @@ class MainWidget(QWidget):
             jewels_dir = os.path.join(league_dir, JEWELS_DIR)
 
             if (stash := util.get_jsons(tab_dir)) is not None:
-                self.item_tabs.extend(tab.StashTab(stash_tab) for stash_tab in stash)
+                self.item_tabs.extend(m_tab.StashTab(stash_tab) for stash_tab in stash)
             if (chars := util.get_jsons(character_dir)) is not None:
-                self.item_tabs.extend(tab.CharacterTab(char) for char in chars)
+                self.item_tabs.extend(m_tab.CharacterTab(char) for char in chars)
             if (jewels := util.get_jsons(jewels_dir)) is not None:
-                self.item_tabs.extend(tab.CharacterTab(char) for char in jewels)
+                self.item_tabs.extend(m_tab.CharacterTab(char) for char in jewels)
         else:
             self._send_api(account, league, tabs, characters)
 
@@ -117,7 +125,7 @@ class MainWidget(QWidget):
             filename = os.path.join(
                 ITEM_CACHE_DIR, account.username, league, TABS_DIR, f'{tab_num}.json'
             )
-            item_tab = tab.StashTab(filename, tab_num)
+            item_tab = m_tab.StashTab(filename, tab_num)
             if os.path.exists(filename):
                 self.item_tabs.append(item_tab)
                 continue
@@ -135,7 +143,7 @@ class MainWidget(QWidget):
             filename = os.path.join(
                 ITEM_CACHE_DIR, account.username, league, CHARACTER_DIR, f'{char}.json'
             )
-            item_tab = tab.CharacterTab(filename, char)
+            item_tab = m_tab.CharacterTab(filename, char)
             if os.path.exists(filename):
                 self.item_tabs.append(item_tab)
                 continue
@@ -153,7 +161,7 @@ class MainWidget(QWidget):
             filename = os.path.join(
                 ITEM_CACHE_DIR, account.username, league, JEWELS_DIR, f'{char}.json'
             )
-            item_tab = tab.CharacterTab(filename, char)
+            item_tab = m_tab.CharacterTab(filename, char)
             if os.path.exists(filename):
                 self.item_tabs.append(item_tab)
                 continue
@@ -168,7 +176,7 @@ class MainWidget(QWidget):
 
         api_manager.insert(api_calls)
 
-    def _on_receive_items(self, items: List[item.Item]):
+    def _on_receive_items(self, items: List[m_item.Item]):
         """Inserts items in model and queues image downloading."""
         icons: Set[Tuple[str, str]] = set()
         download_manager = self.main_window.download_manager
@@ -179,7 +187,7 @@ class MainWidget(QWidget):
         self.model.insert_items(items)
 
     def _get_stash_tab_callback(
-        self, tab: tab.StashTab, data, err_message: str
+        self, tab: m_tab.StashTab, data, err_message: str
     ) -> None:
         """Takes tab API data and inserts the items into the table."""
         if data is None:
@@ -191,12 +199,14 @@ class MainWidget(QWidget):
 
         logger.info('Writing tab json to %s', tab.filepath)
         util.create_directories(tab.filepath)
-        with open(tab.filepath, 'w') as f:
+        with open(tab.filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f)
 
         self._on_receive_items(tab.get_items())
 
-    def _get_char_callback(self, tab: tab.CharacterTab, data, err_message: str) -> None:
+    def _get_char_callback(
+        self, tab: m_tab.CharacterTab, data, err_message: str
+    ) -> None:
         """Takes character API data and inserts the items into the table."""
         if data is None:
             # Use error message
@@ -205,7 +215,7 @@ class MainWidget(QWidget):
 
         logger.info('Writing character json to %s', tab.filepath)
         util.create_directories(tab.filepath)
-        with open(tab.filepath, 'w') as f:
+        with open(tab.filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f)
 
         self._on_receive_items(tab.get_items())
@@ -214,7 +224,7 @@ class MainWidget(QWidget):
         """Sets up the items, downloads their images, and sets up the table."""
         # Get available items
         download_manager = self.main_window.download_manager
-        items: List[item.Item] = []
+        items: List[m_item.Item] = []
         icons: Set[Tuple[str, str]] = set()
         for tab in self.item_tabs:
             # Open each tab
@@ -364,7 +374,7 @@ class MainWidget(QWidget):
 
     def _build_individual_filter(
         self,
-        filt: filter.Filter,
+        filt: m_filter.Filter,
         form_layout: QFormLayout,
         index: int,
     ) -> None:
@@ -385,19 +395,19 @@ class MainWidget(QWidget):
         layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         form_layout.setLayout(index, QFormLayout.ItemRole.FieldRole, layout)
 
-    def _dynamic_build_filters(self) -> None:
-        """Sets up the filter widgets and labels."""
-        # Setup regular filter widgets
+    def _build_regular_filters(self) -> QWidget:
+        """Builds regular filter widgets (name, rarity, properties, etc)."""
         index = 0
-        for filt in filter.FILTERS:
+        first_filt_widget: Optional[QWidget] = None
+        for filt in m_filter.FILTERS:
             match filt:
-                case filter.Filter():
+                case m_filter.Filter():
                     self._build_individual_filter(filt, self.filter_form_layout, index)
                     if index == 0:
-                        self.first_filt_widget = filt.widgets[0]
+                        first_filt_widget = filt.widgets[0]
                     index += 1
 
-                case filter.FilterGroup(group_name, filters, _):
+                case m_filter.FilterGroup(group_name, filters, _):
                     # Filter group box
                     filt.group_box = QGroupBox(self.filter_scroll_widget)
                     filt.group_box.setTitle(group_name)
@@ -426,9 +436,13 @@ class MainWidget(QWidget):
                         self._build_individual_filter(ind_filter, group_form, i)
                     index += 1
 
-        # Setup mod filter widgets
+        assert first_filt_widget is not None
+        return first_filt_widget
+
+    def _build_mod_filters(self, first_filt_widget: QWidget) -> None:
+        """Builds mod filter widgets."""
         range_size: Optional[QSize] = None
-        for filt in filter.MOD_FILTERS:
+        for filt in m_filter.MOD_FILTERS:
             hlayout = QHBoxLayout()
             # Combo box
             widget = editcombo.ECBox()
@@ -445,7 +459,7 @@ class MainWidget(QWidget):
             for _ in range(2):
                 range_widget = QLineEdit()
                 if range_size is None:
-                    range_height = self.first_filt_widget.sizeHint().height()
+                    range_height = first_filt_widget.sizeHint().height()
                     range_size = QSize((int)(range_height * 1.5), range_height)
                 range_widget.setFixedSize(range_size)
                 range_widget.textChanged.connect(self._apply_filters)
@@ -453,6 +467,11 @@ class MainWidget(QWidget):
                 filt.widgets.append(range_widget)
                 hlayout.addWidget(range_widget)
             self.mods_vlayout.addLayout(hlayout)
+
+    def _dynamic_build_filters(self) -> None:
+        """Sets up the filter widgets and labels."""
+        first_filt_widget = self._build_regular_filters()
+        self._build_mod_filters(first_filt_widget)
 
         # Resize left panel widths
         width = self.filter_group_box.sizeHint().width()
@@ -495,7 +514,7 @@ class MainWidget(QWidget):
         """Function that applies filters."""
         self.model.apply_filters(index=1, order=Qt.SortOrder.AscendingOrder)
 
-    def _connect_signal(self, filt: filter.Filter) -> None:
+    def _connect_signal(self, filt: m_filter.Filter) -> None:
         """Connects apply filters function to when a filter's input changes."""
         for widget in filt.widgets:
             signal = None
@@ -506,27 +525,20 @@ class MainWidget(QWidget):
                     signal = widget.currentIndexChanged
                 case QCheckBox():
                     signal = widget.stateChanged
-                case filter.InfluenceFilter():
+                case m_filter.InfluenceFilter():
                     signal = widget
 
             if signal is not None:
                 signal.connect(self._apply_filters)
 
-    def _populate_combo(self, filt: filter.Filter) -> None:
-        """Populates a filter's combo box if necessary."""
-        if (options := gamedata.COMBO_ITEMS.get(filt.name)) is not None:
-            widget = filt.widgets[0]
-            assert isinstance(widget, QComboBox)
-            widget.addItems(options)
-
     def _setup_filters(self) -> None:
         """Initializes filters and links to widgets."""
-        for filt in filter.FILTERS:
+        for filt in m_filter.FILTERS:
             match filt:
-                case filter.Filter():
+                case m_filter.Filter():
                     self._connect_signal(filt)
-                    self._populate_combo(filt)
-                case filter.FilterGroup(_, filters, _):
+                    _populate_combo(filt)
+                case m_filter.FilterGroup(_, filters, _):
                     for ind_filt in filters:
                         self._connect_signal(ind_filt)
-                        self._populate_combo(ind_filt)
+                        _populate_combo(ind_filt)

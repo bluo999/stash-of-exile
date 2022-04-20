@@ -124,7 +124,8 @@ class LoginWidget(QWidget):
         """
         if os.path.isfile(SAVE_FILE):
             logger.info('Found saved file')
-            self.saved_data = pickle.load(open(SAVE_FILE, 'rb'))
+            with open(SAVE_FILE, 'rb') as f:
+                self.saved_data = pickle.load(f)
             assert isinstance(self.saved_data, save.SavedData)
             logger.info(self.saved_data.leagues)
             for account in self.saved_data.accounts:
@@ -318,7 +319,8 @@ class LoginWidget(QWidget):
 
         # Switch to tab widget
         logger.info('Writing save file to %s', SAVE_FILE)
-        pickle.dump(self.saved_data, open(SAVE_FILE, 'wb'))
+        with open(SAVE_FILE, 'wb') as f:
+            pickle.dump(self.saved_data, f)
         self.main_window.switch_widget(
             self.main_window.tabs_widget, self.saved_data, self.account, self.league
         )

@@ -30,7 +30,7 @@ class ItemTab(abc.ABC):
     def get_items(self) -> List[item.Item]:
         """Gets items from this tab."""
         tab_items: List[item.Item] = []
-        with open(self.filepath, 'r') as f:
+        with open(self.filepath, 'rb') as f:
             data = json.load(f)
             self._parse_data(data)
             tab_name = self.get_tab_name()

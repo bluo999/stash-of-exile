@@ -15,9 +15,10 @@ class ClickLineEdit(QLineEdit):
         super().__init__(parent)
         self.test = completer
 
-    def mousePressEvent(
+    def mousePressEvent(  # pylint: disable=invalid-name
         self, e: QtGui.QMouseEvent
-    ) -> None:  # pylint: disable=invalid-name
+    ) -> None:
+        """Open completer on click."""
         super().mousePressEvent(e)
 
         if e.button() == Qt.MouseButton.LeftButton:

@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
 )
 
 from stashofexile import gamedata
-from stashofexile.items import item
+from stashofexile.items import item as m_item
 from stashofexile.widgets import editcombo
 
 FilterFunction = Callable[..., bool]
@@ -54,7 +54,7 @@ class InfluenceFilter(QWidget):
         if checked == 2:
             self.check.setCheckState(Qt.CheckState.Checked)
 
-    def item_match(self, item: item.Item) -> bool:
+    def item_match(self, item: m_item.Item) -> bool:
         """Returns whether an item conforms to the filter's selection."""
         assert self.check.isChecked()
         return len(item.influences) > 0 and all(
@@ -160,18 +160,18 @@ def _between_filter(  # pylint: disable=too-many-arguments
     return bot <= field <= top
 
 
-def _filter_name(item: item.Item, elem: QLineEdit) -> bool:
+def _filter_name(item: m_item.Item, elem: QLineEdit) -> bool:
     """Filter function that uses name."""
     return elem.text().lower() in item.name.lower()
 
 
-def _filter_category(item: item.Item, elem: QComboBox) -> bool:
+def _filter_category(item: m_item.Item, elem: QComboBox) -> bool:
     """Filter function that uses category."""
     text = elem.currentText()
     return text == item.category
 
 
-def _filter_rarity(item: item.Item, elem: QComboBox) -> bool:
+def _filter_rarity(item: m_item.Item, elem: QComboBox) -> bool:
     """Filter function that uses rarity."""
     text = elem.currentText()
     if item.rarity == text.lower():
@@ -182,36 +182,36 @@ def _filter_rarity(item: item.Item, elem: QComboBox) -> bool:
     return False
 
 
-def _filter_class(item: item.Item, elem: QComboBox) -> bool:
+def _filter_class(item: m_item.Item, elem: QComboBox) -> bool:
     """Filter function that uses character class."""
     text = elem.currentText()
     return text == item.req_class
 
 
 def _duo(
-    property: Callable[[item.Item], Optional[Num]], conv_func: Callable[[str], Num]
+    prop: Callable[[m_item.Item], Optional[Num]], conv_func: Callable[[str], Num]
 ) -> FilterFunction:
     """Generic double QLineEditor filter function."""
 
-    def filt(item: item.Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
-        field = property(item)
+    def filt(item: m_item.Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
+        field = prop(item)
         return field is not None and _between_filter(field, elem1, elem2, conv_func)
 
     return filt
 
 
-def _bool(property: Callable[[item.Item], bool]) -> FilterFunction:
+def _bool(prop: Callable[[m_item.Item], bool]) -> FilterFunction:
     """Generic boolean filter function."""
 
-    def filt(item: item.Item, elem: QComboBox) -> bool:
-        field = property(item)
+    def filt(item: m_item.Item, elem: QComboBox) -> bool:
+        field = prop(item)
         text = elem.currentText()
         return text == '' or (text == 'Yes') == field
 
     return filt
 
 
-def _filter_gem_quality(item: item.Item, elem: QComboBox) -> bool:
+def _filter_gem_quality(item: m_item.Item, elem: QComboBox) -> bool:
     """Filter function that uses gem quality type."""
     text = elem.currentText()
     if item.gem_quality == text:
@@ -224,13 +224,13 @@ def _filter_gem_quality(item: item.Item, elem: QComboBox) -> bool:
     return False
 
 
-def _filter_influences(item: item.Item, elem: InfluenceFilter) -> bool:
+def _filter_influences(item: m_item.Item, elem: InfluenceFilter) -> bool:
     """Filter function that uses influence."""
     return elem.item_match(item)
 
 
 def _filter_mod(
-    item: item.Item, elem: editcombo.ECBox, range1: QLineEdit, range2: QLineEdit
+    item: m_item.Item, elem: editcombo.ECBox, range1: QLineEdit, range2: QLineEdit
 ) -> bool:
     """Filter function that searches for mods."""
     mod_str = elem.currentText()
@@ -263,7 +263,9 @@ FILTERS: List[Filter | FilterGroup] = [
         [
             Filter('Armour', QLineEdit, _duo(lambda i: i.armour, int), IV),
             Filter('Evasion', QLineEdit, _duo(lambda i: i.evasion, int), IV),
-            Filter('Energy Shield', QLineEdit, _duo(lambda i: i.es, int), IV),
+            Filter(
+                'Energy Shield', QLineEdit, _duo(lambda i: i.energy_shield, int), IV
+            ),
             Filter('Ward', QLineEdit, _duo(lambda i: i.ward, int), IV),
             Filter('Block', QLineEdit, _duo(lambda i: i.block, int), IV),
         ],
