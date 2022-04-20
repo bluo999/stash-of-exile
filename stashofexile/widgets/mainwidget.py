@@ -74,28 +74,26 @@ class MainWidget(QWidget):
 
     def on_show(
         self,
-        account: Optional[save.Account] = None,
-        league: str = '',
+        account: save.Account,
+        league: str,
         tabs: List[int] = dataclasses.field(default_factory=list),
         characters: List[str] = dataclasses.field(default_factory=list),
     ) -> None:
         """Retrieves existing tabs or send API calls, then build the table."""
-        if account is None:
+        if account.poesessid == '':
             # Show all cached results
-            for accounts in util.get_subdirectories(ITEM_CACHE_DIR):
-                for leagues in util.get_subdirectories(accounts):
-                    tab_dir = os.path.join(leagues, TABS_DIR)
-                    character_dir = os.path.join(leagues, CHARACTER_DIR)
-                    jewels_dir = os.path.join(leagues, JEWELS_DIR)
-                    self.item_tabs.extend(
-                        tab.StashTab(char) for char in util.get_jsons(tab_dir)
-                    )
-                    self.item_tabs.extend(
-                        tab.CharacterTab(char) for char in util.get_jsons(character_dir)
-                    )
-                    self.item_tabs.extend(
-                        tab.CharacterTab(char) for char in util.get_jsons(jewels_dir)
-                    )
+            league_dir = os.path.join(ITEM_CACHE_DIR, account.username, league)
+
+            tab_dir = os.path.join(league_dir, TABS_DIR)
+            character_dir = os.path.join(league_dir, CHARACTER_DIR)
+            jewels_dir = os.path.join(league_dir, JEWELS_DIR)
+
+            if (stash := util.get_jsons(tab_dir)) is not None:
+                self.item_tabs.extend(tab.StashTab(stash_tab) for stash_tab in stash)
+            if (chars := util.get_jsons(character_dir)) is not None:
+                self.item_tabs.extend(tab.CharacterTab(char) for char in chars)
+            if (jewels := util.get_jsons(jewels_dir)) is not None:
+                self.item_tabs.extend(tab.CharacterTab(char) for char in jewels)
         else:
             self._send_api(account, league, tabs, characters)
 

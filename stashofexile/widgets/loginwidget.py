@@ -138,7 +138,23 @@ class LoginWidget(QWidget):
 
     def _submit_cached(self) -> None:
         """Skips login and view cached stash."""
-        self.main_window.switch_widget(self.main_window.main_widget)
+        username = self.account_field.text()
+        self.league = self.league_field.currentText()
+
+        if len(username) == 0:
+            self.error_text.setText('Account is blank')
+            return
+
+        if len(self.league) == 0:
+            self.error_text.setText('First get leagues')
+            return
+
+        self.account = save.Account(username)
+        self.main_window.switch_widget(
+            self.main_window.main_widget,
+            self.account,
+            self.league,
+        )
 
     def _get_leagues_api(self) -> None:
         """Gets leagues from API."""
