@@ -8,8 +8,8 @@ Features:
 - [x] Item caching
 - [x] Basic filter support
 - [x] Basic mod support
+- [x] Advanced filter support
 - [ ] Sockets and links
-- [ ] Advanced filter support
 - [ ] Advanced mod support
 - [ ] Save and load preset mods/filters
 

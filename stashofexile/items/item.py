@@ -136,6 +136,7 @@ class Item:
         self.fractured = item_json.get('fracturedMods', [])
         self.explicit = item_json.get('explicitMods', [])
         self.crafted = item_json.get('craftedMods', [])
+        self.veiled = item_json.get('veiledMods', [])
         self.enchanted = item_json.get('enchantMods', [])
         self.cosmetic = item_json.get('cosmeticMods', [])
 
@@ -145,10 +146,12 @@ class Item:
 
         self.split = item_json.get('split', False)
         self.corrupted = item_json.get('corrupted', False)
-        self.unidentified = not item_json.get('identified', False)
-        self.mirrored = item_json.get('mirrored', False)
+        self.identified = item_json.get('identified', False)
+        self.mirrored = item_json.get('duplicated', False)
         self.fractured_tag = item_json.get('fractured', False)
-        self.synthesised_tag = item_json.get('synthesised', False)
+        self.synthesised = item_json.get('synthesised', False)
+        self.searing = item_json.get('searing', False)
+        self.tangled = item_json.get('tangled', False)
 
         self.ilvl = item_json.get('ilvl')
         self.rarity = gamedata.RARITIES.get(item_json['frameType'], 'normal')
@@ -295,7 +298,7 @@ class Item:
             [
                 Tag('Split', 'magic', self.split),
                 Tag('Corrupted', 'red', self.corrupted),
-                Tag('Unidentified', 'red', self.unidentified),
+                Tag('Unidentified', 'red', not self.identified),
                 Tag('Mirrored', 'magic', self.mirrored),
             ]
         )
@@ -432,6 +435,11 @@ class Item:
             self.current_exp = None
             self.max_exp = None
             self.gem_exp = None
+
+        self.altart = any(name in self.icon for name in gamedata.ALTART)
+        self.crafted_tag = len(self.crafted) > 0
+        self.veiled_tag = len(self.veiled) > 0
+        self.enchanted_tag = len(self.enchanted) > 0
 
     def _get_header_tooltip(self) -> str:
         """Returns the header tooltip, including influence icons and a colorized name."""

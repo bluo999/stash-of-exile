@@ -100,6 +100,7 @@ class FilterGroup:
 
     name: str
     filters: List[Filter]
+    start_active: bool = True
     group_box: Optional[QGroupBox] = None
 
 
@@ -276,6 +277,7 @@ FILTERS: List[Filter | FilterGroup] = [
             Filter('Intelligence', QLineEdit, _duo(lambda i: i.req_int, int), IV),
             Filter('Character Class', editcombo.ECBox, _filter_class),
         ],
+        start_active=False,
     ),
     FilterGroup(
         'Miscellaneous',
@@ -286,9 +288,17 @@ FILTERS: List[Filter | FilterGroup] = [
             Filter('Gem Experience %', QLineEdit, _duo(lambda i: i.gem_exp, float), DV),
             Filter('Gem Quality Type', editcombo.ECBox, _filter_gem_quality),
             Filter('Fractured', editcombo.BoolECBox, _bool(lambda i: i.fractured_tag)),
-            Filter(
-                'Synthesised', editcombo.BoolECBox, _bool(lambda i: i.synthesised_tag)
-            ),
+            Filter('Synthesised', editcombo.BoolECBox, _bool(lambda i: i.synthesised)),
+            Filter('Searing Exarch', editcombo.BoolECBox, _bool(lambda i: i.searing)),
+            Filter('Eater of Worlds', editcombo.BoolECBox, _bool(lambda i: i.tangled)),
+            Filter('Alternate Art', editcombo.BoolECBox, _bool(lambda i: i.altart)),
+            Filter('Identified', editcombo.BoolECBox, _bool(lambda i: i.identified)),
+            Filter('Corrupted', editcombo.BoolECBox, _bool(lambda i: i.corrupted)),
+            Filter('Mirrored', editcombo.BoolECBox, _bool(lambda i: i.mirrored)),
+            Filter('Split', editcombo.BoolECBox, _bool(lambda i: i.split)),
+            Filter('Crafted', editcombo.BoolECBox, _bool(lambda i: i.crafted_tag)),
+            Filter('Veiled', editcombo.BoolECBox, _bool(lambda i: i.veiled_tag)),
+            Filter('Enchanted', editcombo.BoolECBox, _bool(lambda i: i.enchanted_tag)),
             Filter('Influenced', InfluenceFilter, _filter_influences),
         ],
     ),

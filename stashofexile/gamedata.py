@@ -134,3 +134,6 @@ PARSE_CATEGORIES = [
 
 with open('bases.json', 'rb') as f:
     BASE_TYPES: Dict[str, List[str]] = json.load(f)
+
+with open('altart.json', 'rb') as f:
+    ALTART: List[str] = json.load(f)

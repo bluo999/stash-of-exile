@@ -6,7 +6,7 @@ from typing import Callable, Dict, List
 
 from PyQt6.QtCore import QAbstractTableModel, QModelIndex, QObject, QVariant, Qt
 from PyQt6.QtGui import QColor
-from PyQt6.QtWidgets import QTableView, QWidget
+from PyQt6.QtWidgets import QTableView
 
 from stashofexile import consts, log
 from stashofexile.items import filter, item
@@ -39,7 +39,7 @@ class TableModel(QAbstractTableModel):
         'Split': lambda item: 'Split' if item.split else '',
         'Corr': lambda item: 'Corr' if item.corrupted else '',
         'Mir': lambda item: 'Mir' if item.mirrored else '',
-        'Unid': lambda item: 'Unid' if item.unidentified else '',
+        'Unid': lambda item: 'Unid' if not item.identified else '',
         'Bench': lambda item: 'Bench' if item.crafted else '',
         'Ench': lambda item: 'Ench' if item.enchanted else '',
         'Frac': lambda item: 'Frac' if item.fractured else '',
@@ -50,7 +50,6 @@ class TableModel(QAbstractTableModel):
         super().__init__(parent)
         self.items: List[item.Item] = []
         self.current_items: List[item.Item] = []
-        self.mod_widgets: List[List[QWidget]] = []
         self.property_funcs = [func for _, func in TableModel.PROPERTY_FUNCS.items()]
         self.headers = list(TableModel.PROPERTY_FUNCS.keys())
         self.table_view = table_view
@@ -111,10 +110,6 @@ class TableModel(QAbstractTableModel):
         self.current_items.extend(items)
         self.endInsertRows()
 
-    def set_mod_widgets(self, mod_widgets: List[List[QWidget]]) -> None:
-        """Sets the mod filter widgets for the table."""
-        self.mod_widgets = mod_widgets
-
     def apply_filters(
         self, index: int = 1, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder
     ) -> None:
@@ -132,7 +127,7 @@ class TableModel(QAbstractTableModel):
             match filt:
                 case filter.Filter():
                     all_filters.append(filt)
-                case filter.FilterGroup(_, filters, group_box):
+                case filter.FilterGroup(_, filters, _, group_box):
                     if group_box is not None and group_box.isChecked():
                         all_filters.extend(filters)
 
