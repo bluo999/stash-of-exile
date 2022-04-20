@@ -132,8 +132,8 @@ PARSE_CATEGORIES = [
     'Expedition Logbook',
 ]
 
-with open('bases.json', 'rb') as f:
+with open('assets/bases.json', 'rb') as f:
     BASE_TYPES: Dict[str, List[str]] = json.load(f)
 
-with open('altart.json', 'rb') as f:
+with open('assets/altart.json', 'rb') as f:
     ALTART: List[str] = json.load(f)
