@@ -21,7 +21,7 @@ from PyQt6.QtWidgets import (
 )
 
 from stashofexile import log, save
-from stashofexile.threads import thread
+from stashofexile.threads import api, thread
 
 mainwindow = Any
 
@@ -244,7 +244,7 @@ class LoginWidget(QWidget):
         assert self.account is not None
         assert self.league is not None
         logger.debug('Getting num tabs')
-        api_manager = self.main_window.api_manager
+        api_manager: api.APIManager = self.main_window.api_manager
         api_call = thread.Call(
             api_manager.get_tab_info,
             (self.account.username, self.account.poesessid, self.league),

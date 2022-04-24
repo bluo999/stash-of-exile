@@ -5,7 +5,7 @@ Utility classes and functions.
 import os
 import pathlib
 
-from typing import Generator, List, Optional, TypedDict, Union
+from typing import Generator, List, Optional, TypedDict
 
 from stashofexile import consts
 
@@ -21,10 +21,10 @@ class ValInfo(TypedDict):
     """Class to represent a property or requirement from the API."""
 
     name: str
-    vals: List[List[Union[str, int]]]
+    vals: List[List[str | int]]
 
 
-def insert_values(text: str, values: List[List[Union[str, int]]]) -> ModifiedStr:
+def insert_values(text: str, values: List[List[str | int]]) -> ModifiedStr:
     """Inserts the colorized values into description text provided by the API."""
     obj: ModifiedStr = {'text': text, 'inserted': False}
 

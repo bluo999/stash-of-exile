@@ -12,8 +12,6 @@ from typing import Tuple
 from stashofexile import log, util
 from stashofexile.threads import thread
 
-# from threads.thread import Ret, RetrieveThread, ThreadManager
-
 logger = log.get_logger(__name__)
 
 

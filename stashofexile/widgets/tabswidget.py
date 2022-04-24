@@ -84,7 +84,7 @@ class TabsWidget(QWidget):
         # Back Button
         self.back_button = QPushButton()
         self.back_button.clicked.connect(
-            lambda _: self.main_window.switch_widget(self.main_window.login_widget)
+            lambda: self.main_window.switch_widget(self.main_window.login_widget)
         )
         # Not sure whether to remove or keep - maybe useful if selected wrong league?
         # self.back_button.setDisabled(True)

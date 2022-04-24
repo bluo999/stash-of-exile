@@ -45,6 +45,9 @@ class KillThread:
     """Represents a message to kill the thread."""
 
 
+Action = Call | ratelimiting.TooManyReq | KillThread
+
+
 class ThreadManager(abc.ABC):
     """
     Manager for a thread. Handles consuming messages from a queue, serving these
@@ -52,9 +55,7 @@ class ThreadManager(abc.ABC):
     """
 
     def __init__(self, thread_type: Type['RetrieveThread']):
-        self.queue: Deque[
-            Union[Call, ratelimiting.TooManyReq, KillThread]
-        ] = collections.deque()
+        self.queue: Deque[Action] = collections.deque()
         self.cond = threading.Condition()
         self.last_call: Optional[Call] = None
         self.thread = thread_type(self)
@@ -93,7 +94,7 @@ class ThreadManager(abc.ABC):
         self.cond.notify()
         self.cond.release()
 
-    def consume(self) -> Union[Ret, ratelimiting.TooManyReq, KillThread]:
+    def consume(self) -> Ret | ratelimiting.TooManyReq | KillThread:
         """Consumes an element from the API queue (blocking)."""
         self.cond.acquire()
         while not self.queue:

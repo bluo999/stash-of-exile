@@ -291,7 +291,7 @@ class MainWidget(QWidget):
         self.filter_scroll.setContentsMargins(0, 0, 0, 0)
         self.filter_scroll.setFrameShape(QFrame.Shape.NoFrame)
         self.filter_group_box.toggled.connect(
-            lambda _: _toggle_visibility(self.filter_scroll)
+            lambda: _toggle_visibility(self.filter_scroll)
         )
         filter_scroll_layout.addWidget(self.filter_scroll)
 
@@ -314,7 +314,7 @@ class MainWidget(QWidget):
         self.mods_scroll.setContentsMargins(0, 0, 0, 0)
         self.mods_scroll.setFrameShape(QFrame.Shape.NoFrame)
         self.mods_group_box.toggled.connect(
-            lambda _: _toggle_visibility(self.mods_scroll)
+            lambda: _toggle_visibility(self.mods_scroll)
         )
 
         mods_scroll_layout.addWidget(self.mods_scroll)

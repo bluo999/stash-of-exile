@@ -21,7 +21,7 @@ from stashofexile.items import item as m_item
 from stashofexile.widgets import editcombo
 
 FilterFunction = Callable[..., bool]
-Num = Union[int, float]
+Num = int | float
 
 MIN_VAL = -100000
 MAX_VAL = 100000
