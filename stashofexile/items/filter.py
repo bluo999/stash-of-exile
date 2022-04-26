@@ -45,6 +45,21 @@ class InfluenceFilter(QWidget):
             hlayout.addWidget(influence)
             self.influences.append(influence)
 
+    def __repr__(self) -> str:
+        if not self.check.isChecked():
+            return 'off'
+
+        values = []
+        for widget, influence in zip(self.influences, gamedata.Influences):
+            if widget.isChecked():
+                values.append(influence)
+
+        text = ' '.join(values)
+        if text == '':
+            return 'on'
+
+        return text
+
     def _main_unchecked(self, checked: int) -> None:
         if checked == 0:
             for influence in self.influences:
@@ -89,7 +104,20 @@ class Filter:
     widgets: List[QWidget] = dataclasses.field(default_factory=list)
 
     def __repr__(self) -> str:
-        return self.name
+        values: List[str] = []
+        for widget in self.widgets:
+            match widget:
+                case QCheckBox():
+                    values.append(str(widget.isChecked()))
+                case QLineEdit():
+                    values.append(widget.text())
+                case QComboBox():
+                    values.append(widget.currentText())
+                case InfluenceFilter():
+                    values.append(repr(widget))
+        info = ' '.join(values)
+
+        return f'{self.name}: {info}'
 
 
 @dataclasses.dataclass
@@ -106,15 +134,17 @@ class FilterGroup:
 
 def filter_is_active(widget: QWidget) -> bool:
     """Determines whether a filter is active (based on widget type)."""
-    if isinstance(widget, QCheckBox):
-        return widget.isChecked()
-    if isinstance(widget, QLineEdit):
-        return len(widget.text()) > 0
-    if isinstance(widget, QComboBox):
-        return widget.currentIndex() > 0
-    if isinstance(widget, InfluenceFilter):
-        return widget.check.isChecked()
-    return False
+    match widget:
+        case QCheckBox():
+            return widget.isChecked()
+        case QLineEdit():
+            return len(widget.text()) > 0
+        case QComboBox():
+            return widget.currentIndex() > 0
+        case InfluenceFilter():
+            return widget.check.isChecked()
+        case _:
+            return False
 
 
 def _between_filter(  # pylint: disable=too-many-arguments

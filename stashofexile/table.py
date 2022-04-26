@@ -146,7 +146,11 @@ class TableModel(QAbstractTableModel):
             for item in self.items
             if all(filt.filter_func(item, *filt.widgets) for filt in active_filters)
         ]
-        logger.debug('Filtering took %sms', ratelimiting.get_time_ms() - prev_time)
+        logger.debug(
+            'Filtering took %sms: %s',
+            ratelimiting.get_time_ms() - prev_time,
+            active_filters,
+        )
 
         key = list(TableModel.PROPERTY_FUNCS.keys())[index]
         sort_func = TableModel.PROPERTY_FUNCS[key]

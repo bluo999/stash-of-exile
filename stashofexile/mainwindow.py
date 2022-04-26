@@ -15,8 +15,6 @@ from stashofexile import log
 from stashofexile.threads import api, download, thread
 from stashofexile.widgets import loginwidget, tabswidget, mainwidget
 
-# __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-
 logger = log.get_logger(__name__)
 
 # A font by Jos Buivenga (exljbris) -> www.exljbris.com
