@@ -34,6 +34,7 @@ class InfluenceFilter(QWidget):
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
         hlayout = QHBoxLayout(self)
+        hlayout.setContentsMargins(0, 0, 0, 0)
         self.check = QCheckBox()
         self.check.stateChanged.connect(self._main_unchecked)
         hlayout.addWidget(self.check)
@@ -43,6 +44,7 @@ class InfluenceFilter(QWidget):
             influence.stateChanged.connect(self._influence_checked)
             hlayout.addWidget(influence)
             self.influences.append(influence)
+        self.setMinimumHeight(22)
 
     def __repr__(self) -> str:
         if not self.check.isChecked():

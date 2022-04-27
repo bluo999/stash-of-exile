@@ -237,9 +237,8 @@ class Item:
             if cat in gamedata.COMBO_ITEMS['Category']:
                 return cat
 
-        item_base = item_json['baseType']
-
         # Special base types
+        item_base = item_json['baseType']
         if 'Talisman' in item_base:
             return 'Amulet'
         if 'Lure' in item_base:
@@ -250,7 +249,12 @@ class Item:
             return 'Map Fragment'
         if item_base == 'Simulacrum':  # Avoid conflict with splinter
             return 'Map Fragment'
-        if item_base == 'Charged Compass':
+        if item_base in (
+            'Charged Compass',
+            'Fossilised Delirium Orb',  # Conflict: fossil
+            'Jeweller\'s Orb',  # Conflict: jewel
+            'Tainted Jeweller\'s Orb',  # Conflict: jewel
+        ):
             return 'Currency'
 
         # Fragments
