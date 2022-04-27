@@ -8,7 +8,7 @@ import re
 from typing import Any, Callable, Dict, List, NamedTuple
 
 from stashofexile import consts, gamedata, log
-from stashofexile.items import property as m_property, requirement
+from stashofexile.items import property as m_property, requirement, socket as m_socket
 
 PLUS_PERCENT_REGEX = r'\+(\d+)%'  # +x%
 PERCENT_REGEX = r'(\d+)%'  # x%
@@ -156,7 +156,8 @@ class Item:
         self.ilvl = item_json.get('ilvl')
         self.rarity = gamedata.RARITIES.get(item_json['frameType'], 'normal')
 
-        self.sockets = item_json.get('sockets')
+        sockets = item_json.get('sockets')
+        self.socket_groups = m_socket.create_sockets(sockets)
 
         self.visible = True
         self.tab = tab
@@ -193,6 +194,7 @@ class Item:
 
         self._wep_props()
         self._arm_props()
+        self._sock_props()
         self._req_props()
         self._misc_props()
 
@@ -333,6 +335,9 @@ class Item:
 
         return self.tooltip
 
+    def has_sockets(self) -> bool:
+        return len(self.socket_groups) > 0
+
     def _wep_props(self) -> None:
         """Populates weapon properties of item from base stats (e.g. pdps)."""
         # Physical damage
@@ -391,6 +396,22 @@ class Item:
         # Block
         z = re.search(PERCENT_REGEX, property_function('Chance to Block')(self))
         self.block = int(z.group(1)) if z is not None else None
+
+    def _sock_props(self) -> None:
+        self.sockets = [
+            socket for socket_group in self.socket_groups for socket in socket_group
+        ]
+        self.sockets_r = self.sockets.count(m_socket.Socket.R)
+        self.sockets_g = self.sockets.count(m_socket.Socket.G)
+        self.sockets_b = self.sockets.count(m_socket.Socket.B)
+        self.sockets_w = self.sockets.count(m_socket.Socket.W)
+        self.num_sockets = len(self.sockets)
+
+        self.num_links = (
+            max([len(socket_group) for socket_group in self.socket_groups])
+            if self.has_sockets()
+            else 0
+        )
 
     def _req_props(self) -> None:
         """Populates requirement properties."""

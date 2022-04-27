@@ -89,7 +89,6 @@ COMBO_ITEMS = {
         'Heist',
         'Inscribed Ultimatum',
         'Expedition Logbook',
-        '',
     ],
     'Character Class': [
         'Scion',

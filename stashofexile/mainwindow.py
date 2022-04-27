@@ -74,9 +74,6 @@ class MainWindow(QMainWindow):
 
         self.switch_widget(self.login_widget)
 
-        # Show window
-        self.show()
-
     def closeEvent(  # pylint: disable=invalid-name,no-self-use
         self, _: QtGui.QCloseEvent
     ) -> None:

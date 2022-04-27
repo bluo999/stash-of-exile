@@ -13,6 +13,6 @@ def main() -> None:
     """Entrypoint function."""
     print(__file__)
     app = QApplication(sys.argv)
-
-    _ = mainwindow.MainWindow()
-    app.exec()
+    window = mainwindow.MainWindow()
+    window.show()
+    sys.exit(app.exec())

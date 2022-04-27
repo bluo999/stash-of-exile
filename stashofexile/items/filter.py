@@ -17,10 +17,9 @@ from PyQt6.QtWidgets import (
 )
 
 from stashofexile import gamedata
-from stashofexile.items import item as m_item
+from stashofexile.items import item as m_item, socket as m_socket
 from stashofexile.widgets import editcombo
 
-FilterFunction = Callable[..., bool]
 Num = int | float
 
 MIN_VAL = -100000
@@ -92,14 +91,14 @@ class Filter:
     Fields:
         name (str): Label name.
         widget (Type[QWidget]): Widget type of filter.
-        filter_func (FilterFunction): Filter function.
+        filter_func (Callable[..., bool]): Filter function.
         validator (QValidator, Optional): Field validator.
         widgets (List[QWidget], Optional): List of widgets.
     """
 
     name: str
     widget_type: Type[QWidget]
-    filter_func: FilterFunction
+    filter_func: Callable[..., bool]
     validator: Optional[QValidator] = None
     widgets: List[QWidget] = dataclasses.field(default_factory=list)
 
@@ -128,7 +127,6 @@ class FilterGroup:
 
     name: str
     filters: List[Filter]
-    start_active: bool = True
     group_box: Optional[QGroupBox] = None
 
 
@@ -149,9 +147,9 @@ def filter_is_active(widget: QWidget) -> bool:
 
 def _between_filter(  # pylint: disable=too-many-arguments
     field: Num,
-    elem1: QLineEdit,
-    elem2: QLineEdit,
     conv_func: Callable[[str], Num],
+    elem1: Optional[QLineEdit],
+    elem2: Optional[QLineEdit],
     min_val: Num = MIN_VAL,
     max_val: Num = MAX_VAL,
     default_val: Num = 0,
@@ -173,10 +171,13 @@ def _between_filter(  # pylint: disable=too-many-arguments
     Returns:
         FilterFunction: [The filter function]
     """
-    bot_str = elem1.text()
-    top_str = elem2.text()
+    bot = elem1 is not None
+    top = elem2 is not None
 
-    if not bot_str and not top_str:
+    bot_str = elem1.text() if bot else ''
+    top_str = elem2.text() if top else ''
+
+    if bot_str == '' and top_str == '':
         # Filter field is blank
         return True
 
@@ -185,8 +186,8 @@ def _between_filter(  # pylint: disable=too-many-arguments
         return False
 
     # Field is between two inputs
-    bot = conv_func(bot_str) if bot_str and bot_str != '.' else min_val
-    top = conv_func(top_str) if top_str and top_str != '.' else max_val
+    bot = conv_func(bot_str) if bot and bot_str != '' and bot_str != '.' else min_val
+    top = conv_func(top_str) if top and top_str != '' and top_str != '.' else max_val
     return bot <= field <= top
 
 
@@ -217,6 +218,58 @@ def _filter_tab(item: m_item.Item, elem: QComboBox) -> bool:
     return item.tab == elem.currentText()
 
 
+def _sat_sockets(
+    sockets: List[m_socket.Socket],
+    red: QLineEdit,
+    green: QLineEdit,
+    blue: QLineEdit,
+    white: QLineEdit,
+) -> bool:
+    return (
+        _between_filter(sockets.count(m_socket.Socket.R), int, red, None)
+        and _between_filter(sockets.count(m_socket.Socket.G), int, green, None)
+        and _between_filter(sockets.count(m_socket.Socket.B), int, blue, None)
+        and _between_filter(sockets.count(m_socket.Socket.W), int, white, None)
+    )
+
+
+def _filter_sockets(  # pylint: disable=too-many-arguments
+    item: m_item.Item,
+    red: QLineEdit,
+    green: QLineEdit,
+    blue: QLineEdit,
+    white: QLineEdit,
+    min_socks: QLineEdit,
+    max_socks: QLineEdit,
+) -> bool:
+    """Filter function for sockets."""
+    if not item.has_sockets():
+        return False
+
+    return _between_filter(
+        item.num_sockets, int, min_socks, max_socks
+    ) and _sat_sockets(item.sockets, red, green, blue, white)
+
+
+def _filter_links(  # pylint: disable=too-many-arguments
+    item: m_item.Item,
+    red: QLineEdit,
+    green: QLineEdit,
+    blue: QLineEdit,
+    white: QLineEdit,
+    min_links: QLineEdit,
+    max_links: QLineEdit,
+) -> bool:
+    """Filter function for links."""
+    if not item.has_sockets():
+        return False
+
+    return _between_filter(item.num_links, int, min_links, max_links) and any(
+        _sat_sockets(socket_group, red, green, blue, white)
+        for socket_group in item.socket_groups
+    )
+
+
 def _filter_class(item: m_item.Item, elem: QComboBox) -> bool:
     """Filter function that uses character class."""
     text = elem.currentText()
@@ -225,17 +278,19 @@ def _filter_class(item: m_item.Item, elem: QComboBox) -> bool:
 
 def _duo(
     prop: Callable[[m_item.Item], Optional[Num]], conv_func: Callable[[str], Num]
-) -> FilterFunction:
+) -> Callable[[m_item.Item, QLineEdit, QLineEdit], bool]:
     """Generic double QLineEditor filter function."""
 
     def filt(item: m_item.Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
         field = prop(item)
-        return field is not None and _between_filter(field, elem1, elem2, conv_func)
+        return field is not None and _between_filter(field, conv_func, elem1, elem2)
 
     return filt
 
 
-def _bool(prop: Callable[[m_item.Item], bool]) -> FilterFunction:
+def _bool(
+    prop: Callable[[m_item.Item], bool]
+) -> Callable[[m_item.Item, QComboBox], bool]:
     """Generic boolean filter function."""
 
     def filt(item: m_item.Item, elem: QComboBox) -> bool:
@@ -273,7 +328,7 @@ def _filter_mod(
         return True
 
     return mod_str in item.internal_mods and all(
-        _between_filter(value, range1, range2, float)
+        _between_filter(value, float, range1, range2)
         for value in item.internal_mods[mod_str]
     )
 
@@ -307,6 +362,13 @@ FILTERS: List[Filter | FilterGroup] = [
         ],
     ),
     FilterGroup(
+        'Socket Filters',
+        [
+            Filter('Sockets', QLineEdit, _filter_sockets, IV),
+            Filter('Links', QLineEdit, _filter_links, IV),
+        ],
+    ),
+    FilterGroup(
         'Requirements',
         [
             Filter('Level', QLineEdit, _duo(lambda i: i.req_level, int), IV),
@@ -315,7 +377,6 @@ FILTERS: List[Filter | FilterGroup] = [
             Filter('Intelligence', QLineEdit, _duo(lambda i: i.req_int, int), IV),
             Filter('Character Class', editcombo.ECBox, _filter_class),
         ],
-        start_active=False,
     ),
     FilterGroup(
         'Miscellaneous',

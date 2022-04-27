@@ -129,7 +129,7 @@ class TableModel(QAbstractTableModel):
             match filt:
                 case m_filter.Filter():
                     all_filters.append(filt)
-                case m_filter.FilterGroup(_, filters, _, group_box):
+                case m_filter.FilterGroup(_, filters, group_box):
                     if group_box is not None and group_box.isChecked():
                         all_filters.extend(filters)
 

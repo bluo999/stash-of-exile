@@ -25,6 +25,7 @@ from PyQt6.QtWidgets import (
     QLabel,
     QLineEdit,
     QScrollArea,
+    QSizePolicy,
     QSplitter,
     QTableView,
     QTextEdit,
@@ -176,7 +177,7 @@ class MainWidget(QWidget):
 
         api_manager.insert(api_calls)
 
-    def _on_receive_items(self, items: List[m_item.Item]):
+    def _on_receive_items(self, items: List[m_item.Item]) -> None:
         """Inserts items in model and queues image downloading."""
         icons: Set[Tuple[str, str]] = set()
         download_manager = self.main_window.download_manager
@@ -293,8 +294,8 @@ class MainWidget(QWidget):
         splitter = QSplitter(Qt.Orientation.Horizontal)
 
         # Left Area (Filters, Mods)
-        left_widget = QWidget()
-        left_vlayout = QVBoxLayout(left_widget)
+        self.left_widget = QWidget()
+        left_vlayout = QVBoxLayout(self.left_widget)
 
         # Filters Group Box
         self.filter_group_box = QGroupBox()
@@ -374,7 +375,7 @@ class MainWidget(QWidget):
         self.model = table.TableModel(self.table, parent=self)
         self.table.setModel(self.model)
 
-        splitter.addWidget(left_widget)
+        splitter.addWidget(self.left_widget)
         splitter.addWidget(self.tooltip)
         splitter.addWidget(self.table)
         splitter.setSizes((700, 700, 1000))
@@ -403,12 +404,27 @@ class MainWidget(QWidget):
 
         # Create filter inputs
         layout = QHBoxLayout()
-        for _ in range(len(inspect.signature(filt.filter_func).parameters) - 1):
+        num_widgets = len(inspect.signature(filt.filter_func).parameters) - 1
+        for i in range(num_widgets):
             widget = filt.widget_type()
+            widget.setSizePolicy(
+                QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred
+            )
             filt.widgets.append(widget)
             layout.addWidget(widget)
-            if isinstance(widget, QLineEdit) and filt.validator is not None:
-                widget.setValidator(filt.validator)
+
+            if isinstance(widget, QLineEdit):
+                # Validator
+                if filt.validator is not None:
+                    widget.setValidator(filt.validator)
+
+                # Placeholder text
+                if num_widgets == 2:
+                    widget.setPlaceholderText('min' if i == 0 else 'max')
+                if num_widgets == 6:
+                    text = {0: 'R', 1: 'G', 2: 'B', 3: 'W', 4: 'min', 5: 'max'}
+                    widget.setPlaceholderText(text[i])
+
         layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         form_layout.setLayout(index, QFormLayout.ItemRole.FieldRole, layout)
 
@@ -432,8 +448,6 @@ class MainWidget(QWidget):
                     layout = QVBoxLayout(filt.group_box)
                     layout.setContentsMargins(0, 0, 0, 0)
                     widget = QWidget()
-                    filt.group_box.setChecked(filt.start_active)
-                    widget.setVisible(filt.start_active)
                     layout.addWidget(widget)
                     group_form = QFormLayout(widget)
 
