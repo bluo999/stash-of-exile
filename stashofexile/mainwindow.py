@@ -3,6 +3,7 @@ Handles creation of widgets, status bar, and some initial setup.
 """
 
 import os
+import sys
 
 from typing import List
 
@@ -11,7 +12,7 @@ from PyQt6.QtCore import QRect
 from PyQt6.QtGui import QFontDatabase
 from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QMenuBar, QStatusBar, QWidget
 
-from stashofexile import log
+from stashofexile import consts, log
 from stashofexile.threads import api, download, thread
 from stashofexile.widgets import loginwidget, tabswidget, mainwidget
 
@@ -53,8 +54,8 @@ class MainWindow(QMainWindow):
 
         # Start API thread
         self.api_manager = api.APIManager()
-        # assert(isinstance(self.api_manager.thread, api.APIThread))
         self.api_manager.thread.output.connect(MainWindow.callback)
+        self.api_manager.thread.status_output.connect(self.update_status)
 
         # Start download thread
         self.download_manager = download.DownloadManager()
@@ -76,11 +77,12 @@ class MainWindow(QMainWindow):
         # Show window
         self.show()
 
-    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:  # pylint: disable=invalid-name
-        """Kills the API thread on close."""
-        self.api_manager.kill_thread()
-        self.download_manager.kill_thread()
-        return super().closeEvent(a0)
+    def closeEvent(  # pylint: disable=invalid-name,no-self-use
+        self, _: QtGui.QCloseEvent
+    ) -> None:
+        """Exits the application."""
+        logger.info('Main application exiting')
+        sys.exit()
 
     def switch_widget(self, dest_widget: Widget, *args):
         """Switches to another widget."""
@@ -94,6 +96,10 @@ class MainWindow(QMainWindow):
                 widget.hide()
 
         dest_widget.on_show(*args)
+
+    def update_status(self, message: str) -> None:
+        """Updates the status bar message."""
+        self.statusBar().showMessage(message, consts.STATUS_TIMEOUT)
 
     @staticmethod
     def callback(ret: thread.Ret) -> None:

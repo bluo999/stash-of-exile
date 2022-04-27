@@ -162,10 +162,15 @@ class APIThread(thread.RetrieveThread):
     """Thread that handles API calls."""
 
     output = pyqtSignal(thread.Ret)
+    status_output = pyqtSignal(str)
 
     def __init__(self, api_manager: APIManager) -> None:
-        super().__init__(api_manager, ratelimiting.RateLimiter(RATE_LIMITS))
+        super().__init__(api_manager, ratelimiting.RateLimiter(RATE_LIMITS, self))
 
     def service_success(self, ret: thread.Ret) -> None:
         """Emits the API output."""
         self.output.emit(ret)
+
+    def rate_limit(self, message: str) -> None:
+        """Emits status update."""
+        self.status_output.emit(message)

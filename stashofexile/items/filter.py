@@ -3,7 +3,7 @@ Defines Filter class and filter functions for each item filter.
 """
 import dataclasses
 
-from typing import Callable, List, Optional, Type, Union
+from typing import Callable, List, Optional, Type
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QDoubleValidator, QIntValidator, QValidator

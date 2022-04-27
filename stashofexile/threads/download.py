@@ -48,3 +48,6 @@ class DownloadThread(thread.RetrieveThread):
 
     def service_success(self, ret: thread.Ret) -> None:
         """Don't do anything for now."""
+
+    def rate_limit(self, message: str) -> None:
+        """There is no rate limiter for this thread."""

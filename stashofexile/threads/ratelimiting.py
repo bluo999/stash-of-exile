@@ -8,9 +8,12 @@ import math
 import time
 
 from datetime import datetime
-from typing import List, NamedTuple
+from typing import TYPE_CHECKING, List, NamedTuple
 
 from stashofexile import log
+
+if TYPE_CHECKING:
+    from stashofexile.threads.thread import RetrieveThread
 
 logger = log.get_logger(__name__)
 
@@ -54,10 +57,11 @@ class RateQueue(collections.deque):
 class RateLimiter:
     """Rate limiter for a retrieve thread."""
 
-    def __init__(self, rate_limits: List[RateLimit]):
+    def __init__(self, rate_limits: List[RateLimit], thread: 'RetrieveThread'):
         self.queues = [
             RateQueue(rate_limit.hits, rate_limit.period) for rate_limit in rate_limits
         ]
+        self.thread = thread
 
     def update_rate_limits(self, rate_limits: List[RateLimit]) -> None:
         """Update to new rate limits."""
@@ -97,7 +101,9 @@ class RateLimiter:
             return
 
         if sleep_time > 1:
-            logger.info('Cooling off API calls for %ss', sleep_time)
+            message = f'Cooling off API calls for {sleep_time}s'
+            logger.info(message)
+            self.thread.rate_limit(message)
 
         # TODO: figure out a way to not block so that insert can be called during
         # this cool off period. Same with retry after.

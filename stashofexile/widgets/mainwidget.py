@@ -3,7 +3,6 @@ Handles viewing items in tabs and characters.
 """
 
 import dataclasses
-import functools
 import inspect
 import json
 import os
@@ -185,6 +184,7 @@ class MainWidget(QWidget):
             thread.Call(download_manager.get_image, icon, None) for icon in icons
         )
         self.model.insert_items(items)
+        self.mod_db.insert_items(items)
 
     def _get_stash_tab_callback(
         self, tab: m_tab.StashTab, data, err_message: str
@@ -202,6 +202,9 @@ class MainWidget(QWidget):
         with open(tab.filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f)
 
+        self.main_window.statusBar().showMessage(
+            f'Stash tab received: {tab.tab_num}', consts.STATUS_TIMEOUT
+        )
         self._on_receive_items(tab.get_items())
 
     def _get_char_callback(
@@ -218,6 +221,9 @@ class MainWidget(QWidget):
         with open(tab.filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f)
 
+        self.main_window.statusBar().showMessage(
+            f'Character items received: {tab.char_name}', consts.STATUS_TIMEOUT
+        )
         self._on_receive_items(tab.get_items())
 
     def _build_table(self) -> None:
@@ -255,7 +261,7 @@ class MainWidget(QWidget):
 
         # Connect selection to update tooltip
         self.table.selectionModel().selectionChanged.connect(
-            functools.partial(self._update_tooltip, self.model)
+            lambda selected: self._update_tooltip(self.model, selected)
         )
 
         # Connect sort

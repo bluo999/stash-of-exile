@@ -8,7 +8,7 @@ import dataclasses
 import time
 import threading
 
-from typing import Callable, Deque, Iterable, List, Optional, Tuple, Type, Union
+from typing import Callable, Deque, Iterable, List, Optional, Tuple, Type
 
 from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QWidget
@@ -64,7 +64,7 @@ class ThreadManager(abc.ABC):
     def kill_thread(self) -> None:
         """Kills the API thread."""
         self.cond.acquire()
-        self.queue.append(KillThread())
+        self.queue.appendleft(KillThread())
         self.cond.notify()
         self.cond.release()
         self.thread.wait()
@@ -158,12 +158,19 @@ class RetrieveThread(QThread, abc.ABC, metaclass=QThreadABCMeta):
 
                 self.rate_limiter.update_rate_limits(ret.rate_limits)
                 self.thread_manager.retry_last()
-                logger.warning('Hit rate limit, sleeping for %s', ret.retry_after)
+                message = f'Hit rate limit, sleeping for {ret.retry_after}s'
+                logger.warning(message)
+                self.rate_limit(message)
                 time.sleep(ret.retry_after)
                 continue
 
             self.service_success(ret)
+        logger.info('Thread finished')
 
     @abc.abstractmethod
     def service_success(self, ret: Ret) -> None:
         """Callback for a successful service."""
+
+    @abc.abstractmethod
+    def rate_limit(self, message: str) -> None:
+        """Callback for hitting ratelimit."""

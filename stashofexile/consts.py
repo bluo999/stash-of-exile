@@ -3,7 +3,7 @@ Constants that do not involve game data (found in gameData.py).
 """
 
 # Milliseconds for status bar to timeout
-STATUS_TIMEOUT = 5000
+STATUS_TIMEOUT = 10000
 
 # Template to color tooltips
 SPAN_TEMPLATE = """<span style="color:{}">{}</span>"""

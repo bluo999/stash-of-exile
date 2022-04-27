@@ -15,4 +15,4 @@ def main() -> None:
     app = QApplication(sys.argv)
 
     _ = mainwindow.MainWindow()
-    sys.exit(app.exec())
+    app.exec()
