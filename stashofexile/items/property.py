@@ -2,7 +2,9 @@
 Defines parsing of properties.
 """
 
-from stashofexile import consts, util
+from stashofexile import consts, log, util
+
+logger = log.get_logger(__name__)
 
 
 class Property:
@@ -40,15 +42,25 @@ class Property:
                 consts.COLORS['grey'], obj['text']
             )
         else:
-            self.tooltip = consts.SPAN_TEMPLATE.format(
-                consts.COLORS['grey'], obj['text'] + ': '
+            tooltip = []
+            tooltip.append(
+                consts.SPAN_TEMPLATE.format(consts.COLORS['grey'], obj['text'] + ': ')
             )
+            first = True
             for val, valnum in self.values:
                 # Property with label
                 assert isinstance(valnum, int)
+                if not first:
+                    tooltip.append(
+                        consts.SPAN_TEMPLATE.format(consts.COLORS['grey'], ', ')
+                    )
+                if valnum not in consts.VALNUM_TO_COLOR:
+                    logger.error('Color not found: %s for text %s', valnum, val)
                 color = consts.COLORS[consts.VALNUM_TO_COLOR.get(valnum, 'white')]
-                self.tooltip += consts.SPAN_TEMPLATE.format(
-                    color, str(val).replace('\n', '<br />')
+                tooltip.append(
+                    consts.SPAN_TEMPLATE.format(color, str(val).replace('\n', '<br />'))
                 )
+                first = False
+            self.tooltip = ''.join(tooltip)
 
         return self.tooltip

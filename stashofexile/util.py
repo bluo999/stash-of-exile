@@ -7,7 +7,9 @@ import pathlib
 
 from typing import Generator, List, Optional, TypedDict
 
-from stashofexile import consts
+from stashofexile import consts, log
+
+logger = log.get_logger(__name__)
 
 
 class ModifiedStr(TypedDict):
@@ -33,6 +35,8 @@ def insert_values(text: str, values: List[List[str | int]]) -> ModifiedStr:
         val_index = int(obj['text'][index + 1])
         val_num = values[val_index][1]
         assert isinstance(val_num, int)
+        if val_num not in consts.VALNUM_TO_COLOR:
+            logger.error('Color not found: %s for text %s', val_num, text)
         color = consts.COLORS[consts.VALNUM_TO_COLOR.get(val_num, 'white')]
         obj['text'] = (
             obj['text'][:index]

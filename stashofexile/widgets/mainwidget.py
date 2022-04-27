@@ -482,6 +482,8 @@ class MainWidget(QWidget):
                 QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
             )
             widget.addItems(search for search in self.mod_db)
+            for i, search in enumerate(self.mod_db):
+                widget.setItemData(i + 1, search, Qt.ItemDataRole.ToolTipRole)
             widget.currentIndexChanged.connect(self._apply_filters)
             filt.widgets.append(widget)
             hlayout.addWidget(widget)

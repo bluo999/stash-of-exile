@@ -32,7 +32,7 @@ COLORS = {
     'normal': '#ffffff',
     'magic': '#8888ff',
     'rare': '#ffff77',
-    'unique': '#af6021',
+    'unique': '#af6025',
     'gem': '#1ba29b',
     'currency': '#aa9e82',
     'divination': '#04adea',
@@ -41,8 +41,24 @@ COLORS = {
     # Other
     'red': '#ac0100',
     'craft': '#b4b4ff',
-    'fire': '#710000',
+    'fire': '#960000',
+    'lightning': 'gold',
+    'cold': '#366492',
+    'chaos': '#d02090',
 }
 
 # API value to named color/type
-VALNUM_TO_COLOR = {0: 'white', 1: 'magic', 4: 'fire', 16: 'white'}
+VALNUM_TO_COLOR = {
+    0: 'white',
+    1: 'magic',
+    2: 'red',
+    3: 'white',  # physical
+    4: 'fire',
+    5: 'cold',
+    6: 'lightning',
+    7: 'chaos',
+    8: 'magic',
+    9: 'rare',
+    10: 'unique',
+    16: 'white',
+}

@@ -2,7 +2,9 @@
 Defines parsing of requirements.
 """
 
-from stashofexile import consts, util
+from stashofexile import consts, log, util
+
+logger = log.get_logger(__name__)
 
 
 class Requirement:
@@ -27,6 +29,8 @@ class Requirement:
         else:
             valnum = self.values[0][1]
             assert isinstance(valnum, int)
+            if valnum not in consts.VALNUM_TO_COLOR:
+                logger.error('Color not found: %s for text %s', valnum, val)
             color = consts.COLORS[consts.VALNUM_TO_COLOR.get(valnum, 'white')]
             value = consts.SPAN_TEMPLATE.format(color, self.values[0][0])
 
