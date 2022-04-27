@@ -73,6 +73,7 @@ class MainWidget(QWidget):
         self.item_tabs: List[m_tab.ItemTab] = []
         self.account = None
         self.mod_db: moddb.ModDb = moddb.ModDb()
+        self.tab_filt: Optional[m_filter.Filter] = None
         self._static_build()
         self._load_mod_file()
         self._dynamic_build_filters()
@@ -185,6 +186,10 @@ class MainWidget(QWidget):
         )
         self.model.insert_items(items)
         self.mod_db.insert_items(items)
+        if self.tab_filt is not None:
+            widget = self.tab_filt.widgets[0]
+            assert isinstance(widget, QComboBox)
+            widget.addItem(items[0].tab)
 
     def _get_stash_tab_callback(
         self, tab: m_tab.StashTab, data, err_message: str
@@ -239,7 +244,13 @@ class MainWidget(QWidget):
             icons.update((item.icon, item.file_path) for item in tab_items)
             items.extend(tab_items)
 
+        if self.tab_filt is not None:
+            widget = self.tab_filt.widgets[0]
+            assert isinstance(widget, QComboBox)
+            widget.addItems(tab.get_tab_name() for tab in self.item_tabs)
+
         self.mod_db.insert_items(items)
+
         logger.info('Writing mod db file')
         with open(MOD_DB_FILE, 'wb') as f:
             pickle.dump(self.mod_db, f)
@@ -542,6 +553,8 @@ class MainWidget(QWidget):
         for filt in m_filter.FILTERS:
             match filt:
                 case m_filter.Filter():
+                    if filt.name == 'Tab':
+                        self.tab_filt = filt
                     self._connect_signal(filt)
                     _populate_combo(filt)
                 case m_filter.FilterGroup(_, filters, _):

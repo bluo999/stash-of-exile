@@ -212,6 +212,11 @@ def _filter_rarity(item: m_item.Item, elem: QComboBox) -> bool:
     return False
 
 
+def _filter_tab(item: m_item.Item, elem: QComboBox) -> bool:
+    """Filter function for tab."""
+    return item.tab == elem.currentText()
+
+
 def _filter_class(item: m_item.Item, elem: QComboBox) -> bool:
     """Filter function that uses character class."""
     text = elem.currentText()
@@ -277,6 +282,7 @@ FILTERS: List[Filter | FilterGroup] = [
     Filter('Name', QLineEdit, _filter_name),
     Filter('Category', editcombo.ECBox, _filter_category),
     Filter('Rarity', editcombo.ECBox, _filter_rarity),
+    Filter('Tab', editcombo.ECBox, _filter_tab),
     FilterGroup(
         'Weapon Filters',
         [
