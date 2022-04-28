@@ -26,6 +26,11 @@ class ValInfo(TypedDict):
     vals: List[List[str | int]]
 
 
+def colorize(text: str, color_name: str) -> str:
+    """Colorizes text using span."""
+    return consts.SPAN_TEMPLATE.format(consts.COLORS[color_name], text)
+
+
 def insert_values(text: str, values: List[List[str | int]]) -> ModifiedStr:
     """Inserts the colorized values into description text provided by the API."""
     obj: ModifiedStr = {'text': text, 'inserted': False}
@@ -37,10 +42,10 @@ def insert_values(text: str, values: List[List[str | int]]) -> ModifiedStr:
         assert isinstance(val_num, int)
         if val_num not in consts.VALNUM_TO_COLOR:
             logger.error('Color not found: %s for text %s', val_num, text)
-        color = consts.COLORS[consts.VALNUM_TO_COLOR.get(val_num, 'white')]
+        text = str(values[val_index][0])
         obj['text'] = (
             obj['text'][:index]
-            + consts.SPAN_TEMPLATE.format(color, values[val_index][0])
+            + colorize(text, consts.VALNUM_TO_COLOR.get(val_num, 'white'))
             + obj['text'][index + 3 :]
         )
         obj['inserted'] = True

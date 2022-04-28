@@ -27,9 +27,7 @@ class Property:
             index = self.name.index('<')
             name = (
                 self.name[0:index]
-                + consts.SPAN_TEMPLATE.format(
-                    consts.COLORS['red'], self.name[index + 8]
-                )
+                + util.colorize(self.name[index + 8], 'red')
                 + self.name[index + 10 :]
             )
 
@@ -38,28 +36,20 @@ class Property:
 
         if obj['inserted'] or not self.values or self.values[0][0] == '':
             # Property without label
-            self.tooltip = consts.SPAN_TEMPLATE.format(
-                consts.COLORS['grey'], obj['text']
-            )
+            self.tooltip = util.colorize(obj['text'], 'grey')
         else:
             tooltip = []
-            tooltip.append(
-                consts.SPAN_TEMPLATE.format(consts.COLORS['grey'], obj['text'] + ': ')
-            )
+            tooltip.append(util.colorize(obj['text'] + ': ', 'grey'))
             first = True
             for val, valnum in self.values:
                 # Property with label
                 assert isinstance(valnum, int)
                 if not first:
-                    tooltip.append(
-                        consts.SPAN_TEMPLATE.format(consts.COLORS['grey'], ', ')
-                    )
+                    tooltip.append(util.colorize(', ', 'grey'))
                 if valnum not in consts.VALNUM_TO_COLOR:
                     logger.error('Color not found: %s for text %s', valnum, val)
-                color = consts.COLORS[consts.VALNUM_TO_COLOR.get(valnum, 'white')]
-                tooltip.append(
-                    consts.SPAN_TEMPLATE.format(color, str(val).replace('\n', '<br />'))
-                )
+                color = consts.VALNUM_TO_COLOR.get(valnum, 'white')
+                tooltip.append(util.colorize(str(val).replace('\n', '<br />'), color))
                 first = False
             self.tooltip = ''.join(tooltip)
 

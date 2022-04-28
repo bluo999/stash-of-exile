@@ -7,7 +7,7 @@ import re
 
 from typing import Any, Callable, Dict, List, NamedTuple
 
-from stashofexile import consts, gamedata, log
+from stashofexile import consts, gamedata, log, util
 from stashofexile.items import property as m_property, requirement, socket as m_socket
 
 PLUS_PERCENT_REGEX = r'\+(\d+)%'  # +x%
@@ -66,7 +66,7 @@ def _list_mods(mod_groups: List[ModGroup]) -> str:
     text: List[str] = []
     for i, (mods, color) in enumerate(filt_mod_lists):
         for j, mod in enumerate(mods):
-            text.append(consts.SPAN_TEMPLATE.format(consts.COLORS[color], mod))
+            text.append(util.colorize(mod, color))
             if i < len(filt_mod_lists) - 1 or j < len(mods) - 1:
                 text.append('<br />')
 
@@ -80,9 +80,7 @@ def _list_tags(tag_info: List[Tag]) -> str:
     """
     # Get rid of inactive tags then format them
     formatted_tags = [
-        consts.SPAN_TEMPLATE.format(consts.COLORS[tag.color], tag.name)
-        for tag in tag_info
-        if tag.active
+        util.colorize(tag.name, tag.color) for tag in tag_info if tag.active
     ]
 
     # Add tags on separate lines
@@ -483,18 +481,14 @@ class Item:
         influence_icons = [
             f'<img src="assets/{infl}.png" />' for infl in self.influences
         ]
-        name = consts.SPAN_TEMPLATE.format(
-            consts.COLORS[self.rarity], self.name.replace(', ', '<br />')
-        )
+        name = util.colorize(self.name.replace(', ', '<br />'), self.rarity)
 
         return ''.join(influence_icons) + consts.HEADER_TEMPLATE.format(name)
 
     def _get_prophecy_tooltip(self) -> str:
         """Returns the colorized prophecy tooltip."""
         return (
-            consts.SPAN_TEMPLATE.format(consts.COLORS['white'], self.prophecy)
-            if self.prophecy is not None
-            else ''
+            util.colorize(self.prophecy, 'white') if self.prophecy is not None else ''
         )
 
     def _get_property_tooltip(self) -> str:
@@ -526,13 +520,11 @@ class Item:
         tooltips: List[str] = []
         for area in self.logbook:
             tooltip = [
-                consts.SPAN_TEMPLATE.format(consts.COLORS['white'], area['name']),
-                consts.SPAN_TEMPLATE.format(
-                    consts.COLORS['grey'], area['faction']['name']
-                ),
+                util.colorize(area['name'], 'white'),
+                util.colorize(area['faction']['name'], 'grey'),
             ]
             for mod in area['mods']:
-                tooltip.append(consts.SPAN_TEMPLATE.format(consts.COLORS['magic'], mod))
+                tooltip.append(util.colorize(mod, 'magic'))
             tooltips.append('<br />'.join(tooltip))
 
         return tooltips
@@ -543,7 +535,7 @@ class Item:
             return ''
 
         tooltip: List[str] = []
-        tooltip.append(consts.SPAN_TEMPLATE.format(consts.COLORS['grey'], 'Requires'))
+        tooltip.append(util.colorize('Requires', 'grey'))
         for i, req in enumerate(self.reqs):
             if i > 0:
                 tooltip.append(',')
@@ -553,19 +545,15 @@ class Item:
 
     def _get_gem_secondary_tooltip(self) -> str:
         """Returns the colorized, line separated gem description tooltip."""
-        return (
-            consts.SPAN_TEMPLATE.format(consts.COLORS['gem'], self.gem)
-            if self.gem is not None
-            else ''
-        )
+        return util.colorize(self.gem, 'gem') if self.gem is not None else ''
 
     def _get_ilevel_tooltip(self) -> str:
         """
         Returns the colorized item level tooltip for organs and bestiary orbs.
         """
         if 'Metamorph' in self.icon or 'BestiaryOrb' in self.icon:
-            label = consts.SPAN_TEMPLATE.format(consts.COLORS['grey'], 'Item Level: ')
-            value = consts.SPAN_TEMPLATE.format(consts.COLORS['white'], self.ilvl)
+            label = util.colorize('Item Level: ', 'grey')
+            value = util.colorize(self.ilvl, 'white')
             return label + value
 
         return ''
@@ -575,10 +563,8 @@ class Item:
         if self.experience is None:
             return ''
 
-        label = consts.SPAN_TEMPLATE.format(consts.COLORS['grey'], 'Experience: ')
-        value = consts.SPAN_TEMPLATE.format(
-            consts.COLORS['white'], f'{self.current_exp:,}/{self.max_exp:,}'
-        )
+        label = util.colorize('Experience: ', 'grey')
+        value = util.colorize(f'{self.current_exp:,}/{self.max_exp:,}', 'white')
         return label + value
 
     def _get_incubator_tooltip(self) -> str:
@@ -591,22 +577,16 @@ class Item:
         name = self.incubator['name']
         level = self.incubator['level']
         return (
-            consts.SPAN_TEMPLATE.format(consts.COLORS['craft'], f'Incubating {name}')
+            util.colorize(f'Incubating {name}', 'craft')
             + '<br />'
-            + consts.SPAN_TEMPLATE.format(
-                consts.COLORS['white'], f'{progress:,}/{total:,}'
-            )
-            + consts.SPAN_TEMPLATE.format(
-                consts.COLORS['grey'], f' level {level}+ monster kills'
-            )
+            + util.colorize(f'{progress:,}/{total:,}', 'white')
+            + util.colorize(f' level {level}+ monster kills', 'grey')
         )
 
     def _get_scourge_tooltip(self) -> str:
         """Returns the colorized, line separated scourge tooltip."""
         return (
-            consts.SPAN_TEMPLATE.format(
-                consts.COLORS['scourged'], f'Scourged (Tier {self.scourge_tier})'
-            )
+            util.colorize(f'Scourged (Tier {self.scourge_tier})', 'scourged')
             if self.scourge_tier > 0
             else ''
         )
