@@ -8,9 +8,8 @@ import sys
 from typing import List
 
 from PyQt6 import QtGui
-from PyQt6.QtCore import QRect
 from PyQt6.QtGui import QFontDatabase
-from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QMenuBar, QStatusBar, QWidget
+from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QStatusBar, QWidget
 
 from stashofexile import consts, log
 from stashofexile.threads import api, download, thread
@@ -37,11 +36,6 @@ class MainWindow(QMainWindow):
         # QSS file
         with open('assets/styles.qss', 'r', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
-
-        # Menu bar
-        menu_bar = QMenuBar(self)
-        menu_bar.setGeometry(QRect(0, 0, 1280, 21))
-        self.setMenuBar(menu_bar)
 
         # Status bar
         status_bar = QStatusBar(self)

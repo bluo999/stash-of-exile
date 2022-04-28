@@ -11,3 +11,4 @@ item_cache/
 *.pkl
 *.ui
 *.log
+test*

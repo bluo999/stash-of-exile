@@ -3,15 +3,17 @@ Handles viewing items in tabs and characters.
 """
 
 import dataclasses
+import functools
 import inspect
 import json
 import os
 import pickle
+import re
 
 from typing import List, TYPE_CHECKING, Optional, Set, Tuple
 
 from PyQt6.QtCore import QItemSelection, QSize, Qt
-from PyQt6.QtGui import QDoubleValidator, QFont, QTextCursor
+from PyQt6.QtGui import QAction, QDoubleValidator, QFont, QTextCursor
 from PyQt6.QtWidgets import (
     QAbstractItemView,
     QAbstractScrollArea,
@@ -22,8 +24,12 @@ from PyQt6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
     QHeaderView,
+    QInputDialog,
     QLabel,
     QLineEdit,
+    QMenu,
+    QMenuBar,
+    QMessageBox,
     QScrollArea,
     QSizePolicy,
     QSplitter,
@@ -49,6 +55,10 @@ ITEM_CACHE_DIR = os.path.join('item_cache')
 TABS_DIR = 'tabs'
 CHARACTER_DIR = 'characters'
 JEWELS_DIR = 'jewels'
+UNIQUE_DIR = 'uniques'
+
+UNIQUE_URL_REGEX = r'https:\/\/www\.pathofexile\.com\/account\/view-stash\/.*\/(.*)'
+UNIQUE_REGEX = r'new R\((.*)\)\)\.run'
 
 
 def _toggle_visibility(widget: QWidget) -> None:
@@ -88,7 +98,21 @@ class MainWidget(QWidget):
         tabs: List[int] = dataclasses.field(default_factory=list),
         characters: List[str] = dataclasses.field(default_factory=list),
     ) -> None:
-        """Retrieves existing tabs or send API calls, then build the table."""
+        """
+        Build menu bar, retrieves existing tabs or send API calls, then build the table.
+        """
+        # Menu bar
+        menu_bar = QMenuBar(self)
+        self.main_window.setMenuBar(menu_bar)
+
+        file_menu = QMenu('&File', self)
+        menu_bar.addMenu(file_menu)
+
+        unique_action = QAction(self)
+        unique_action.setText('&Import Unique Tab')
+        file_menu.addAction(unique_action)
+        file_menu.triggered.connect(functools.partial(self.prompt_unique, league))
+
         if account.poesessid == '':
             # Show all cached results
             league_dir = os.path.join(ITEM_CACHE_DIR, account.username, league)
@@ -96,6 +120,7 @@ class MainWidget(QWidget):
             tab_dir = os.path.join(league_dir, TABS_DIR)
             character_dir = os.path.join(league_dir, CHARACTER_DIR)
             jewels_dir = os.path.join(league_dir, JEWELS_DIR)
+            unique_dir = os.path.join(league_dir, UNIQUE_DIR)
 
             if (stash := util.get_jsons(tab_dir)) is not None:
                 self.item_tabs.extend(m_tab.StashTab(stash_tab) for stash_tab in stash)
@@ -103,10 +128,52 @@ class MainWidget(QWidget):
                 self.item_tabs.extend(m_tab.CharacterTab(char) for char in chars)
             if (jewels := util.get_jsons(jewels_dir)) is not None:
                 self.item_tabs.extend(m_tab.CharacterTab(char) for char in jewels)
+            if (uniques := util.get_jsons(unique_dir)) is not None:
+                self.item_tabs.extend(m_tab.UniqueSubTab(unique) for unique in uniques)
         else:
             self._send_api(account, league, tabs, characters)
 
         self._build_table()
+
+    def prompt_unique(self, league: str) -> None:
+        """Prompt user for unique stash tab URL."""
+        text, submitted = QInputDialog.getText(
+            self,
+            'Stash of Exile Input',
+            f'Enter URL for {league} League unique stash tab:',
+        )
+        if not submitted:
+            return
+
+        # Get uid from URL
+        z = re.search(UNIQUE_URL_REGEX, text)
+        if z is None:
+            msg = QMessageBox(QMessageBox.Icon.Warning, 'Error', 'Invalid URL')
+            msg.exec()
+            return
+        uid = z.groups()[0]
+
+        # Set up API manager calls
+        account = self.account
+        assert account is not None
+        api_manager = self.main_window.api_manager
+        api_calls: List[thread.Call] = []
+        for i in range(consts.NUM_UNIQUE_CAT):
+            index = i + 1
+            filename = os.path.join(
+                ITEM_CACHE_DIR, account.username, league, UNIQUE_DIR, f'{index}.json'
+            )
+            tab = m_tab.UniqueSubTab(filename, index)
+            api_calls.append(
+                thread.Call(
+                    api_manager.get_unique_subtab,
+                    (account.username, uid, index),
+                    self,
+                    self._get_unique_subtab_callback,
+                    (tab,),
+                )
+            )
+        api_manager.insert(api_calls)
 
     def _send_api(
         self, account: save.Account, league: str, tabs: List[int], characters: List[str]
@@ -175,6 +242,16 @@ class MainWidget(QWidget):
             )
             api_calls.append(api_call)
 
+        # Cache existing unique tabs (cannot queue API calls with just POESESSID)
+        for i in range(consts.NUM_UNIQUE_CAT):
+            index = i + 1
+            filename = os.path.join(
+                ITEM_CACHE_DIR, account.username, league, UNIQUE_DIR, f'{index}.json'
+            )
+            item_tab = m_tab.UniqueSubTab(filename, index)
+            if os.path.exists(filename):
+                self.item_tabs.append(item_tab)
+
         api_manager.insert(api_calls)
 
     def _on_receive_items(self, items: List[m_item.Item]) -> None:
@@ -229,6 +306,32 @@ class MainWidget(QWidget):
 
         self.main_window.statusBar().showMessage(
             f'Character items received: {tab.char_name}', consts.STATUS_TIMEOUT
+        )
+        self._on_receive_items(tab.get_items())
+
+    def _get_unique_subtab_callback(
+        self, tab: m_tab.UniqueSubTab, js_code: str, err_message: str
+    ) -> None:
+        """Takes unique subtab data and inserts the items into the table."""
+        if js_code is None:
+            # Use error message
+            logger.warning(err_message)
+            return
+
+        z = re.search(UNIQUE_REGEX, js_code)
+        if z is None:
+            logger.warning('Unexpected structure of return.')
+            return
+
+        logger.info('Writing subtab json to %s', tab.filepath)
+        data = json.loads(z.groups()[0])
+        json_data = {'items': [item_data[1] for item_data in data]}
+        util.create_directories(tab.filepath)
+        with open(tab.filepath, 'w', encoding='utf-8') as f:
+            json.dump(json_data, f)
+
+        self.main_window.statusBar().showMessage(
+            f'Unique subtab received: {tab.tab_num}', consts.STATUS_TIMEOUT
         )
         self._on_receive_items(tab.get_items())
 

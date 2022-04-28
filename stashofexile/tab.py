@@ -82,3 +82,20 @@ class StashTab(ItemTab):
 
     def _parse_data(self, data) -> None:
         self.tab_name = data['tabs'][self.tab_num]['n']
+
+
+class UniqueSubTab(ItemTab):
+    """Representa a unique subtab's items."""
+
+    def __init__(self, filepath: str, tab_num: Optional[int] = None):
+        super().__init__(filepath)
+        if tab_num is not None:
+            self.tab_num = tab_num
+        else:
+            self.tab_num = util.get_file_name(filepath)
+
+    def get_tab_name(self) -> str:
+        return f'Unique ({self.tab_num})'
+
+    def _parse_data(self, data) -> None:
+        """Don't need to parse the tab."""
