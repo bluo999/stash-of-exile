@@ -131,12 +131,14 @@ class Item:
             for r in item_json.get('requirements', [])
         ]
 
+        self.logbook: List[Dict[str, Any]] = item_json.get('logbookMods', [])
         self.implicit = item_json.get('implicitMods', [])
+        self.scourge = item_json.get('scourgeMods', [])
         self.utility = item_json.get('utilityMods', [])
         self.fractured = item_json.get('fracturedMods', [])
         self.explicit = item_json.get('explicitMods', [])
         self.crafted = item_json.get('craftedMods', [])
-        self.veiled = item_json.get('veiledMods', [])
+        self.veiled = ['Veiled ' + mod[:-2] for mod in item_json.get('veiledMods', [])]
         self.enchanted = item_json.get('enchantMods', [])
         self.cosmetic = item_json.get('cosmeticMods', [])
 
@@ -152,6 +154,7 @@ class Item:
         self.synthesised = item_json.get('synthesised', False)
         self.searing = item_json.get('searing', False)
         self.tangled = item_json.get('tangled', False)
+        self.scourged = item_json.get('scourged')
 
         self.ilvl = item_json.get('ilvl')
         self.rarity = gamedata.RARITIES.get(item_json['frameType'], 'normal')
@@ -297,6 +300,7 @@ class Item:
             [
                 ModGroup(self.fractured, 'currency'),
                 ModGroup(self.explicit, 'magic'),
+                ModGroup(self.veiled, 'grey'),
                 ModGroup(self.crafted, 'craft'),
             ]
         )
@@ -317,24 +321,32 @@ class Item:
             self._get_prophecy_tooltip()
             + self._get_property_tooltip()
             + self._get_utility_tooltip(),
-            # Requirements
-            self._get_requirement_tooltip(),
-            # Gem secondary description
-            self._get_gem_secondary_tooltip(),
-            # Item level (metamorph, bestiary orb)
-            self._get_ilevel_tooltip(),
-            # Mods
-            _list_mods([ModGroup(self.enchanted, 'craft')]),
-            _list_mods([ModGroup(self.implicit, 'magic')]),
-            # Mods and Tags
-            f'{mods}<br />{tags}' if mods and tags else mods + tags,
-            # Gem experience
-            self._get_gem_exp_tooltip(),
-            # Incubator info
-            self._get_incubator_tooltip(),
-            # Skin transfers
-            _list_mods([ModGroup(self.cosmetic, 'currency')]),
         ]
+        self.tooltip.extend(self._get_expedition_tooltips())
+        self.tooltip.extend(
+            (
+                # Requirements
+                self._get_requirement_tooltip(),
+                # Gem secondary description
+                self._get_gem_secondary_tooltip(),
+                # Item level (metamorph, bestiary orb)
+                self._get_ilevel_tooltip(),
+                # Mods
+                _list_mods([ModGroup(self.enchanted, 'craft')]),
+                _list_mods([ModGroup(self.scourge, 'scourged')]),
+                _list_mods([ModGroup(self.implicit, 'magic')]),
+                # Mods and Tags
+                f'{mods}<br />{tags}' if mods and tags else mods + tags,
+                # Gem experience
+                self._get_gem_exp_tooltip(),
+                # Skin transfers
+                _list_mods([ModGroup(self.cosmetic, 'currency')]),
+                # Incubator info
+                self._get_incubator_tooltip(),
+                # Scourge info
+                self._get_scourge_tooltip(),
+            )
+        )
         self.tooltip = [group for group in self.tooltip if len(group) > 0]
 
         return self.tooltip
@@ -419,26 +431,22 @@ class Item:
 
     def _req_props(self) -> None:
         """Populates requirement properties."""
+        # fmt: off
         req_level = next((req for req in self.reqs if req.name == 'Level'), None)
         self.req_level = int(req_level.values[0][0]) if req_level is not None else None
 
-        req_str = next(
-            (req for req in self.reqs if req.name in ('Strength', 'Str')), None
-        )
+        req_str = next((req for req in self.reqs if req.name in ('Strength', 'Str')), None)
         self.req_str = int(req_str.values[0][0]) if req_str is not None else None
 
-        req_dex = next(
-            (req for req in self.reqs if req.name in ('Dexterity', 'Dex')), None
-        )
+        req_dex = next((req for req in self.reqs if req.name in ('Dexterity', 'Dex')), None)
         self.req_dex = int(req_dex.values[0][0]) if req_dex is not None else None
 
-        req_int = next(
-            (req for req in self.reqs if req.name in ('Intelligence', 'Int')), None
-        )
+        req_int = next((req for req in self.reqs if req.name in ('Intelligence', 'Int')), None)
         self.req_int = int(req_int.values[0][0]) if req_int is not None else None
 
         req_class = next((req for req in self.reqs if req.name == 'Class:'), None)
         self.req_class = req_class.values[0][0] if req_class is not None else None
+        # fmt: on
 
     def _misc_props(self) -> None:
         """Populates miscelaneous properties."""
@@ -465,6 +473,10 @@ class Item:
         self.crafted_tag = len(self.crafted) > 0
         self.veiled_tag = len(self.veiled) > 0
         self.enchanted_tag = len(self.enchanted) > 0
+        self.scourge_tier: int = (
+            self.scourged['tier'] if self.scourged is not None else 0
+        )
+        self.cosmetic_tag = len(self.cosmetic) > 0
 
     def _get_header_tooltip(self) -> str:
         """Returns the header tooltip, including influence icons and a colorized name."""
@@ -487,12 +499,14 @@ class Item:
 
     def _get_property_tooltip(self) -> str:
         """Returns the colorized, line separated properties tooltip."""
+        if not self.props:
+            return ''
+
         tooltip: List[str] = []
-        if self.props:
-            for i, item_prop in enumerate(self.props):
-                tooltip.append(item_prop.description)
-                if i < len(self.props) - 1:
-                    tooltip.append('<br />')
+        for i, item_prop in enumerate(self.props):
+            tooltip.append(item_prop.description)
+            if i < len(self.props) - 1:
+                tooltip.append('<br />')
 
         return ''.join(tooltip)
 
@@ -504,15 +518,36 @@ class Item:
 
         return ''
 
+    def _get_expedition_tooltips(self) -> List[str]:
+        """Returns the colorized, line separated expedition tooltip."""
+        if not self.logbook:
+            return []
+
+        tooltips: List[str] = []
+        for area in self.logbook:
+            tooltip = [
+                consts.SPAN_TEMPLATE.format(consts.COLORS['white'], area['name']),
+                consts.SPAN_TEMPLATE.format(
+                    consts.COLORS['grey'], area['faction']['name']
+                ),
+            ]
+            for mod in area['mods']:
+                tooltip.append(consts.SPAN_TEMPLATE.format(consts.COLORS['magic'], mod))
+            tooltips.append('<br />'.join(tooltip))
+
+        return tooltips
+
     def _get_requirement_tooltip(self) -> str:
         """Returns the colorized, line separated requirements tooltip."""
+        if not self.reqs:
+            return ''
+
         tooltip: List[str] = []
-        if self.reqs:
-            tooltip.append(consts.SPAN_TEMPLATE.format('grey', 'Requires'))
-            for i, req in enumerate(self.reqs):
-                if i > 0:
-                    tooltip.append(',')
-                tooltip.append(' ' + req.description)
+        tooltip.append(consts.SPAN_TEMPLATE.format(consts.COLORS['grey'], 'Requires'))
+        for i, req in enumerate(self.reqs):
+            if i > 0:
+                tooltip.append(',')
+            tooltip.append(' ' + req.description)
 
         return ''.join(tooltip)
 
@@ -537,33 +572,41 @@ class Item:
 
     def _get_gem_exp_tooltip(self) -> str:
         """Returns the colorized gem experience tooltip."""
-        if self.experience is not None:
-            label = consts.SPAN_TEMPLATE.format(consts.COLORS['grey'], 'Experience: ')
-            value = consts.SPAN_TEMPLATE.format(
-                consts.COLORS['white'], f'{self.current_exp:,}/{self.max_exp:,}'
-            )
-            return label + value
+        if self.experience is None:
+            return ''
 
-        return ''
+        label = consts.SPAN_TEMPLATE.format(consts.COLORS['grey'], 'Experience: ')
+        value = consts.SPAN_TEMPLATE.format(
+            consts.COLORS['white'], f'{self.current_exp:,}/{self.max_exp:,}'
+        )
+        return label + value
 
     def _get_incubator_tooltip(self) -> str:
         """Returns the colorized, line separated incubator tooltip."""
-        if self.incubator is not None:
-            progress = int(self.incubator['progress'])
-            total = int(self.incubator['total'])
-            name = self.incubator['name']
-            level = self.incubator['level']
-            return (
-                consts.SPAN_TEMPLATE.format(
-                    consts.COLORS['craft'], f'Incubating {name}'
-                )
-                + '<br />'
-                + consts.SPAN_TEMPLATE.format(
-                    consts.COLORS['white'], f'{progress:,}/{total:,}'
-                )
-                + consts.SPAN_TEMPLATE.format(
-                    consts.COLORS['grey'], f' level {level}+ monster kills'
-                )
-            )
+        if self.incubator is None:
+            return ''
 
-        return ''
+        progress = int(self.incubator['progress'])
+        total = int(self.incubator['total'])
+        name = self.incubator['name']
+        level = self.incubator['level']
+        return (
+            consts.SPAN_TEMPLATE.format(consts.COLORS['craft'], f'Incubating {name}')
+            + '<br />'
+            + consts.SPAN_TEMPLATE.format(
+                consts.COLORS['white'], f'{progress:,}/{total:,}'
+            )
+            + consts.SPAN_TEMPLATE.format(
+                consts.COLORS['grey'], f' level {level}+ monster kills'
+            )
+        )
+
+    def _get_scourge_tooltip(self) -> str:
+        """Returns the colorized, line separated scourge tooltip."""
+        return (
+            consts.SPAN_TEMPLATE.format(
+                consts.COLORS['scourged'], f'Scourged (Tier {self.scourge_tier})'
+            )
+            if self.scourge_tier > 0
+            else ''
+        )

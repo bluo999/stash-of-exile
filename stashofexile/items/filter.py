@@ -400,6 +400,8 @@ FILTERS: List[Filter | FilterGroup] = [
             Filter('Crafted', editcombo.BoolECBox, _bool(lambda i: i.crafted_tag)),
             Filter('Veiled', editcombo.BoolECBox, _bool(lambda i: i.veiled_tag)),
             Filter('Enchanted', editcombo.BoolECBox, _bool(lambda i: i.enchanted_tag)),
+            Filter('Skinned', editcombo.BoolECBox, _bool(lambda i: i.cosmetic_tag)),
+            Filter('Scourge Tier', QLineEdit, _duo(lambda i: i.scourge_tier, int), IV),
             Filter('Influenced', InfluenceFilter, _filter_influences),
         ],
     ),

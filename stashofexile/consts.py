@@ -45,6 +45,7 @@ COLORS = {
     'lightning': 'gold',
     'cold': '#366492',
     'chaos': '#d02090',
+    'scourged': '#ff6e25',
 }
 
 # API value to named color/type
@@ -61,4 +62,7 @@ VALNUM_TO_COLOR = {
     9: 'rare',
     10: 'unique',
     16: 'white',
+    18: 'currency',
+    19: 'white',
+    20: 'divination',
 }

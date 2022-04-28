@@ -77,6 +77,7 @@ class ModDb(dict):
                 continue
             mod_groups = (
                 item.implicit,
+                item.scourge,
                 item.fractured,
                 item.explicit,
                 item.crafted,
