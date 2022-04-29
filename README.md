@@ -9,7 +9,7 @@ Stash of Exile is a stash and character searcher for Path of Exile developed in 
 - [x] Basic filter support
 - [x] Basic mod support
 - [x] Advanced filter support
-- [ ] Unique tab support
+- [x] Unique tab support
 - [ ] Sockets and links
 - [ ] Advanced mod support
 - [ ] Save and load preset mods/filters

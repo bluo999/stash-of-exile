@@ -5,9 +5,6 @@ Constants that do not involve game data (found in gameData.py).
 # Milliseconds for status bar to timeout
 STATUS_TIMEOUT = 10000
 
-# Categories for Unique items
-NUM_UNIQUE_CAT = 22
-
 # Template to color tooltips
 SPAN_TEMPLATE = """<span style="color:{}">{}</span>"""
 

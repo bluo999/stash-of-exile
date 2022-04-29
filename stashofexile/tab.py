@@ -7,7 +7,7 @@ import json
 
 from typing import List, Optional
 
-from stashofexile import log, util
+from stashofexile import gamedata, log, util
 from stashofexile.items import item
 
 logger = log.get_logger(__name__)
@@ -89,13 +89,12 @@ class UniqueSubTab(ItemTab):
 
     def __init__(self, filepath: str, tab_num: Optional[int] = None):
         super().__init__(filepath)
-        if tab_num is not None:
-            self.tab_num = tab_num
-        else:
-            self.tab_num = util.get_file_name(filepath)
+        if tab_num is None:
+            tab_num = int(util.get_file_name(filepath))
+        self.tab_name = gamedata.UNIQUE_CATEGORIES[tab_num]
 
     def get_tab_name(self) -> str:
-        return f'Unique ({self.tab_num})'
+        return f'Unique ({self.tab_name})'
 
     def _parse_data(self, data) -> None:
         """Don't need to parse the tab."""

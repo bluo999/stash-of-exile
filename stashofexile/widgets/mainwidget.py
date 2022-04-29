@@ -57,7 +57,6 @@ CHARACTER_DIR = 'characters'
 JEWELS_DIR = 'jewels'
 UNIQUE_DIR = 'uniques'
 
-UNIQUE_URL_REGEX = r'https:\/\/www\.pathofexile\.com\/account\/view-stash\/.*\/(.*)'
 UNIQUE_REGEX = r'new R\((.*)\)\)\.run'
 
 
@@ -85,6 +84,7 @@ class MainWidget(QWidget):
         self.account = None
         self.mod_db: moddb.ModDb = moddb.ModDb()
         self.tab_filt: Optional[m_filter.Filter] = None
+        self.uid = ''
         self._static_build()
         self._load_mod_file()
         self._dynamic_build_filters()
@@ -97,21 +97,13 @@ class MainWidget(QWidget):
         league: str,
         tabs: List[int] = dataclasses.field(default_factory=list),
         characters: List[str] = dataclasses.field(default_factory=list),
+        uniques: List[int] = dataclasses.field(default_factory=list),
+        uid: str = '',
     ) -> None:
         """
         Build menu bar, retrieves existing tabs or send API calls, then build the table.
         """
-        # Menu bar
-        menu_bar = QMenuBar(self)
-        self.main_window.setMenuBar(menu_bar)
-
-        file_menu = QMenu('&File', self)
-        menu_bar.addMenu(file_menu)
-
-        unique_action = QAction(self)
-        unique_action.setText('&Import Unique Tab')
-        file_menu.addAction(unique_action)
-        file_menu.triggered.connect(functools.partial(self.prompt_unique, league))
+        self.uid = uid
 
         if account.poesessid == '':
             # Show all cached results
@@ -128,55 +120,20 @@ class MainWidget(QWidget):
                 self.item_tabs.extend(m_tab.CharacterTab(char) for char in chars)
             if (jewels := util.get_jsons(jewels_dir)) is not None:
                 self.item_tabs.extend(m_tab.CharacterTab(char) for char in jewels)
-            if (uniques := util.get_jsons(unique_dir)) is not None:
-                self.item_tabs.extend(m_tab.UniqueSubTab(unique) for unique in uniques)
+            if (utabs := util.get_jsons(unique_dir)) is not None:
+                self.item_tabs.extend(m_tab.UniqueSubTab(unique) for unique in utabs)
         else:
-            self._send_api(account, league, tabs, characters)
+            self._send_api(account, league, tabs, characters, uniques)
 
         self._build_table()
 
-    def prompt_unique(self, league: str) -> None:
-        """Prompt user for unique stash tab URL."""
-        text, submitted = QInputDialog.getText(
-            self,
-            'Stash of Exile Input',
-            f'Enter URL for {league} League unique stash tab:',
-        )
-        if not submitted:
-            return
-
-        # Get uid from URL
-        z = re.search(UNIQUE_URL_REGEX, text)
-        if z is None:
-            msg = QMessageBox(QMessageBox.Icon.Warning, 'Error', 'Invalid URL')
-            msg.exec()
-            return
-        uid = z.groups()[0]
-
-        # Set up API manager calls
-        account = self.account
-        assert account is not None
-        api_manager = self.main_window.api_manager
-        api_calls: List[thread.Call] = []
-        for i in range(consts.NUM_UNIQUE_CAT):
-            index = i + 1
-            filename = os.path.join(
-                ITEM_CACHE_DIR, account.username, league, UNIQUE_DIR, f'{index}.json'
-            )
-            tab = m_tab.UniqueSubTab(filename, index)
-            api_calls.append(
-                thread.Call(
-                    api_manager.get_unique_subtab,
-                    (account.username, uid, index),
-                    self,
-                    self._get_unique_subtab_callback,
-                    (tab,),
-                )
-            )
-        api_manager.insert(api_calls)
-
     def _send_api(
-        self, account: save.Account, league: str, tabs: List[int], characters: List[str]
+        self,
+        account: save.Account,
+        league: str,
+        tabs: List[int],
+        characters: List[str],
+        uniques: List[int],
     ) -> None:
         """
         Generates and sends API calls based on selected league, tabs, and characters.
@@ -243,14 +200,23 @@ class MainWidget(QWidget):
             api_calls.append(api_call)
 
         # Cache existing unique tabs (cannot queue API calls with just POESESSID)
-        for i in range(consts.NUM_UNIQUE_CAT):
-            index = i + 1
+        for unique in uniques:
             filename = os.path.join(
-                ITEM_CACHE_DIR, account.username, league, UNIQUE_DIR, f'{index}.json'
+                ITEM_CACHE_DIR, account.username, league, UNIQUE_DIR, f'{unique}.json'
             )
-            item_tab = m_tab.UniqueSubTab(filename, index)
+            item_tab = m_tab.UniqueSubTab(filename, unique)
             if os.path.exists(filename):
                 self.item_tabs.append(item_tab)
+                continue
+            api_calls.append(
+                thread.Call(
+                    api_manager.get_unique_subtab,
+                    (account.username, self.uid, unique),
+                    self,
+                    self._get_unique_subtab_callback,
+                    (item_tab,),
+                )
+            )
 
         api_manager.insert(api_calls)
 
@@ -331,7 +297,7 @@ class MainWidget(QWidget):
             json.dump(json_data, f)
 
         self.main_window.statusBar().showMessage(
-            f'Unique subtab received: {tab.tab_num}', consts.STATUS_TIMEOUT
+            f'Unique subtab received: {tab.get_tab_name()}', consts.STATUS_TIMEOUT
         )
         self._on_receive_items(tab.get_items())
 

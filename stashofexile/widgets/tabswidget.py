@@ -2,6 +2,7 @@
 Defines a tab widget to select tabs and characters.
 """
 
+import re
 from typing import Any, List
 
 from PyQt6.QtCore import QSize, Qt
@@ -9,6 +10,7 @@ from PyQt6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QPushButton,
     QTreeWidget,
     QTreeWidgetItem,
@@ -16,11 +18,13 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from stashofexile import log, save
+from stashofexile import consts, gamedata, log, save
 
 mainwindow = Any
 
 logger = log.get_logger(__name__)
+
+UNIQUE_URL_REGEX = r'https:\/\/www\.pathofexile\.com\/account\/view-stash\/.*\/(.*)'
 
 
 class TabsWidget(QWidget):
@@ -43,6 +47,9 @@ class TabsWidget(QWidget):
         self.saved_data = saved_data
         self.account = account
         self.league = league
+        self.unique_label.setText(
+            f'Enter unique tab URL for {self.league} league: (use cached if blank)'
+        )
 
         # TODO: clear tree then rebuild
         # Setup tree has not yet been called
@@ -50,6 +57,8 @@ class TabsWidget(QWidget):
             self.tab_group.removeChild(self.tab_group.child(0))
         for _ in range(self.char_group.childCount()):
             self.char_group.removeChild(self.char_group.child(0))
+        for _ in range(self.unique_group.childCount()):
+            self.unique_group.removeChild(self.unique_group.child(0))
 
         self._setup_tree()
 
@@ -71,6 +80,13 @@ class TabsWidget(QWidget):
         # Characters and Tabs
         self.tab_group = QTreeWidgetItem(self.tree_widget)
         self.char_group = QTreeWidgetItem(self.tree_widget)
+        self.unique_group = QTreeWidgetItem(self.tree_widget)
+
+        # Unique Tab Input
+        self.unique_label = QLabel()
+        self.unique_input = QLineEdit()
+        self.vlayout.addWidget(self.unique_label)
+        self.vlayout.addWidget(self.unique_input)
 
         # Error Text
         self.error_text = QLabel()
@@ -127,10 +143,31 @@ class TabsWidget(QWidget):
             char_widget.setFlags(char_widget.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             char_widget.setCheckState(0, Qt.CheckState.Checked)
 
+        # Setup unique subtabs
+        self.unique_group.setText(0, f'Unique Tab ({len(gamedata.UNIQUE_CATEGORIES)})')
+        self.unique_group.setFlags(self.tab_group.flags())
+        for cat in gamedata.UNIQUE_CATEGORIES.values():
+            unique_widget = QTreeWidgetItem(self.unique_group)
+            unique_widget.setText(0, cat)
+            unique_widget.setFlags(unique_widget.flags() | Qt.ItemFlag.ItemIsUserCheckable)  # fmt: skip
+            unique_widget.setCheckState(0, Qt.CheckState.Checked)
+
     def _import_items(self) -> None:
         """Sends the list of checked tabs and characters to the main widget."""
         assert self.account is not None
         assert self.league is not None
+        # Get uid from URL
+        text = self.unique_input.text()
+        if text == '':
+            uid = ''
+        else:
+            z = re.search(UNIQUE_URL_REGEX, text)
+            if z is None:
+                self.error_text.setText('Invalid unique URL')
+                return
+            else:
+                uid = z.groups()[0]
+
         tabs = [
             i
             for i, _ in enumerate(self.account.leagues[self.league].tab_ids)
@@ -143,8 +180,22 @@ class TabsWidget(QWidget):
             if char.checkState(0) == Qt.CheckState.Checked:
                 characters.append(char.text(0))
 
+        keys = list(gamedata.UNIQUE_CATEGORIES)
+        values = list(gamedata.UNIQUE_CATEGORIES.values())
+        uniques: List[int] = []
+        for i in range(self.unique_group.childCount()):
+            unique = self.unique_group.child(i)
+            if unique.checkState(0) == Qt.CheckState.Checked:
+                uniques.append(keys[values.index(unique.text(0))])
+
         self.main_window.switch_widget(
-            self.main_window.main_widget, self.account, self.league, tabs, characters
+            self.main_window.main_widget,
+            self.account,
+            self.league,
+            tabs,
+            characters,
+            uniques,
+            uid,
         )
 
     def _name_ui(self) -> None:
