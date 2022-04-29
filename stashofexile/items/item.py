@@ -350,6 +350,7 @@ class Item:
         return self.tooltip
 
     def has_sockets(self) -> bool:
+        """Returns whether item has sockets."""
         return len(self.socket_groups) > 0
 
     def _wep_props(self) -> None:

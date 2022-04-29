@@ -3,7 +3,6 @@ Handles viewing items in tabs and characters.
 """
 
 import dataclasses
-import functools
 import inspect
 import json
 import os
@@ -13,7 +12,7 @@ import re
 from typing import List, TYPE_CHECKING, Optional, Set, Tuple
 
 from PyQt6.QtCore import QItemSelection, QSize, Qt
-from PyQt6.QtGui import QAction, QDoubleValidator, QFont, QTextCursor
+from PyQt6.QtGui import QDoubleValidator, QFont, QTextCursor
 from PyQt6.QtWidgets import (
     QAbstractItemView,
     QAbstractScrollArea,
@@ -24,12 +23,8 @@ from PyQt6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
     QHeaderView,
-    QInputDialog,
     QLabel,
     QLineEdit,
-    QMenu,
-    QMenuBar,
-    QMessageBox,
     QScrollArea,
     QSizePolicy,
     QSplitter,
@@ -91,7 +86,7 @@ class MainWidget(QWidget):
         self._setup_filters()
         self._name_ui()
 
-    def on_show(
+    def on_show(  # pylint: disable=too-many-arguments, too-many-locals
         self,
         account: save.Account,
         league: str,
@@ -104,6 +99,7 @@ class MainWidget(QWidget):
         Build menu bar, retrieves existing tabs or send API calls, then build the table.
         """
         self.uid = uid
+        self.account = account
 
         if account.poesessid == '':
             # Show all cached results
@@ -123,13 +119,12 @@ class MainWidget(QWidget):
             if (utabs := util.get_jsons(unique_dir)) is not None:
                 self.item_tabs.extend(m_tab.UniqueSubTab(unique) for unique in utabs)
         else:
-            self._send_api(account, league, tabs, characters, uniques)
+            self._send_api(league, tabs, characters, uniques)
 
         self._build_table()
 
     def _send_api(
         self,
-        account: save.Account,
         league: str,
         tabs: List[int],
         characters: List[str],
@@ -138,8 +133,10 @@ class MainWidget(QWidget):
         """
         Generates and sends API calls based on selected league, tabs, and characters.
         """
+        assert self.account is not None
+        account = self.account
+
         # TODO: force import vs cache
-        self.account = account
         api_manager = self.main_window.api_manager
 
         logger.debug('Begin checking cache')

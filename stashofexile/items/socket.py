@@ -22,6 +22,7 @@ SocketGroup = List[Socket]
 
 
 def format_socket_group(socket_group: SocketGroup) -> str:
+    """Returns string representation of a socket group."""
     strs = [str(socket) for socket in socket_group]
     return '-'.join(strs)
 

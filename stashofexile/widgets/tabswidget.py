@@ -18,7 +18,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from stashofexile import consts, gamedata, log, save
+from stashofexile import gamedata, log, save
 
 mainwindow = Any
 
@@ -149,7 +149,9 @@ class TabsWidget(QWidget):
         for cat in gamedata.UNIQUE_CATEGORIES.values():
             unique_widget = QTreeWidgetItem(self.unique_group)
             unique_widget.setText(0, cat)
-            unique_widget.setFlags(unique_widget.flags() | Qt.ItemFlag.ItemIsUserCheckable)  # fmt: skip
+            unique_widget.setFlags(
+                unique_widget.flags() | Qt.ItemFlag.ItemIsUserCheckable
+            )
             unique_widget.setCheckState(0, Qt.CheckState.Checked)
 
     def _import_items(self) -> None:
@@ -165,8 +167,7 @@ class TabsWidget(QWidget):
             if z is None:
                 self.error_text.setText('Invalid unique URL')
                 return
-            else:
-                uid = z.groups()[0]
+            uid = z.groups()[0]
 
         tabs = [
             i
