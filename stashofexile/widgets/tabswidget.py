@@ -24,7 +24,9 @@ mainwindow = Any
 
 logger = log.get_logger(__name__)
 
-UNIQUE_URL_REGEX = r'https:\/\/www\.pathofexile\.com\/account\/view-stash\/.*\/(.*)'
+UNIQUE_URL_REGEX = (
+    r'https:\/\/www\.pathofexile\.com\/account\/view-stash\/.*\/(.*)(\/[0-9]+)'
+)
 
 
 class TabsWidget(QWidget):
@@ -48,7 +50,7 @@ class TabsWidget(QWidget):
         self.account = account
         self.league = league
         self.unique_label.setText(
-            f'Enter unique tab URL for {self.league} league: (use cached if blank)'
+            f'Enter unique tab URL for {self.league} league: (must be public)'
         )
 
         # TODO: clear tree then rebuild
