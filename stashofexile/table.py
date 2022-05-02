@@ -113,7 +113,11 @@ class TableModel(QAbstractTableModel):
         self.endInsertRows()
 
     def apply_filters(
-        self, index: int = 1, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder
+        self,
+        reg_filters: List[m_filter.Filter | m_filter.FilterGroup],
+        mod_filters: List[m_filter.Filter],
+        index: int = 1,
+        order: Qt.SortOrder = Qt.SortOrder.AscendingOrder,
     ) -> None:
         """
         Applies a filter based on several search parameters, updating the current
@@ -124,8 +128,8 @@ class TableModel(QAbstractTableModel):
         selected_item = self.current_items[selection[0].row()] if selection else None
 
         # Build list of all filters
-        all_filters: List[m_filter.Filter] = m_filter.MOD_FILTERS.copy()
-        for filt in m_filter.FILTERS:
+        all_filters: List[m_filter.Filter] = mod_filters.copy()
+        for filt in reg_filters:
             match filt:
                 case m_filter.Filter():
                     all_filters.append(filt)

@@ -321,7 +321,7 @@ def _filter_influences(item: m_item.Item, elem: InfluenceFilter) -> bool:
     return elem.item_match(item)
 
 
-def _filter_mod(
+def filter_mod(
     item: m_item.Item, elem: editcombo.ECBox, range1: QLineEdit, range2: QLineEdit
 ) -> bool:
     """Filter function that searches for mods."""
@@ -406,5 +406,3 @@ FILTERS: List[Filter | FilterGroup] = [
         ],
     ),
 ]
-
-MOD_FILTERS = [Filter('', editcombo.ECBox, _filter_mod) for _ in range(5)]

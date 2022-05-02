@@ -3,6 +3,7 @@ Handles viewing items in tabs and characters.
 """
 
 import dataclasses
+import functools
 import inspect
 import json
 import os
@@ -24,7 +25,9 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QHeaderView,
     QLabel,
+    QLayout,
     QLineEdit,
+    QPushButton,
     QScrollArea,
     QSizePolicy,
     QSplitter,
@@ -68,6 +71,17 @@ def _populate_combo(filt: m_filter.Filter) -> None:
         widget.addItems(options)
 
 
+def _clear_layout(layout: QLayout) -> None:
+    """Deletes all nested objects in a layout."""
+    while layout.count():
+        item = layout.takeAt(0)
+        widget = item.widget()
+        if widget is not None:
+            widget.deleteLater()
+        else:
+            _clear_layout(item.layout())
+
+
 class MainWidget(QWidget):
     """Main Widget for the filter, tooltip, and table view."""
 
@@ -76,9 +90,12 @@ class MainWidget(QWidget):
         super().__init__()
         self.main_window = main_window
         self.item_tabs: List[m_tab.ItemTab] = []
-        self.account = None
-        self.mod_db: moddb.ModDb = moddb.ModDb()
+        self.account: Optional[save.Account] = None
+        self.mod_db = moddb.ModDb()
         self.tab_filt: Optional[m_filter.Filter] = None
+        self.range_size = QSize()
+        self.reg_filters = m_filter.FILTERS.copy()
+        self.mod_filters: List[m_filter.Filter] = []
         self.uid = ''
         self._static_build()
         self._load_mod_file()
@@ -345,7 +362,7 @@ class MainWidget(QWidget):
         # Connect sort
         self.table.horizontalHeader().sortIndicatorChanged.connect(
             lambda logicalIndex, order: self.model.apply_filters(
-                index=logicalIndex, order=order
+                self.reg_filters, self.mod_filters, index=logicalIndex, order=order
             )
         )
 
@@ -400,7 +417,6 @@ class MainWidget(QWidget):
         self.mods_group_box.toggled.connect(
             lambda: _toggle_visibility(self.mods_scroll)
         )
-
         mods_scroll_layout.addWidget(self.mods_scroll)
 
         # Intermediate Mods Widget
@@ -408,6 +424,16 @@ class MainWidget(QWidget):
         self.mods_scroll.setWidget(mods_scroll_widget)
         self.mods_vlayout = QVBoxLayout(mods_scroll_widget)
         self.mods_vlayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        # Plus Button
+        plus_hlayout = QHBoxLayout()
+        plus_button = QPushButton()
+        plus_button.setText('+')
+        plus_button.setMaximumWidth(plus_button.sizeHint().height())
+        plus_button.clicked.connect(self._add_mod_filter)
+        plus_hlayout.addWidget(plus_button)
+        plus_hlayout.setAlignment(plus_button, Qt.AlignmentFlag.AlignRight)
+        self.mods_vlayout.addLayout(plus_hlayout)
 
         left_vlayout.addWidget(self.filter_group_box)
         left_vlayout.addWidget(self.mods_group_box)
@@ -536,41 +562,60 @@ class MainWidget(QWidget):
         assert first_filt_widget is not None
         return first_filt_widget
 
-    def _build_mod_filters(self, first_filt_widget: QWidget) -> None:
-        """Builds mod filter widgets."""
-        range_size: Optional[QSize] = None
-        for filt in m_filter.MOD_FILTERS:
-            hlayout = QHBoxLayout()
-            # Combo box
-            widget = editcombo.ECBox()
-            widget.setMinimumContentsLength(0)
-            widget.setSizeAdjustPolicy(
-                QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
-            )
-            widget.addItems(search for search in self.mod_db)
-            for i, search in enumerate(self.mod_db):
-                widget.setItemData(i + 1, search, Qt.ItemDataRole.ToolTipRole)
-            widget.currentIndexChanged.connect(self._apply_filters)
-            filt.widgets.append(widget)
-            hlayout.addWidget(widget)
+    def _delete_mod_filter(
+        self, filt_layout: QHBoxLayout, filt: m_filter.Filter
+    ) -> None:
+        """Deletes a mod filter from its layout then reruns filtering."""
+        self.mods_vlayout.removeItem(filt_layout)
+        _clear_layout(filt_layout)
+        filt_layout.deleteLater()
+        self.mod_filters.remove(filt)
+        self._apply_filters()
 
-            # Range widgets
-            for _ in range(2):
-                range_widget = QLineEdit()
-                if range_size is None:
-                    range_height = first_filt_widget.sizeHint().height()
-                    range_size = QSize((int)(range_height * 1.5), range_height)
-                range_widget.setFixedSize(range_size)
-                range_widget.textChanged.connect(self._apply_filters)
-                range_widget.setValidator(QDoubleValidator())
-                filt.widgets.append(range_widget)
-                hlayout.addWidget(range_widget)
-            self.mods_vlayout.addLayout(hlayout)
+    def _add_mod_filter(self) -> None:
+        """Add mod filter to list."""
+        hlayout = QHBoxLayout()
+        filt = m_filter.Filter('', editcombo.ECBox, m_filter.filter_mod)
+        self.mod_filters.append(filt)
+
+        # Combo box
+        widget = editcombo.ECBox()
+        widget.setMinimumContentsLength(0)
+        widget.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+        )
+        widget.addItems(search for search in self.mod_db)
+        for i, search in enumerate(self.mod_db):
+            widget.setItemData(i + 1, search, Qt.ItemDataRole.ToolTipRole)
+        widget.currentIndexChanged.connect(self._apply_filters)
+        filt.widgets.append(widget)
+        hlayout.addWidget(widget)
+
+        # Range widgets
+        for _ in range(2):
+            range_widget = QLineEdit()
+            range_widget.setFixedSize(self.range_size)
+            range_widget.textChanged.connect(self._apply_filters)
+            range_widget.setValidator(QDoubleValidator())
+            filt.widgets.append(range_widget)
+            hlayout.addWidget(range_widget)
+
+        x_button = QPushButton()
+        x_button.setText('x')
+        x_button.setMaximumWidth(x_button.sizeHint().height())
+        x_button.clicked.connect(
+            functools.partial(self._delete_mod_filter, hlayout, filt)
+        )
+        hlayout.addWidget(x_button)
+
+        # Add layout to filter list
+        self.mods_vlayout.insertLayout(len(self.mods_vlayout.children()) - 1, hlayout)
 
     def _dynamic_build_filters(self) -> None:
         """Sets up the filter widgets and labels."""
         first_filt_widget = self._build_regular_filters()
-        self._build_mod_filters(first_filt_widget)
+        range_height = first_filt_widget.sizeHint().height()
+        self.range_size = QSize((int)(range_height * 1.5), range_height)
 
         # Resize left panel widths
         width = self.filter_group_box.sizeHint().width()
@@ -611,7 +656,12 @@ class MainWidget(QWidget):
 
     def _apply_filters(self) -> None:
         """Function that applies filters."""
-        self.model.apply_filters(index=1, order=Qt.SortOrder.AscendingOrder)
+        self.model.apply_filters(
+            self.reg_filters,
+            self.mod_filters,
+            index=1,
+            order=Qt.SortOrder.AscendingOrder,
+        )
 
     def _connect_signal(self, filt: m_filter.Filter) -> None:
         """Connects apply filters function to when a filter's input changes."""
