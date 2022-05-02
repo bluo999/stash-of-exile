@@ -243,11 +243,12 @@ class MainWidget(QWidget):
             thread.Call(download_manager.get_image, icon, None) for icon in icons
         )
         self.model.insert_items(items)
-        self.mod_db.insert_items(items)
-        if self.tab_filt is not None:
-            widget = self.tab_filt.widgets[0]
-            assert isinstance(widget, QComboBox)
-            widget.addItem(items[0].tab)
+        self._insert_mods(items)
+
+        assert self.tab_filt is not None
+        for widget in self.tab_filt.widgets:
+            if isinstance(widget, editcombo.ECBox):
+                widget.addItem(items[0].tab)
 
     def _get_stash_tab_callback(
         self, tab: m_tab.StashTab, data, err_message: str
@@ -333,11 +334,7 @@ class MainWidget(QWidget):
             assert isinstance(widget, QComboBox)
             widget.addItems(tab.get_tab_name() for tab in self.item_tabs)
 
-        self.mod_db.insert_items(items)
-
-        logger.info('Writing mod db file')
-        with open(MOD_DB_FILE, 'wb') as f:
-            pickle.dump(self.mod_db, f)
+        self._insert_mods(items)
 
         download_manager.insert(
             thread.Call(download_manager.get_image, icon, None) for icon in icons
@@ -473,6 +470,14 @@ class MainWidget(QWidget):
         splitter.setSizes((700, 700, 1000))
 
         main_hlayout.addWidget(splitter)
+
+    def _insert_mods(self, items):
+        self.mod_db.insert_items(items)
+        self.mod_db: moddb.ModDb = moddb.ModDb(sorted(self.mod_db.items()))
+
+        logger.info('Writing mod db file to %s', MOD_DB_FILE)
+        with open(MOD_DB_FILE, 'wb') as f:
+            pickle.dump(self.mod_db, f)
 
     def _load_mod_file(self) -> None:
         if os.path.isfile(MOD_DB_FILE):
