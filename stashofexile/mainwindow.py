@@ -7,9 +7,16 @@ import sys
 
 from typing import List
 
-from PyQt6 import QtGui
-from PyQt6.QtGui import QFontDatabase
-from PyQt6.QtWidgets import QHBoxLayout, QMainWindow, QStatusBar, QWidget
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QCloseEvent, QFontDatabase
+from PyQt6.QtWidgets import (
+    QHBoxLayout,
+    QMainWindow,
+    QPushButton,
+    QStatusBar,
+    QVBoxLayout,
+    QWidget,
+)
 
 from stashofexile import consts, log
 from stashofexile.threads import api, download, thread
@@ -28,6 +35,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
+        logger.info('Stash of Exile starting')
         self.resize(1280, 720)
         self.setWindowTitle('Stash of Exile')
 
@@ -40,11 +48,20 @@ class MainWindow(QMainWindow):
         # Status bar
         status_bar = QStatusBar(self)
         self.setStatusBar(status_bar)
+        widget = QWidget()
+        layout = QHBoxLayout(widget)
+        button = QPushButton('Error Log')
+        button.clicked.connect(
+            lambda: self.log_widget.setVisible(not self.log_widget.isVisible())
+        )
+        layout.setContentsMargins(0, 0, 5, 5)
+        layout.addWidget(button, 0, Qt.AlignmentFlag.AlignRight)
+        status_bar.addWidget(widget, 1)
 
         # Screen widgets
         self.center_widget = QWidget(self)
         self.setCentralWidget(self.center_widget)
-        self.central_layout = QHBoxLayout(self.center_widget)
+        self.central_layout = QVBoxLayout(self.center_widget)
 
         # Start API thread
         self.api_manager = api.APIManager()
@@ -66,13 +83,19 @@ class MainWindow(QMainWindow):
         for widget in self.widgets:
             self.central_layout.addWidget(widget)
 
+        # Init logging widget
+        self.log_widget = log.qlogger.create_widget()
+        self.central_layout.addWidget(self.log_widget)
+        self.log_widget.setVisible(False)
+
+        # Default to login widget on start
         self.switch_widget(self.login_widget)
 
     def closeEvent(  # pylint: disable=invalid-name,no-self-use
-        self, _: QtGui.QCloseEvent
+        self, _: QCloseEvent
     ) -> None:
         """Exits the application."""
-        logger.info('Main application exiting')
+        logger.info('Stash of Exile exiting')
         sys.exit()
 
     def switch_widget(self, dest_widget: Widget, *args):

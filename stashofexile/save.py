@@ -40,6 +40,9 @@ class Account:
     poesessid: str = ''
     leagues: Dict[str, League] = dataclasses.field(default_factory=dict)
 
+    def __repr__(self) -> str:
+        return self.username
+
 
 @dataclasses.dataclass
 class SavedData:

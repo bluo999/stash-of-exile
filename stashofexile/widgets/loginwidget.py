@@ -5,7 +5,7 @@ Handles league retrieving and login sequence.
 import os
 import pickle
 
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import (
@@ -23,7 +23,8 @@ from PyQt6.QtWidgets import (
 from stashofexile import log, save
 from stashofexile.threads import api, thread
 
-mainwindow = Any
+if TYPE_CHECKING:
+    from stashofexile import mainwindow
 
 logger = log.get_logger(__name__)
 
@@ -127,15 +128,14 @@ class LoginWidget(QWidget):
             with open(SAVE_FILE, 'rb') as f:
                 self.saved_data = pickle.load(f)
             assert isinstance(self.saved_data, save.SavedData)
-            logger.info(self.saved_data.leagues)
-            for account in self.saved_data.accounts:
-                logger.info('%s %s', account.username, account.poesessid)
+            logger.info('Leagues: %s', self.saved_data.leagues)
+            logger.info('Accounts: %s', self.saved_data.accounts)
             # Populatea user/poesessid
             # TODO: do by most recent
             if self.saved_data.accounts:
                 account = self.saved_data.accounts[0]
-                self.account_field.setText(self.saved_data.accounts[0].username)
-                self.poesessid_field.setText(self.saved_data.accounts[0].poesessid)
+                self.account_field.setText(account.username)
+                self.poesessid_field.setText(account.poesessid)
 
     def _submit_cached(self) -> None:
         """Skips login and view cached stash."""

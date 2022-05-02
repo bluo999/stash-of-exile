@@ -43,7 +43,7 @@ from stashofexile.threads import thread
 from stashofexile.widgets import editcombo
 
 if TYPE_CHECKING:
-    import mainwindow
+    from stashofexile import mainwindow
 
 logger = log.get_logger(__name__)
 
@@ -592,11 +592,12 @@ class MainWidget(QWidget):
         hlayout.addWidget(widget)
 
         # Range widgets
-        for _ in range(2):
+        for i in range(2):
             range_widget = QLineEdit()
             range_widget.setFixedSize(self.range_size)
             range_widget.textChanged.connect(self._apply_filters)
             range_widget.setValidator(QDoubleValidator())
+            range_widget.setPlaceholderText('min' if i == 0 else 'max')
             filt.widgets.append(range_widget)
             hlayout.addWidget(range_widget)
 

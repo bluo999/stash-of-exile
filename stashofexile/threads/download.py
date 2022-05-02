@@ -30,7 +30,9 @@ class DownloadManager(thread.ThreadManager):
             try:
                 urllib.request.urlretrieve(icon, file_path)
             except urllib.error.HTTPError as e:
-                logger.error('HTTP error: %s %s', e.code, e.reason)
+                logger.error(
+                    'HTTP error: %s %s when downloading %s', e.code, e.reason, icon
+                )
                 if e.code == http.HTTPStatus.TOO_MANY_REQUESTS:
                     logger.error('%s received, aborting image downloads', e.code)
                     self.too_many_reqs([])

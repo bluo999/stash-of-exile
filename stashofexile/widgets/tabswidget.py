@@ -3,7 +3,7 @@ Defines a tab widget to select tabs and characters.
 """
 
 import re
-from typing import Any, List
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import (
@@ -20,7 +20,8 @@ from PyQt6.QtWidgets import (
 
 from stashofexile import gamedata, log, save
 
-mainwindow = Any
+if TYPE_CHECKING:
+    from stashofexile import mainwindow
 
 logger = log.get_logger(__name__)
 
@@ -36,9 +37,9 @@ class TabsWidget(QWidget):
         """Initialize the UI."""
         super().__init__()
         self.main_window = main_window
-        self.saved_data = None
-        self.account = None
-        self.league = None
+        self.saved_data: Optional[save.SavedData] = None
+        self.account: Optional[save.Account] = None
+        self.league: Optional[save.League] = None
         self._static_build()
         self._name_ui()
 

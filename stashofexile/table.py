@@ -33,17 +33,10 @@ class TableModel(QAbstractTableModel):
     PROPERTY_FUNCS: Dict[str, Callable[[m_item.Item], str]] = {
         'Name': lambda item: item.name,
         'Tab': lambda item: str(item.tab),
-        'Stack': m_item.property_function('Stack Size'),
+        # 'Stack': m_item.property_function('Stack Size'),
         'iLvl': lambda item: str(item.ilvl) if item.ilvl != 0 else '',
         'Level': m_item.property_function('Level'),
         'Quality': lambda item: item.quality,
-        'Split': lambda item: 'Split' if item.split else '',
-        'Corr': lambda item: 'Corr' if item.corrupted else '',
-        'Mir': lambda item: 'Mir' if item.mirrored else '',
-        'Unid': lambda item: 'Unid' if not item.identified else '',
-        'Bench': lambda item: 'Bench' if item.crafted else '',
-        'Ench': lambda item: 'Ench' if item.enchanted else '',
-        'Frac': lambda item: 'Frac' if item.fractured else '',
         'Influence': _influence_func,
     }
 
