@@ -655,9 +655,10 @@ class MainWidget(QWidget):
             self.tooltip.append(html)
             self.tooltip.setAlignment(Qt.AlignmentFlag.AlignCenter)
             if i != len(sections) - 1:
-                self.tooltip.append(
-                    consts.SEPARATOR_TEMPLATE.format('assets/SeparatorWhite.png', width)
+                separator = 'assets/' + consts.FRAME_TYPES.get(
+                    item.rarity, consts.FRAME_TYPES['normal']
                 )
+                self.tooltip.append(consts.SEPARATOR_TEMPLATE.format(separator, width))
 
         # Reset scroll to top
         self.tooltip.moveCursor(QTextCursor.MoveOperation.Start)

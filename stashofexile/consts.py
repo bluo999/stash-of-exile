@@ -48,6 +48,16 @@ COLORS = {
     'scourged': '#ff6e25',
 }
 
+# Rarity to frame type
+FRAME_TYPES = {
+    'normal': 'SeparatorWhite.png',
+    'magic': 'SeparatorMagic.png',
+    'rare': 'SeparatorRare.png',
+    'unique': 'SeparatorUnique.png',
+    'gem': 'SeparatorGem.png',
+    'currency': 'SeparatorCurrency.png',
+}
+
 # API value to named color/type
 VALNUM_TO_COLOR = {
     0: 'white',
