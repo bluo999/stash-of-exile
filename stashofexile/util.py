@@ -60,13 +60,13 @@ def get_subdirectories(directory: str) -> Generator[str, None, None]:
 
 def get_jsons(directory: str) -> Optional[Generator[str, None, None]]:
     """Returns a list of json files in the given directory."""
-    if os.path.isdir(directory):
-        return (
-            f.path
-            for f in os.scandir(directory)
-            if f.is_file() and os.path.splitext(f)[1] == '.json'
-        )
-    return None
+    if not os.path.isdir(directory):
+        return None
+    return (
+        f.path
+        for f in os.scandir(directory)
+        if f.is_file() and os.path.splitext(f)[1] == '.json'
+    )
 
 
 def get_file_name(filepath: str) -> str:

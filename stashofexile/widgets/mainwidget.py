@@ -234,8 +234,10 @@ class MainWidget(QWidget):
 
         api_manager.insert(api_calls)
 
-    def _on_receive_items(self, items: List[m_item.Item]) -> None:
+    def _on_receive_tab(self, tab: m_tab.ItemTab) -> None:
         """Inserts items in model and queues image downloading."""
+        items = tab.get_items()
+
         icons: Set[Tuple[str, str]] = set()
         download_manager = self.main_window.download_manager
         icons.update((item.icon, item.file_path) for item in items)
@@ -248,7 +250,7 @@ class MainWidget(QWidget):
         assert self.tab_filt is not None
         for widget in self.tab_filt.widgets:
             if isinstance(widget, editcombo.ECBox):
-                widget.addItem(items[0].tab)
+                widget.addItem(tab.get_tab_name())
 
     def _get_stash_tab_callback(
         self, tab: m_tab.StashTab, data, err_message: str
@@ -269,7 +271,7 @@ class MainWidget(QWidget):
         self.main_window.statusBar().showMessage(
             f'Stash tab received: {tab.tab_num}', consts.STATUS_TIMEOUT
         )
-        self._on_receive_items(tab.get_items())
+        self._on_receive_tab(tab)
 
     def _get_char_callback(
         self, tab: m_tab.CharacterTab, data, err_message: str
@@ -288,7 +290,7 @@ class MainWidget(QWidget):
         self.main_window.statusBar().showMessage(
             f'Character items received: {tab.char_name}', consts.STATUS_TIMEOUT
         )
-        self._on_receive_items(tab.get_items())
+        self._on_receive_tab(tab)
 
     def _get_unique_subtab_callback(
         self, tab: m_tab.UniqueSubTab, js_code: str, err_message: str
@@ -314,7 +316,7 @@ class MainWidget(QWidget):
         self.main_window.statusBar().showMessage(
             f'Unique subtab received: {tab.get_tab_name()}', consts.STATUS_TIMEOUT
         )
-        self._on_receive_items(tab.get_items())
+        self._on_receive_tab(tab)
 
     def _build_table(self) -> None:
         """Sets up the items, downloads their images, and sets up the table."""

@@ -3,7 +3,7 @@ Defines a tab widget to select tabs and characters.
 """
 
 import re
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import (
@@ -39,7 +39,7 @@ class TabsWidget(QWidget):
         self.main_window = main_window
         self.saved_data: Optional[save.SavedData] = None
         self.account: Optional[save.Account] = None
-        self.league: Optional[save.League] = None
+        self.league: Optional[str] = None
         self._static_build()
         self._name_ui()
 
