@@ -13,11 +13,14 @@ SPAN_TEMPLATE = '<span style="color:{}">{}</span>'
 
 # Template for item name headers
 HEADER_TEMPLATE = (
-    '<h3 style="font-weight: normal; text-align: center; padding: 0px; margin: 0px;">{}</h3>'
+    '<h3 style="font-weight: normal; text-align: center; margin: 0px;">{}</h3>'
 )
 
 # Template for item tooltip separator
-SEPARATOR_TEMPLATE = """<img src="{}" width="{}" />"""
+SEPARATOR_TEMPLATE = '<img src="{}" width="{}" />'
+
+# Template for standard image
+IMG_TEMPLATE = '<img src="{}" />'
 
 # Named color/type to color or hex
 COLORS = {

@@ -446,9 +446,7 @@ class MainWidget(QWidget):
         # Image
         self.image = QLabel()
         self.image.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image.setStyleSheet(
-            "QLabel { background-color: black; padding-right: 14px; }"
-        )
+        self.image.setObjectName('Image')
         middle_vlayout.addWidget(self.image)
 
         # Tooltip
@@ -685,8 +683,9 @@ class MainWidget(QWidget):
         width = self.tooltip.width() - self.tooltip.verticalScrollBar().width()
 
         # Construct tooltip from sections
-        separator = 'assets/' + consts.FRAME_TYPES.get(
-            item.rarity, consts.FRAME_TYPES['normal']
+        separator = os.path.join(
+            consts.ASSETS_DIR,
+            consts.FRAME_TYPES.get(item.rarity, consts.FRAME_TYPES['normal']),
         )
         for i, html in enumerate(sections):
             self.tooltip.append(html)

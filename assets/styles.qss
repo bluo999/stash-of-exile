@@ -2,11 +2,6 @@ QTextEdit {
 	background-color: black;
 }
 
-/* QWidget {
-	background-color: #535353;
-	color: white;
-} */
-
 QTableView {
 	background-color: #242424;
 }
@@ -24,4 +19,14 @@ QGroupBox::title {
 
 QLabel#ErrorText {
 	color: red;
+}
+
+QLabel#Image {
+	background-color: black;
+	padding-right: 14px;
+}
+
+QCheckBox::indicator {
+	width: 18px;
+	height: 18px;
 }

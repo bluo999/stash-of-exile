@@ -608,9 +608,19 @@ class Item:
 
     def _get_influence_tooltip(self) -> str:
         """Returns influence icons tooltip."""
-        influence_icons = [
-            f'<img src="assets/{infl}.png" />' for infl in self.influences
-        ]
+        icons = list(self.influences)
+        if self.veiled_tag:
+            icons.append('veiled')
+        if self.fractured_tag:
+            icons.append('fractured')
+        if self.synthesised:
+            icons.append('synthesised')
+        if self.tangled:
+            icons.append('tangled')
+        if self.searing:
+            icons.append('searing')
+
+        influence_icons = [f'<img src="assets/{infl}.png" />' for infl in icons]
         return ''.join(influence_icons)
 
     def _get_header_tooltip(self) -> str:

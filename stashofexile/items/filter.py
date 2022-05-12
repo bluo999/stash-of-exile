@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import (
 )
 
 from stashofexile import gamedata
+from stashofexile import consts
 from stashofexile.items import item as m_item, socket as m_socket
 from stashofexile.widgets import editcombo
 
@@ -39,9 +40,17 @@ class InfluenceFilter(QWidget):
         self.check.stateChanged.connect(self._main_unchecked)
         hlayout.addWidget(self.check)
         self.influences: List[QCheckBox] = []
-        for _ in range(6):
+        for i in range(6):
             influence = QCheckBox()
             influence.stateChanged.connect(self._influence_checked)
+            infl = gamedata.INFLUENCES[i]
+            image = f'{consts.ASSETS_DIR}/{infl}.png'
+            image_off = f'{consts.ASSETS_DIR}/{infl}_off.png'
+            influence.setStyleSheet(
+                f'QCheckBox::indicator:checked {{image: url({image})}}'
+                f'QCheckBox::indicator:unchecked {{image: url({image_off})}}'
+            )
+            influence.setObjectName(gamedata.INFLUENCES[i])
             hlayout.addWidget(influence)
             self.influences.append(influence)
         self.setMinimumHeight(22)
@@ -51,7 +60,7 @@ class InfluenceFilter(QWidget):
             return 'off'
 
         values = []
-        for widget, influence in zip(self.influences, gamedata.Influences):
+        for widget, influence in zip(self.influences, gamedata.INFLUENCES):
             if widget.isChecked():
                 values.append(influence)
 
@@ -75,7 +84,7 @@ class InfluenceFilter(QWidget):
         assert self.check.isChecked()
         return len(item.influences) > 0 and all(
             (not widget.isChecked()) or (influence in item.influences)
-            for widget, influence in zip(self.influences, gamedata.Influences)
+            for widget, influence in zip(self.influences, gamedata.INFLUENCES)
         )
 
     def connect(self, func: Callable) -> None:

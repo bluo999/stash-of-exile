@@ -9,7 +9,7 @@ from typing import Dict, List
 
 from stashofexile import consts
 
-Influences = ['shaper', 'elder', 'crusader', 'hunter', 'redeemer', 'warlord']
+INFLUENCES = ['shaper', 'elder', 'crusader', 'hunter', 'redeemer', 'warlord']
 
 # API rarity number to named rarity
 RARITIES = {
