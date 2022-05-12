@@ -22,6 +22,7 @@ class League:
     tab_ids: List[TabId] = dataclasses.field(default_factory=list)
     characters: Dict[str, Any] = dataclasses.field(default_factory=dict)
     character_names: List[str] = dataclasses.field(default_factory=list)
+    uid: str = ''
 
     def has_tabs(self):
         """Returns whether tab list has been set."""

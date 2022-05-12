@@ -2,7 +2,9 @@
 Defines a tab widget to select tabs and characters.
 """
 
+import pickle
 import re
+
 from typing import TYPE_CHECKING, List, Optional
 
 from PyQt6.QtCore import QSize, Qt
@@ -19,14 +21,15 @@ from PyQt6.QtWidgets import (
 )
 
 from stashofexile import gamedata, log, save
+from stashofexile.widgets import loginwidget
 
 if TYPE_CHECKING:
     from stashofexile import mainwindow
 
 logger = log.get_logger(__name__)
 
-UNIQUE_URL_REGEX = (
-    r'https:\/\/www\.pathofexile\.com\/account\/view-stash\/.*\/(.*)(\/[0-9]+)'
+UNIQUE_URL_REGEX = re.compile(
+    r'https:\/\/www\.pathofexile\.com\/account\/view-stash\/.*?\/(\w+)(\/[0-9]+)?'
 )
 
 
@@ -163,14 +166,17 @@ class TabsWidget(QWidget):
         assert self.league is not None
         # Get uid from URL
         text = self.unique_input.text()
-        if text == '':
-            uid = ''
-        else:
+        if text:
             z = re.search(UNIQUE_URL_REGEX, text)
             if z is None:
                 self.error_text.setText('Invalid unique URL')
                 return
-            uid = z.groups()[0]
+            logger.critical(z.groups())
+            self.account.leagues[self.league].uid = z.groups()[0]
+
+        logger.info('Writing save file to %s', loginwidget.SAVE_FILE)
+        with open(loginwidget.SAVE_FILE, 'wb') as f:
+            pickle.dump(self.saved_data, f)
 
         tabs = [
             i
@@ -199,7 +205,6 @@ class TabsWidget(QWidget):
             tabs,
             characters,
             uniques,
-            uid,
         )
 
     def _name_ui(self) -> None:

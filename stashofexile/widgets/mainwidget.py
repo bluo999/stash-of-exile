@@ -56,7 +56,7 @@ CHARACTER_DIR = 'characters'
 JEWELS_DIR = 'jewels'
 UNIQUE_DIR = 'uniques'
 
-UNIQUE_REGEX = r'new R\((.*)\)\)\.run'
+UNIQUE_REGEX = re.compile(r'new R\((.*)\)\)\.run')
 
 
 def _toggle_visibility(widget: QWidget) -> None:
@@ -97,7 +97,6 @@ class MainWidget(QWidget):
         self.range_size = QSize()
         self.reg_filters = m_filter.FILTERS.copy()
         self.mod_filters: List[m_filter.Filter] = []
-        self.uid = ''
         self._static_build()
         self._load_mod_file()
         self._dynamic_build_filters()
@@ -111,12 +110,10 @@ class MainWidget(QWidget):
         tabs: List[int] = dataclasses.field(default_factory=list),
         characters: List[str] = dataclasses.field(default_factory=list),
         uniques: List[int] = dataclasses.field(default_factory=list),
-        uid: str = '',
     ) -> None:
         """
         Build menu bar, retrieves existing tabs or send API calls, then build the table.
         """
-        self.uid = uid
         self.account = account
 
         if account.poesessid == '':
@@ -215,23 +212,28 @@ class MainWidget(QWidget):
             api_calls.append(api_call)
 
         # Cache existing unique tabs (cannot queue API calls with just POESESSID)
-        for unique in uniques:
-            filename = os.path.join(
-                ITEM_CACHE_DIR, account.username, league, UNIQUE_DIR, f'{unique}.json'
-            )
-            item_tab = m_tab.UniqueSubTab(filename, unique)
-            if os.path.exists(filename):
-                self.item_tabs.append(item_tab)
-                continue
-            api_calls.append(
-                thread.Call(
-                    api_manager.get_unique_subtab,
-                    (account.username, self.uid, unique),
-                    self,
-                    self._get_unique_subtab_callback,
-                    (item_tab,),
+        if self.account.leagues[league].uid:
+            for unique in uniques:
+                filename = os.path.join(
+                    ITEM_CACHE_DIR,
+                    account.username,
+                    league,
+                    UNIQUE_DIR,
+                    f'{unique}.json',
                 )
-            )
+                item_tab = m_tab.UniqueSubTab(filename, unique)
+                if os.path.exists(filename):
+                    self.item_tabs.append(item_tab)
+                    continue
+                api_calls.append(
+                    thread.Call(
+                        api_manager.get_unique_subtab,
+                        (account.username, self.account.leagues[league].uid, unique),
+                        self,
+                        self._get_unique_subtab_callback,
+                        (item_tab,),
+                    )
+                )
 
         api_manager.insert(api_calls)
 
