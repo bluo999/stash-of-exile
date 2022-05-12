@@ -43,11 +43,16 @@ class TabsWidget(QWidget):
         self.saved_data: Optional[save.SavedData] = None
         self.account: Optional[save.Account] = None
         self.league: Optional[str] = None
+        self.cached = False
         self._static_build()
         self._name_ui()
 
     def on_show(
-        self, saved_data: save.SavedData, account: save.Account, league: str
+        self,
+        saved_data: save.SavedData,
+        account: save.Account,
+        league: str,
+        cached: bool,
     ) -> None:
         """Sets up tree based on saved_data and account."""
         self.saved_data = saved_data
@@ -57,8 +62,9 @@ class TabsWidget(QWidget):
             f'Enter unique tab URL for {self.league} league: (must be public)'
         )
 
-        # TODO: clear tree then rebuild
-        # Setup tree has not yet been called
+        self.refresh_button.setEnabled(not cached)
+        self.cached = cached
+
         for _ in range(self.tab_group.childCount()):
             self.tab_group.removeChild(self.tab_group.child(0))
         for _ in range(self.char_group.childCount()):
@@ -112,10 +118,14 @@ class TabsWidget(QWidget):
         # self.back_button.setDisabled(True)
         self.button_layout.addWidget(self.back_button)
 
-        # Import Button
+        # Import Buttons
         self.import_button = QPushButton()
         self.import_button.clicked.connect(self._import_items)
         self.button_layout.addWidget(self.import_button)
+
+        self.refresh_button = QPushButton()
+        self.refresh_button.clicked.connect(lambda: self._import_items(True))
+        self.button_layout.addWidget(self.refresh_button)
 
         self.main_hlayout = QHBoxLayout(self)
         self.main_hlayout.addWidget(self.login_box, 0, Qt.AlignmentFlag.AlignCenter)
@@ -160,7 +170,7 @@ class TabsWidget(QWidget):
             )
             unique_widget.setCheckState(0, Qt.CheckState.Checked)
 
-    def _import_items(self) -> None:
+    def _import_items(self, force_refresh: bool = False) -> None:
         """Sends the list of checked tabs and characters to the main widget."""
         assert self.account is not None
         assert self.league is not None
@@ -205,6 +215,8 @@ class TabsWidget(QWidget):
             tabs,
             characters,
             uniques,
+            force_refresh,
+            self.cached,
         )
 
     def _name_ui(self) -> None:
@@ -212,3 +224,4 @@ class TabsWidget(QWidget):
         self.group_box.setTitle('Select Tabs')
         self.back_button.setText('Back')
         self.import_button.setText('Import Tabs')
+        self.refresh_button.setText('Force Refresh Tabs')

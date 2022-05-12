@@ -110,40 +110,25 @@ class MainWidget(QWidget):
         tabs: List[int] = dataclasses.field(default_factory=list),
         characters: List[str] = dataclasses.field(default_factory=list),
         uniques: List[int] = dataclasses.field(default_factory=list),
+        force_refresh: bool = False,
+        cached: bool = False,
     ) -> None:
         """
         Build menu bar, retrieves existing tabs or send API calls, then build the table.
         """
         self.account = account
-
-        if account.poesessid == '':
-            # Show all cached results
-            league_dir = os.path.join(ITEM_CACHE_DIR, account.username, league)
-
-            tab_dir = os.path.join(league_dir, TABS_DIR)
-            character_dir = os.path.join(league_dir, CHARACTER_DIR)
-            jewels_dir = os.path.join(league_dir, JEWELS_DIR)
-            unique_dir = os.path.join(league_dir, UNIQUE_DIR)
-
-            if (stash := util.get_jsons(tab_dir)) is not None:
-                self.item_tabs.extend(m_tab.StashTab(stash_tab) for stash_tab in stash)
-            if (chars := util.get_jsons(character_dir)) is not None:
-                self.item_tabs.extend(m_tab.CharacterTab(char) for char in chars)
-            if (jewels := util.get_jsons(jewels_dir)) is not None:
-                self.item_tabs.extend(m_tab.CharacterTab(char) for char in jewels)
-            if (utabs := util.get_jsons(unique_dir)) is not None:
-                self.item_tabs.extend(m_tab.UniqueSubTab(unique) for unique in utabs)
-        else:
-            self._send_api(league, tabs, characters, uniques)
+        self._send_api(league, tabs, characters, uniques, force_refresh, cached)
 
         self._build_table()
 
-    def _send_api(
+    def _send_api(  # pylint: disable=too-many-arguments
         self,
         league: str,
         tabs: List[int],
         characters: List[str],
         uniques: List[int],
+        force_refresh: bool,
+        cached: bool,
     ) -> None:
         """
         Generates and sends API calls based on selected league, tabs, and characters.
@@ -151,10 +136,10 @@ class MainWidget(QWidget):
         assert self.account is not None
         account = self.account
 
-        # TODO: force import vs cache
         api_manager = self.main_window.api_manager
 
-        logger.debug('Begin checking cache')
+        if not force_refresh:
+            logger.debug('Begin checking cache')
 
         api_calls: List[thread.Call] = []
         # Queue stash tab API calls
@@ -163,8 +148,10 @@ class MainWidget(QWidget):
                 ITEM_CACHE_DIR, account.username, league, TABS_DIR, f'{tab_num}.json'
             )
             item_tab = m_tab.StashTab(filename, tab_num)
-            if os.path.exists(filename):
+            if not force_refresh and os.path.exists(filename):
                 self.item_tabs.append(item_tab)
+                continue
+            if cached:
                 continue
             api_call = thread.Call(
                 api_manager.get_tab_items,
@@ -181,8 +168,10 @@ class MainWidget(QWidget):
                 ITEM_CACHE_DIR, account.username, league, CHARACTER_DIR, f'{char}.json'
             )
             item_tab = m_tab.CharacterTab(filename, char)
-            if os.path.exists(filename):
+            if not force_refresh and os.path.exists(filename):
                 self.item_tabs.append(item_tab)
+                continue
+            if cached:
                 continue
             api_call = thread.Call(
                 api_manager.get_character_items,
@@ -199,8 +188,10 @@ class MainWidget(QWidget):
                 ITEM_CACHE_DIR, account.username, league, JEWELS_DIR, f'{char}.json'
             )
             item_tab = m_tab.CharacterTab(filename, char)
-            if os.path.exists(filename):
+            if not force_refresh and os.path.exists(filename):
                 self.item_tabs.append(item_tab)
+                continue
+            if cached:
                 continue
             api_call = thread.Call(
                 api_manager.get_character_jewels,
@@ -222,8 +213,10 @@ class MainWidget(QWidget):
                     f'{unique}.json',
                 )
                 item_tab = m_tab.UniqueSubTab(filename, unique)
-                if os.path.exists(filename):
+                if not force_refresh and os.path.exists(filename):
                     self.item_tabs.append(item_tab)
+                    continue
+                if cached:
                     continue
                 api_calls.append(
                     thread.Call(
@@ -249,6 +242,7 @@ class MainWidget(QWidget):
         )
         self.model.insert_items(items)
         self._insert_mods(items)
+        self._apply_filters()
 
         assert self.tab_filt is not None
         for widget in self.tab_filt.widgets:

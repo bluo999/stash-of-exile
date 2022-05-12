@@ -142,20 +142,27 @@ class LoginWidget(QWidget):
         username = self.account_field.text()
         self.league = self.league_field.currentText()
 
-        if len(username) == 0:
+        if not username:
             self.error_text.setText('Account is blank')
             return
 
-        if len(self.league) == 0:
+        if not self.league:
             self.error_text.setText('First get leagues')
             return
 
-        self.account = save.Account(username)
-        self.main_window.switch_widget(
-            self.main_window.main_widget,
-            self.account,
-            self.league,
-        )
+        search_account = [
+            savedAccount
+            for savedAccount in self.saved_data.accounts
+            if savedAccount.username == username
+        ]
+
+        if not search_account:
+            self.error_text.setText('Account not cached')
+            return
+
+        self.account = search_account[0]
+
+        self._check_login_success(True)
 
     def _get_leagues_api(self) -> None:
         """Gets leagues from API."""
@@ -220,24 +227,21 @@ class LoginWidget(QWidget):
         self.account = search_account[0]
         if self.league not in self.account.leagues.keys():
             self.account.leagues[self.league] = save.League()
-            self._get_char_list_api()
-            self._get_num_tabs_api()
             return
 
         account_league = self.account.leagues[self.league]
-        if not account_league.has_characters():
-            logger.info('Character list was not saved')
-            self._get_char_list_api()
-            return
+        # if not account_league.has_characters():
+        #     logger.info('Character list was not saved')
+        #     self._get_char_list_api()
+        #     return
 
         if self.account.poesessid != poesessid or not account_league.has_tabs():
             logger.info('POESESSID different or number of tabs was not saved')
             self.account.poesessid = poesessid
-            self._get_num_tabs_api()
             return
 
-        # Number of tabs and character list saved
-        self._check_login_success()
+        self._get_char_list_api()
+        self._get_num_tabs_api()
 
     def _get_num_tabs_api(self) -> None:
         """Gets number of tabs from API."""
@@ -307,7 +311,7 @@ class LoginWidget(QWidget):
         self.error_text.setText('')
         self._check_login_success()
 
-    def _check_login_success(self) -> None:
+    def _check_login_success(self, disable_refresh: bool = False) -> None:
         """
         Checks whether characters and tabs are set. If so, transition to tab widget.
         """
@@ -322,7 +326,11 @@ class LoginWidget(QWidget):
         with open(SAVE_FILE, 'wb') as f:
             pickle.dump(self.saved_data, f)
         self.main_window.switch_widget(
-            self.main_window.tabs_widget, self.saved_data, self.account, self.league
+            self.main_window.tabs_widget,
+            self.saved_data,
+            self.account,
+            self.league,
+            disable_refresh,
         )
 
     def _name_ui(self) -> None:
