@@ -17,6 +17,7 @@ from PyQt6.QtGui import QDoubleValidator, QFont, QTextCursor
 from PyQt6.QtWidgets import (
     QAbstractItemView,
     QAbstractScrollArea,
+    QApplication,
     QCheckBox,
     QComboBox,
     QFormLayout,
@@ -354,9 +355,7 @@ class MainWidget(QWidget):
         self.model.insert_items(items[1:])
 
         # Connect selection to update tooltip
-        self.table.selectionModel().selectionChanged.connect(
-            lambda selected: self._update_tooltip(self.model, selected)
-        )
+        self.table.selectionModel().selectionChanged.connect(self._update_tooltip)
 
         # Connect sort
         self.table.horizontalHeader().sortIndicatorChanged.connect(
@@ -437,6 +436,19 @@ class MainWidget(QWidget):
         left_vlayout.addWidget(self.filter_group_box)
         left_vlayout.addWidget(self.mods_group_box)
 
+        # Middle scroll
+        self.middle_widget = QWidget()
+        middle_vlayout = QVBoxLayout(self.middle_widget)
+        middle_vlayout.setSpacing(0)
+
+        # Image
+        self.image = QLabel()
+        self.image.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.image.setStyleSheet(
+            "QLabel { background-color: black; padding-right: 14px; }"
+        )
+        middle_vlayout.addWidget(self.image)
+
         # Tooltip
         self.tooltip = QTextEdit()
         self.tooltip.setReadOnly(True)
@@ -444,6 +456,12 @@ class MainWidget(QWidget):
         self.tooltip.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.tooltip.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.tooltip.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        middle_vlayout.addWidget(self.tooltip)
+
+        copy_button = QPushButton()
+        copy_button.setText('Copy Item Text')
+        middle_vlayout.addWidget(copy_button)
+        copy_button.clicked.connect(self._copy_item_text)
 
         # Item Table
         self.table = QTableView()
@@ -467,7 +485,7 @@ class MainWidget(QWidget):
         self.table.setModel(self.model)
 
         splitter.addWidget(self.left_widget)
-        splitter.addWidget(self.tooltip)
+        splitter.addWidget(self.middle_widget)
         splitter.addWidget(self.table)
         splitter.setSizes((700, 700, 1000))
 
@@ -635,29 +653,43 @@ class MainWidget(QWidget):
         self.filter_group_box.setTitle('Filters')
         self.mods_group_box.setTitle('Mods')
 
-    def _update_tooltip(
-        self, model: table.TableModel, selected: QItemSelection
-    ) -> None:
+    def _copy_item_text(self) -> None:
+        """Copies item text to clipboard."""
+        if not self.table:
+            return
+
+        if not self.table.selectedIndexes():
+            return
+
+        row = self.table.selectedIndexes()[0].row()
+        item = self.model.current_items[row]
+        QApplication.clipboard().setText(item.get_text())
+
+    def _update_tooltip(self, selected: QItemSelection) -> None:
         """Updates item tooltip, triggered when a row is clicked."""
         if not selected.indexes():
             # Nothing selected
             return
 
         row = selected.indexes()[0].row()
-        item = model.current_items[row]
+        item = self.model.current_items[row]
 
+        # Update image
+        self.image.setPixmap(item.get_image())
+
+        # Update tooltip
         self.tooltip.setHtml('')
         sections = item.get_tooltip()
         width = self.tooltip.width() - self.tooltip.verticalScrollBar().width()
 
         # Construct tooltip from sections
+        separator = 'assets/' + consts.FRAME_TYPES.get(
+            item.rarity, consts.FRAME_TYPES['normal']
+        )
         for i, html in enumerate(sections):
             self.tooltip.append(html)
             self.tooltip.setAlignment(Qt.AlignmentFlag.AlignCenter)
             if i != len(sections) - 1:
-                separator = 'assets/' + consts.FRAME_TYPES.get(
-                    item.rarity, consts.FRAME_TYPES['normal']
-                )
                 self.tooltip.append(consts.SEPARATOR_TEMPLATE.format(separator, width))
 
         # Reset scroll to top

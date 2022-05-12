@@ -5,18 +5,29 @@ Defines parsing of the item API and converting into a local object.
 import os
 import re
 
-from typing import Any, Callable, Dict, List, NamedTuple
+from typing import Any, Callable, Dict, List, NamedTuple, Tuple
+
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QImage, QPainter, QPixmap
 
 from stashofexile import consts, gamedata, log, util
 from stashofexile.items import property as m_property, requirement, socket as m_socket
 
-PLUS_PERCENT_REGEX = r'\+(\d+)%'  # +x%
-PERCENT_REGEX = r'(\d+)%'  # x%
-NUMBER_REGEX = r'(\d+)'
-FLAT_PERCENT_REGEX = r'([0-9]{1,2}\.\d{2})%'  # xx.xx%
-NUM_RANGE_REGEX = r'(\d+)-(\d+)'  # x-x
+PLUS_PERCENT_REGEX = re.compile(r'\+(\d+)%')  # +x%
+PERCENT_REGEX = re.compile(r'(\d+)%')  # x%
+NUMBER_REGEX = re.compile(r'(\d+)')
+FLAT_PERCENT_REGEX = re.compile(r'([0-9]{1,2}\.\d{2})%')  # xx.xx%
+NUM_RANGE_REGEX = re.compile(r'(\d+)-(\d+)')  # x-x
 
-IMAGE_CACHE_DIR = os.path.join('image_cache')
+BR_REGEX = re.compile(r'<br />')
+CLEAN_REGEX = re.compile(r'<.*?>')
+
+IMAGE_CACHE_DIR = 'image_cache'
+SOCKET_FILE = os.path.join(consts.ASSETS_DIR, 'Socket{}.png')
+
+SOCKET_PX = 47
+LINK_LENGTH = 38
+LINK_WIDTH = 16
 
 logger = log.get_logger(__name__)
 
@@ -93,6 +104,70 @@ def _list_tags(tag_info: List[Tag]) -> str:
     return ''.join(text)
 
 
+def _draw_multi_link(
+    painter: QPainter, i: int, row: int, link_v: QImage, link_h: QImage
+) -> None:
+    """Draws links for a 2 width item depending on socket index."""
+    match i:
+        case 1 | 3 | 5:
+            painter.drawImage(
+                int(SOCKET_PX - LINK_LENGTH / 2),
+                int(row * SOCKET_PX + SOCKET_PX / 2 - LINK_WIDTH / 2),
+                link_h,
+            )
+        case 2:
+            painter.drawImage(
+                int(SOCKET_PX * 1.5 - LINK_WIDTH / 2),
+                int(row * SOCKET_PX - LINK_LENGTH / 2),
+                link_v,
+            )
+        case 4:
+            painter.drawImage(
+                int(SOCKET_PX / 2 - LINK_WIDTH / 2),
+                int(row * SOCKET_PX - LINK_LENGTH / 2),
+                link_v,
+            )
+        case _:
+            logger.error('Unexpected socket index %s', i)
+
+
+def _draw_multi_socket(
+    painter: QPainter,
+    socket_groups: List[m_socket.SocketGroup],
+    width: int,
+) -> Tuple[int, int]:
+    """Draws sockets and links for a 2 width item."""
+    link_v = QImage(os.path.join(consts.ASSETS_DIR, 'LinkV.png'))
+    link_h = QImage(os.path.join(consts.ASSETS_DIR, 'LinkH.png'))
+
+    i = 0
+    socket_rows = 0
+    socket_cols = 0
+    for socket_group in socket_groups:
+        for j, socket in enumerate(socket_group):
+            socket_img = QImage(SOCKET_FILE.format(socket.name))
+            if width == 1:
+                painter.drawImage(0, SOCKET_PX * i, socket_img)
+                if j > 0:
+                    painter.drawImage(16, SOCKET_PX * i - 19, link_v)
+                socket_cols = 1
+                socket_rows = i + 1
+            else:
+                assert width == 2
+                row = i // 2
+                col = i % 2
+                if row % 2 == 1:
+                    col = 1 - col
+                painter.drawImage(SOCKET_PX * col, SOCKET_PX * row, socket_img)
+                if j > 0:
+                    _draw_multi_link(painter, i, row, link_v, link_h)
+                socket_rows = max(row + 1, socket_rows)
+                socket_cols = max(col + 1, socket_cols)
+            i += 1
+
+    return socket_rows, socket_cols
+
+
 def property_function(prop_name: str) -> Callable[['Item'], str]:
     """Returns the function that returns a specific property given an item."""
 
@@ -117,6 +192,9 @@ class Item:
             if item_json['name'] == ''
             else item_json['name'] + ', ' + item_json['baseType']
         )
+
+        self.width = item_json.get('w', 1)
+        self.height = item_json.get('h', 1)
 
         self.influences = list(item_json.get('influences', {}).keys())
 
@@ -286,6 +364,47 @@ class Item:
         logger.warning('Unknown category %s %s %s', self.name, item_base, self.rarity)
         return ''
 
+    def get_image(self) -> QPixmap:
+        """Returns an item's image with sockets and links."""
+        image = QImage(self.file_path)
+        pixmap = QPixmap(SOCKET_PX * self.width, SOCKET_PX * self.height)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+
+        offset_width = (pixmap.width() - image.width()) // 2
+        offset_height = (pixmap.height() - image.height()) // 2
+        painter.drawImage(offset_width, offset_height, image)
+
+        if self.num_sockets == 0:
+            return pixmap
+
+        socket_pixmap = QPixmap(SOCKET_PX * self.width, SOCKET_PX * self.height)
+        socket_pixmap.fill(Qt.GlobalColor.transparent)
+        socket_painter = QPainter(socket_pixmap)
+        socket_rows = 1
+        socket_cols = 1
+
+        if self.num_sockets == 1:
+            socket_img = QImage(SOCKET_FILE.format(self.sockets[0].name))
+            socket_painter.drawImage(0, 0, socket_img)
+        else:
+            socket_rows, socket_cols = _draw_multi_socket(
+                socket_painter, self.socket_groups, self.width
+            )
+
+        socket_painter.end()
+        socket_pixmap = socket_pixmap.copy(
+            0, 0, SOCKET_PX * socket_cols, SOCKET_PX * socket_rows
+        )
+        painter.drawPixmap(
+            (pixmap.width() - socket_pixmap.width()) // 2,
+            (pixmap.height() - socket_pixmap.height()) // 2,
+            socket_pixmap,
+        )
+        painter.end()
+
+        return pixmap
+
     def get_tooltip(self) -> List[str]:
         """
         Returns a list of strings, with each representing a single section of the
@@ -311,8 +430,9 @@ class Item:
             ]
         )
         self.tooltip = [
-            # Image
-            f'<img src="{self.file_path}" />',
+            # # Image
+            # f'<img src="{self.file_path}" />',
+            self._get_influence_tooltip(),
             # Item name (header)
             self._get_header_tooltip(),
             # Prophecy, properties, utility mods
@@ -348,6 +468,15 @@ class Item:
         self.tooltip = [group for group in self.tooltip if len(group) > 0]
 
         return self.tooltip
+
+    def get_text(self) -> str:
+        """Returns text format of item."""
+        if not self.tooltip:
+            return ''
+
+        temp = re.sub(BR_REGEX, '\n', '\n'.join(self.tooltip))
+        temp = re.sub(CLEAN_REGEX, '', temp)
+        return temp
 
     def has_sockets(self) -> bool:
         """Returns whether item has sockets."""
@@ -418,8 +547,8 @@ class Item:
         ]
         self.sockets_r = self.sockets.count(m_socket.Socket.R)
         self.sockets_g = self.sockets.count(m_socket.Socket.G)
-        self.sockets_b = self.sockets.count(m_socket.Socket.B)
         self.sockets_w = self.sockets.count(m_socket.Socket.W)
+        self.sockets_b = self.sockets.count(m_socket.Socket.B)
         self.num_sockets = len(self.sockets)
 
         self.num_links = (
@@ -477,14 +606,17 @@ class Item:
         )
         self.cosmetic_tag = len(self.cosmetic) > 0
 
-    def _get_header_tooltip(self) -> str:
-        """Returns the header tooltip, including influence icons and a colorized name."""
+    def _get_influence_tooltip(self) -> str:
+        """Returns influence icons tooltip."""
         influence_icons = [
             f'<img src="assets/{infl}.png" />' for infl in self.influences
         ]
-        name = util.colorize(self.name.replace(', ', '<br />'), self.rarity)
+        return ''.join(influence_icons)
 
-        return ''.join(influence_icons) + consts.HEADER_TEMPLATE.format(name)
+    def _get_header_tooltip(self) -> str:
+        """Returns the header tooltip, including influence icons and a colorized name."""
+        name = util.colorize(self.name.replace(', ', '<br />'), self.rarity)
+        return consts.HEADER_TEMPLATE.format(name)
 
     def _get_prophecy_tooltip(self) -> str:
         """Returns the colorized prophecy tooltip."""

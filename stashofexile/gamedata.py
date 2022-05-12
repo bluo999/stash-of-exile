@@ -1,10 +1,13 @@
 """
 Constants that involve game data.
 """
-from collections import OrderedDict
 import json
+import os
 
+from collections import OrderedDict
 from typing import Dict, List
+
+from stashofexile import consts
 
 Influences = ['shaper', 'elder', 'crusader', 'hunter', 'redeemer', 'warlord']
 
@@ -159,8 +162,10 @@ PARSE_CATEGORIES = [
     'Expedition Logbook',
 ]
 
-with open('assets/bases.json', 'rb') as f:
+BASES_FILE = os.path.join(consts.ASSETS_DIR, 'bases.json')
+with open(BASES_FILE, 'rb') as f:
     BASE_TYPES: Dict[str, List[str]] = json.load(f)
 
-with open('assets/altart.json', 'rb') as f:
+ALTART_FILE = os.path.join(consts.ASSETS_DIR, 'altart.json')
+with open(ALTART_FILE, 'rb') as f:
     ALTART: List[str] = json.load(f)

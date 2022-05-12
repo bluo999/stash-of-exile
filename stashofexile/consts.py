@@ -2,22 +2,19 @@
 Constants that do not involve game data (found in gameData.py).
 """
 
+# Assets directory
+ASSETS_DIR = 'assets'
+
 # Milliseconds for status bar to timeout
 STATUS_TIMEOUT = 10000
 
 # Template to color tooltips
-SPAN_TEMPLATE = """<span style="color:{}">{}</span>"""
+SPAN_TEMPLATE = '<span style="color:{}">{}</span>'
 
 # Template for item name headers
-HEADER_TEMPLATE = """
-<h3 style="
-    font-weight: normal;
-    text-align: center;
-    padding: 0px;
-    margin: 0px;">
-    {}
-</h3>
-"""
+HEADER_TEMPLATE = (
+    '<h3 style="font-weight: normal; text-align: center; padding: 0px; margin: 0px;">{}</h3>'
+)
 
 # Template for item tooltip separator
 SEPARATOR_TEMPLATE = """<img src="{}" width="{}" />"""

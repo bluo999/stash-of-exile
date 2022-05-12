@@ -25,7 +25,8 @@ from stashofexile.widgets import loginwidget, tabswidget, mainwidget
 logger = log.get_logger(__name__)
 
 # A font by Jos Buivenga (exljbris) -> www.exljbris.com
-TTF_FILE = os.path.join('assets', 'FontinSmallCaps.ttf')
+TTF_FILE = os.path.join(consts.ASSETS_DIR, 'FontinSmallCaps.ttf')
+QSS_FILE = os.path.join(consts.ASSETS_DIR, 'styles.qss')
 
 Widget = loginwidget.LoginWidget | mainwidget.MainWidget | tabswidget.TabsWidget
 
@@ -42,7 +43,7 @@ class MainWindow(QMainWindow):
         QFontDatabase.addApplicationFont(TTF_FILE)
 
         # QSS file
-        with open('assets/styles.qss', 'r', encoding='utf-8') as f:
+        with open(QSS_FILE, 'r', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
         # Status bar
