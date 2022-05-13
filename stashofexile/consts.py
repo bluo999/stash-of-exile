@@ -3,7 +3,6 @@ Constants that do not involve game data (found in gameData.py).
 """
 
 import os
-from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import QSettings
 

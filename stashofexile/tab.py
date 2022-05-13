@@ -7,7 +7,7 @@ import json
 
 from typing import List, Optional
 
-from stashofexile import gamedata, log, util
+from stashofexile import file, gamedata, log
 from stashofexile.items import item
 
 logger = log.get_logger(__name__)
@@ -59,7 +59,7 @@ class CharacterTab(ItemTab):
     def __init__(self, filepath: str, char_name: Optional[str] = None):
         super().__init__(filepath)
         self.char_name = (
-            util.get_file_name(filepath) if char_name is None else char_name
+            file.get_file_name(filepath) if char_name is None else char_name
         )
 
     def get_tab_name(self) -> str:
@@ -74,7 +74,7 @@ class StashTab(ItemTab):
 
     def __init__(self, filepath: str, tab_num: Optional[int] = None):
         super().__init__(filepath)
-        self.tab_num = int(util.get_file_name(filepath)) if tab_num is None else tab_num
+        self.tab_num = int(file.get_file_name(filepath)) if tab_num is None else tab_num
         self.tab_name: str = ''
 
     def get_tab_name(self) -> str:
@@ -90,7 +90,7 @@ class UniqueSubTab(ItemTab):
     def __init__(self, filepath: str, tab_num: Optional[int] = None):
         super().__init__(filepath)
         if tab_num is None:
-            tab_num = int(util.get_file_name(filepath))
+            tab_num = int(file.get_file_name(filepath))
         self.tab_name = gamedata.UNIQUE_CATEGORIES[tab_num]
 
     def get_tab_name(self) -> str:

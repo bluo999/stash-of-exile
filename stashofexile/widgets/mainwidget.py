@@ -134,7 +134,6 @@ class MainWidget(QWidget):
         Generates and sends API calls based on selected league, tabs, and characters.
         """
         assert self.account is not None
-        account = self.account
 
         api_manager = self.main_window.api_manager
 
@@ -145,7 +144,11 @@ class MainWidget(QWidget):
         # Queue stash tab API calls
         for tab_num in tabs:
             filename = os.path.join(
-                ITEM_CACHE_DIR, account.username, league, TABS_DIR, f'{tab_num}.json'
+                ITEM_CACHE_DIR,
+                self.account.username,
+                league,
+                TABS_DIR,
+                f'{tab_num}.json',
             )
             item_tab = m_tab.StashTab(filename, tab_num)
             if not force_refresh and os.path.exists(filename):
@@ -155,7 +158,7 @@ class MainWidget(QWidget):
                 continue
             api_call = thread.Call(
                 api_manager.get_tab_items,
-                (account.username, account.poesessid, league, tab_num),
+                (self.account.username, self.account.poesessid, league, tab_num),
                 self,
                 self._get_stash_tab_callback,
                 (item_tab,),
@@ -165,7 +168,11 @@ class MainWidget(QWidget):
         # Queue character items API calls
         for char in characters:
             filename = os.path.join(
-                ITEM_CACHE_DIR, account.username, league, CHARACTER_DIR, f'{char}.json'
+                ITEM_CACHE_DIR,
+                self.account.username,
+                league,
+                CHARACTER_DIR,
+                f'{char}.json',
             )
             item_tab = m_tab.CharacterTab(filename, char)
             if not force_refresh and os.path.exists(filename):
@@ -175,7 +182,7 @@ class MainWidget(QWidget):
                 continue
             api_call = thread.Call(
                 api_manager.get_character_items,
-                (account.username, account.poesessid, char),
+                (self.account.username, self.account.poesessid, char),
                 self,
                 self._get_char_callback,
                 (item_tab,),
@@ -185,7 +192,11 @@ class MainWidget(QWidget):
         # Queue jewels API calls
         for char in characters:
             filename = os.path.join(
-                ITEM_CACHE_DIR, account.username, league, JEWELS_DIR, f'{char}.json'
+                ITEM_CACHE_DIR,
+                self.account.username,
+                league,
+                JEWELS_DIR,
+                f'{char}.json',
             )
             item_tab = m_tab.CharacterTab(filename, char)
             if not force_refresh and os.path.exists(filename):
@@ -195,7 +206,7 @@ class MainWidget(QWidget):
                 continue
             api_call = thread.Call(
                 api_manager.get_character_jewels,
-                (account.username, account.poesessid, char),
+                (self.account.username, self.account.poesessid, char),
                 self,
                 self._get_char_callback,
                 (item_tab,),
@@ -207,7 +218,7 @@ class MainWidget(QWidget):
             for unique in uniques:
                 filename = os.path.join(
                     ITEM_CACHE_DIR,
-                    account.username,
+                    self.account.username,
                     league,
                     UNIQUE_DIR,
                     f'{unique}.json',
@@ -221,7 +232,11 @@ class MainWidget(QWidget):
                 api_calls.append(
                     thread.Call(
                         api_manager.get_unique_subtab,
-                        (account.username, self.account.leagues[league].uid, unique),
+                        (
+                            self.account.username,
+                            self.account.leagues[league].uid,
+                            unique,
+                        ),
                         self,
                         self._get_unique_subtab_callback,
                         (item_tab,),
@@ -439,12 +454,14 @@ class MainWidget(QWidget):
 
         # Image
         self.image = QLabel()
+        self.image.setFrameStyle(QFrame.Shape.NoFrame)
         self.image.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image.setObjectName('Image')
         middle_vlayout.addWidget(self.image)
 
         # Tooltip
         self.tooltip = QTextEdit()
+        self.tooltip.setFrameStyle(QFrame.Shape.NoFrame)
         self.tooltip.setReadOnly(True)
         self.tooltip.setFont(QFont('Fontin SmallCaps', 12))
         self.tooltip.setAlignment(Qt.AlignmentFlag.AlignCenter)

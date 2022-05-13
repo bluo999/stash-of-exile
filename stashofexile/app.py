@@ -4,7 +4,6 @@ Entrypoint of Stash of Exile.
 
 import sys
 
-from PyQt6.QtCore import QSettings
 from PyQt6.QtGui import QColor, QColorConstants, QPalette
 from PyQt6.QtWidgets import QApplication
 
