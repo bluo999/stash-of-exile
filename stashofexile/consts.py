@@ -2,6 +2,13 @@
 Constants that do not involve game data (found in gameData.py).
 """
 
+import os
+from typing import TYPE_CHECKING
+
+from PyQt6.QtCore import QSettings
+
+from stashofexile import file
+
 # Assets directory
 ASSETS_DIR = 'assets'
 
@@ -76,3 +83,14 @@ VALNUM_TO_COLOR = {
     19: 'white',
     20: 'divination',
 }
+
+_settings = QSettings(
+    QSettings.Format.IniFormat,
+    QSettings.Scope.UserScope,
+    'StashOfExile',
+    'StashOfExile',
+).fileName()
+APPDATA_DIR = os.path.dirname(_settings)
+file.create_directories(_settings)
+
+print(APPDATA_DIR)

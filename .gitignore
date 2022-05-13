@@ -3,8 +3,6 @@
 
 build/
 dist/
-image_cache/
-item_cache/
 
 *.exe
 *.spec

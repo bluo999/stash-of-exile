@@ -9,7 +9,7 @@ import urllib.error
 
 from typing import Tuple
 
-from stashofexile import log, util
+from stashofexile import file, log
 from stashofexile.threads import thread
 
 logger = log.get_logger(__name__)
@@ -23,7 +23,7 @@ class DownloadManager(thread.ThreadManager):
 
     def get_image(self, icon: str, file_path: str) -> Tuple[None]:
         """Gets an image given item info."""
-        util.create_directories(file_path)
+        file.create_directories(file_path)
         if not os.path.exists(file_path):
             logger.debug('Downloading image to %s', file_path)
             # Download image

@@ -22,7 +22,7 @@ NUM_RANGE_REGEX = re.compile(r'(\d+)-(\d+)')  # x-x
 BR_REGEX = re.compile(r'<br />')
 CLEAN_REGEX = re.compile(r'<.*?>')
 
-IMAGE_CACHE_DIR = 'image_cache'
+IMAGE_CACHE_DIR = os.path.join(consts.APPDATA_DIR, 'image_cache')
 SOCKET_FILE = os.path.join(consts.ASSETS_DIR, 'Socket{}.png')
 
 SOCKET_PX = 47

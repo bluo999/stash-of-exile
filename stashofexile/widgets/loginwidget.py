@@ -20,7 +20,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from stashofexile import log, save
+from stashofexile import consts, log, save
 from stashofexile.threads import api, thread
 
 if TYPE_CHECKING:
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 logger = log.get_logger(__name__)
 
-SAVE_FILE = 'saveddata.pkl'
+SAVE_FILE = os.path.join(consts.APPDATA_DIR, 'saveddata.pkl')
 
 
 class LoginWidget(QWidget):

@@ -4,6 +4,7 @@ Logging functionality
 
 import abc
 import logging
+import os
 import sys
 
 from typing import Dict, List, Optional, Type
@@ -11,8 +12,10 @@ from typing import Dict, List, Optional, Type
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QPlainTextEdit, QWidget
 
+from stashofexile import consts
 
-_LOG_PATH = 'stashofexile.log'
+
+_LOG_PATH = os.path.join(consts.APPDATA_DIR, 'stashofexile.log')
 
 
 class Coloring(abc.ABC):

@@ -38,7 +38,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from stashofexile import consts, gamedata, log, save, tab as m_tab, table, util
+from stashofexile import consts, file, gamedata, log, save, tab as m_tab, table
 from stashofexile.items import filter as m_filter, item as m_item, moddb
 from stashofexile.threads import thread
 from stashofexile.widgets import editcombo
@@ -48,8 +48,8 @@ if TYPE_CHECKING:
 
 logger = log.get_logger(__name__)
 
-MOD_DB_FILE = os.path.join('item_db.pkl')
-ITEM_CACHE_DIR = os.path.join('item_cache')
+MOD_DB_FILE = os.path.join(consts.APPDATA_DIR, 'item_db.pkl')
+ITEM_CACHE_DIR = os.path.join(consts.APPDATA_DIR, 'item_cache')
 
 TABS_DIR = 'tabs'
 CHARACTER_DIR = 'characters'
@@ -261,7 +261,7 @@ class MainWidget(QWidget):
         assert self.account is not None
 
         logger.info('Writing tab json to %s', tab.filepath)
-        util.create_directories(tab.filepath)
+        file.create_directories(tab.filepath)
         with open(tab.filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f)
 
@@ -280,7 +280,7 @@ class MainWidget(QWidget):
             return
 
         logger.info('Writing character json to %s', tab.filepath)
-        util.create_directories(tab.filepath)
+        file.create_directories(tab.filepath)
         with open(tab.filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f)
 
@@ -306,7 +306,7 @@ class MainWidget(QWidget):
         logger.info('Writing subtab json to %s', tab.filepath)
         data = json.loads(z.groups()[0])
         json_data = {'items': [item_data[1] for item_data in data]}
-        util.create_directories(tab.filepath)
+        file.create_directories(tab.filepath)
         with open(tab.filepath, 'w', encoding='utf-8') as f:
             json.dump(json_data, f)
 
