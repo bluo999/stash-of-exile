@@ -1,12 +1,10 @@
+# For dev
 **/__pycache__/
 .qt_for_python/
 
+# For building
 build/
 dist/
 
-*.exe
 *.spec
-*.pkl
-*.ui
-*.log
-test*
+*.zip
