@@ -46,8 +46,8 @@ class InfluenceFilter(QWidget):
             influence = QCheckBox()
             influence.stateChanged.connect(self._influence_checked)
             infl = gamedata.INFLUENCES[i]
-            image = f'{consts.ASSETS_DIR}/{infl}.png'
-            image_off = f'{consts.ASSETS_DIR}/{infl}_off.png'
+            image = f'assets/{infl}.png'
+            image_off = f'assets/{infl}_off.png'
             influence.setStyleSheet(
                 f'QCheckBox::indicator:checked {{image: url({image})}}'
                 f'QCheckBox::indicator:unchecked {{image: url({image_off})}}'

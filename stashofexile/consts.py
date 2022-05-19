@@ -3,13 +3,19 @@ Constants that do not involve game data (found in gameData.py).
 """
 
 import os
+import sys
 
 from PyQt6.QtCore import QSettings
 
 from stashofexile import file
 
 # Assets directory
-ASSETS_DIR = 'assets'
+if getattr(sys, 'frozen', False):
+    app_path = os.path.dirname(sys.executable)
+else:
+    app_path = os.path.dirname(os.path.dirname(__file__))
+
+ASSETS_DIR = os.path.join(app_path, 'assets')
 
 # Milliseconds for status bar to timeout
 STATUS_TIMEOUT = 10000
