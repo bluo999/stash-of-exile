@@ -584,30 +584,6 @@ class MainWidget(QWidget):
 
         return group_box, widget
 
-    def _build_mod_filter_group_box(
-        self, title: str
-    ) -> Tuple[QGroupBox, QVBoxLayout, QPushButton, QPushButton]:
-        """Builds mod filter group box. Returns group box, interior layout, and buttons."""
-        group_box, widget = self._build_filter_group_box(title)
-        vlayout = QVBoxLayout(widget)
-
-        button_layout = QHBoxLayout()
-        button_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
-
-        plus_button = QPushButton()
-        plus_button.setText('+')
-        plus_button.setMaximumWidth(plus_button.sizeHint().height())
-        button_layout.addWidget(plus_button)
-
-        x_button = QPushButton()
-        x_button.setText('x')
-        x_button.setMaximumWidth(x_button.sizeHint().height())
-        button_layout.addWidget(x_button)
-
-        vlayout.addLayout(button_layout)
-
-        return group_box, vlayout, plus_button, x_button
-
     def _build_regular_filters(self) -> QWidget:
         """Builds regular filter widgets (name, rarity, properties, etc)."""
         index = 0
@@ -640,19 +616,54 @@ class MainWidget(QWidget):
         group = modfilter.ModFilterGroup(
             modfilter.ModFilterGroupType(self.mod_combo.currentText())
         )
-        (
-            group.group_box,
-            group.vlayout,
-            plus_btn,
-            x_btn,
-        ) = self._build_mod_filter_group_box(group.group_type.value)
 
-        plus_btn.clicked.connect(functools.partial(self._add_mod_filter, group))
-        x_btn.clicked.connect(functools.partial(self._delete_mod_group, group))
+        # Create mod filter group UI
+        group.group_box, widget = self._build_filter_group_box(group.group_type.value)
+        group.vlayout = QVBoxLayout(widget)
 
+        button_layout = QHBoxLayout()
+        button_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+
+        # Insert QLineEdit for certain group types
+        if group.group_type in (
+            modfilter.ModFilterGroupType.COUNT,
+            modfilter.ModFilterGroupType.WEIGHTED,
+        ):
+            group.min_lineedit = QLineEdit()
+            group.min_lineedit.setValidator(QDoubleValidator())
+            group.min_lineedit.setPlaceholderText('min')
+            group.min_lineedit.textChanged.connect(self._apply_filters)
+            button_layout.addWidget(group.min_lineedit)
+            group.max_lineedit = QLineEdit()
+            group.max_lineedit.setValidator(QDoubleValidator())
+            group.max_lineedit.setPlaceholderText('max')
+            group.max_lineedit.textChanged.connect(self._apply_filters)
+            button_layout.addWidget(group.max_lineedit)
+
+        button_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
+        plus_button = QPushButton()
+        plus_button.setText('+')
+        plus_button.setMaximumWidth(plus_button.sizeHint().height())
+        button_layout.addWidget(plus_button)
+
+        x_button = QPushButton()
+        x_button.setText('x')
+        x_button.setMaximumWidth(x_button.sizeHint().height())
+        button_layout.addWidget(x_button)
+
+        group.vlayout.addLayout(button_layout)
+
+        # Connect signals
+        weighted = group.group_type == modfilter.ModFilterGroupType.WEIGHTED
+        plus_button.clicked.connect(
+            functools.partial(self._add_mod_filter, group, weighted)
+        )
+        x_button.clicked.connect(functools.partial(self._delete_mod_group, group))
+
+        # Finish adding group
         self.mod_filters.append(group)
         self.mods_vlayout.insertWidget(self.mods_vlayout.count() - 1, group.group_box)
-        self._add_mod_filter(group)
+        self._add_mod_filter(group, weighted)
 
     def _delete_mod_group(self, group: modfilter.ModFilterGroup) -> None:
         """Deletes a mod filter group from the list."""
@@ -664,7 +675,9 @@ class MainWidget(QWidget):
         self.mod_filters.remove(group)
         self._apply_filters()
 
-    def _add_mod_filter(self, group: modfilter.ModFilterGroup) -> None:
+    def _add_mod_filter(
+        self, group: modfilter.ModFilterGroup, weight: bool = False
+    ) -> None:
         """Add mod filter to group."""
         assert group.vlayout is not None
 
@@ -686,12 +699,15 @@ class MainWidget(QWidget):
         hlayout.addWidget(widget)
 
         # Range widgets
-        for i in range(2):
+        num = 3 if weight else 2
+        for i in range(num):
             range_widget = QLineEdit()
             range_widget.setFixedSize(self.range_size)
             range_widget.textChanged.connect(self._apply_filters)
             range_widget.setValidator(QDoubleValidator())
-            range_widget.setPlaceholderText('min' if i == 0 else 'max')
+            range_widget.setPlaceholderText(
+                'weight' if i == num - 3 else 'min' if i == num - 2 else 'max'
+            )
             filt.widgets.append(range_widget)
             hlayout.addWidget(range_widget)
 

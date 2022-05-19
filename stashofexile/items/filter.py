@@ -25,8 +25,8 @@ logger = log.get_logger(__name__)
 
 Num = int | float
 
-MIN_VAL = -100000
-MAX_VAL = 100000
+MIN_VAL = float('-inf')
+MAX_VAL = float('inf')
 IV = QIntValidator()
 DV = QDoubleValidator()
 
@@ -202,6 +202,7 @@ def between_filter(  # pylint: disable=too-many-arguments
     # Field is between two inputs
     bot = conv_func(bot_str) if bot and bot_str != '' and bot_str != '.' else min_val
     top = conv_func(top_str) if top and top_str != '' and top_str != '.' else max_val
+
     return bot <= field <= top
 
 
