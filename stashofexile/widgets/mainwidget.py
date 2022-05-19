@@ -10,7 +10,7 @@ import os
 import pickle
 import re
 
-from typing import List, TYPE_CHECKING, Optional, Set, Tuple
+from typing import Callable, List, TYPE_CHECKING, Optional, Set, Tuple
 
 from PyQt6.QtCore import QItemSelection, QSize, Qt
 from PyQt6.QtGui import QDoubleValidator, QFont, QTextCursor
@@ -39,7 +39,7 @@ from PyQt6.QtWidgets import (
 )
 
 from stashofexile import consts, file, gamedata, log, save, tab as m_tab, table
-from stashofexile.items import filter as m_filter, item as m_item, moddb
+from stashofexile.items import filter as m_filter, item as m_item, moddb, modfilter
 from stashofexile.threads import thread
 from stashofexile.widgets import editcombo
 
@@ -96,7 +96,7 @@ class MainWidget(QWidget):
         self.tab_filt: Optional[m_filter.Filter] = None
         self.range_size = QSize()
         self.reg_filters = m_filter.FILTERS.copy()
-        self.mod_filters: List[m_filter.Filter] = []
+        self.mod_filters: List[modfilter.ModFilterGroup] = []
         self._static_build()
         self._load_mod_file()
         self._dynamic_build_filters()
@@ -436,12 +436,18 @@ class MainWidget(QWidget):
 
         # Plus Button
         plus_hlayout = QHBoxLayout()
+
+        self.mod_combo = QComboBox()
+        self.mod_combo.addItems(e.value for e in modfilter.ModFilterGroupType)
+        plus_hlayout.addWidget(self.mod_combo)
+        plus_hlayout.setAlignment(self.mod_combo, Qt.AlignmentFlag.AlignRight)
+
         plus_button = QPushButton()
         plus_button.setText('+')
         plus_button.setMaximumWidth(plus_button.sizeHint().height())
-        plus_button.clicked.connect(self._add_mod_filter)
+        plus_button.clicked.connect(self._add_mod_group)
         plus_hlayout.addWidget(plus_button)
-        plus_hlayout.setAlignment(plus_button, Qt.AlignmentFlag.AlignRight)
+        # plus_hlayout.setAlignment(plus_button, Qt.AlignmentFlag.AlignRight)
         self.mods_vlayout.addLayout(plus_hlayout)
 
         left_vlayout.addWidget(self.filter_group_box)
@@ -498,9 +504,16 @@ class MainWidget(QWidget):
         splitter.addWidget(self.left_widget)
         splitter.addWidget(self.middle_widget)
         splitter.addWidget(self.table)
-        splitter.setSizes((700, 700, 1000))
+        splitter.setSizes((700, 700, 700))
 
         main_hlayout.addWidget(splitter)
+
+    def _group_toggle(self, widget: QWidget) -> Callable:
+        def f():
+            self._apply_filters()
+            _toggle_visibility(widget)
+
+        return f
 
     def _insert_mods(self, items):
         self.mod_db.insert_items(items)
@@ -556,6 +569,45 @@ class MainWidget(QWidget):
         layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         form_layout.setLayout(index, QFormLayout.ItemRole.FieldRole, layout)
 
+    def _build_filter_group_box(self, title: str) -> Tuple[QGroupBox, QWidget]:
+        """Builds filter group box. Returns group box and interior widget."""
+        group_box = QGroupBox()
+        group_box.setTitle(title)
+        group_box.setCheckable(True)
+
+        layout = QVBoxLayout(group_box)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        widget = QWidget()
+        layout.addWidget(widget)
+        group_box.toggled.connect(self._group_toggle(widget))
+
+        return group_box, widget
+
+    def _build_mod_filter_group_box(
+        self, title: str
+    ) -> Tuple[QGroupBox, QVBoxLayout, QPushButton, QPushButton]:
+        """Builds mod filter group box. Returns group box, interior layout, and buttons."""
+        group_box, widget = self._build_filter_group_box(title)
+        vlayout = QVBoxLayout(widget)
+
+        button_layout = QHBoxLayout()
+        button_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
+
+        plus_button = QPushButton()
+        plus_button.setText('+')
+        plus_button.setMaximumWidth(plus_button.sizeHint().height())
+        button_layout.addWidget(plus_button)
+
+        x_button = QPushButton()
+        x_button.setText('x')
+        x_button.setMaximumWidth(x_button.sizeHint().height())
+        button_layout.addWidget(x_button)
+
+        vlayout.addLayout(button_layout)
+
+        return group_box, vlayout, plus_button, x_button
+
     def _build_regular_filters(self) -> QWidget:
         """Builds regular filter widgets (name, rarity, properties, etc)."""
         index = 0
@@ -570,27 +622,12 @@ class MainWidget(QWidget):
 
                 case m_filter.FilterGroup(group_name, filters, _):
                     # Filter group box
-                    filt.group_box = QGroupBox(self.filter_scroll_widget)
-                    filt.group_box.setTitle(group_name)
-                    filt.group_box.setCheckable(True)
-                    layout = QVBoxLayout(filt.group_box)
-                    layout.setContentsMargins(0, 0, 0, 0)
-                    widget = QWidget()
-                    layout.addWidget(widget)
-                    group_form = QFormLayout(widget)
-
-                    def group_toggle(widget):
-                        def f():
-                            self._apply_filters()
-                            _toggle_visibility(widget)
-
-                        return f
-
-                    filt.group_box.toggled.connect(group_toggle(widget))
-
+                    filt.group_box, widget = self._build_filter_group_box(group_name)
                     self.filter_form_layout.setWidget(
                         index, QFormLayout.ItemRole.SpanningRole, filt.group_box
                     )
+
+                    group_form = QFormLayout(widget)
                     for i, ind_filter in enumerate(filters):
                         self._build_individual_filter(ind_filter, group_form, i)
                     index += 1
@@ -598,21 +635,42 @@ class MainWidget(QWidget):
         assert first_filt_widget is not None
         return first_filt_widget
 
-    def _delete_mod_filter(
-        self, filt_layout: QHBoxLayout, filt: m_filter.Filter
-    ) -> None:
-        """Deletes a mod filter from its layout then reruns filtering."""
-        self.mods_vlayout.removeItem(filt_layout)
-        _clear_layout(filt_layout)
-        filt_layout.deleteLater()
-        self.mod_filters.remove(filt)
+    def _add_mod_group(self) -> None:
+        """Add mod filter group to list."""
+        group = modfilter.ModFilterGroup(
+            modfilter.ModFilterGroupType(self.mod_combo.currentText())
+        )
+        (
+            group.group_box,
+            group.vlayout,
+            plus_btn,
+            x_btn,
+        ) = self._build_mod_filter_group_box(group.group_type.value)
+
+        plus_btn.clicked.connect(functools.partial(self._add_mod_filter, group))
+        x_btn.clicked.connect(functools.partial(self._delete_mod_group, group))
+
+        self.mod_filters.append(group)
+        self.mods_vlayout.insertWidget(self.mods_vlayout.count() - 1, group.group_box)
+        self._add_mod_filter(group)
+
+    def _delete_mod_group(self, group: modfilter.ModFilterGroup) -> None:
+        """Deletes a mod filter group from the list."""
+        assert group.group_box is not None
+        assert group.vlayout is not None
+        self.mods_vlayout.removeWidget(group.group_box)
+        _clear_layout(group.vlayout)
+        group.vlayout.deleteLater()
+        self.mod_filters.remove(group)
         self._apply_filters()
 
-    def _add_mod_filter(self) -> None:
-        """Add mod filter to list."""
+    def _add_mod_filter(self, group: modfilter.ModFilterGroup) -> None:
+        """Add mod filter to group."""
+        assert group.vlayout is not None
+
         hlayout = QHBoxLayout()
-        filt = m_filter.Filter('', editcombo.ECBox, m_filter.filter_mod)
-        self.mod_filters.append(filt)
+        filt = m_filter.Filter('', editcombo.ECBox, modfilter.filter_mod)
+        group.filters.append(filt)
 
         # Combo box
         widget = editcombo.ECBox()
@@ -641,12 +699,25 @@ class MainWidget(QWidget):
         x_button.setText('x')
         x_button.setMaximumWidth(x_button.sizeHint().height())
         x_button.clicked.connect(
-            functools.partial(self._delete_mod_filter, hlayout, filt)
+            functools.partial(self._delete_mod_filter, hlayout, group, filt)
         )
         hlayout.addWidget(x_button)
 
         # Add layout to filter list
-        self.mods_vlayout.insertLayout(len(self.mods_vlayout.children()) - 1, hlayout)
+        group.vlayout.insertLayout(group.vlayout.count() - 1, hlayout)
+
+    def _delete_mod_filter(
+        self,
+        filt_layout: QHBoxLayout,
+        group: modfilter.ModFilterGroup,
+        filt: m_filter.Filter,
+    ) -> None:
+        """Deletes a mod filter from its layout then reruns filtering."""
+        self.mods_vlayout.removeItem(filt_layout)
+        _clear_layout(filt_layout)
+        filt_layout.deleteLater()
+        group.filters.remove(filt)
+        self._apply_filters()
 
     def _dynamic_build_filters(self) -> None:
         """Sets up the filter widgets and labels."""

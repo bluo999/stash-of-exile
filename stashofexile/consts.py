@@ -91,5 +91,3 @@ _settings = QSettings(
 ).fileName()
 APPDATA_DIR = os.path.dirname(_settings)
 file.create_directories(_settings)
-
-print(APPDATA_DIR)

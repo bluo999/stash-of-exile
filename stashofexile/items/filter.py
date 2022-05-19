@@ -16,10 +16,12 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from stashofexile import gamedata
+from stashofexile import gamedata, log
 from stashofexile import consts
 from stashofexile.items import item as m_item, socket as m_socket
 from stashofexile.widgets import editcombo
+
+logger = log.get_logger(__name__)
 
 Num = int | float
 
@@ -136,8 +138,8 @@ class FilterGroup:
     Represents a group of item filters.
     """
 
-    name: str
-    filters: List[Filter]
+    name: str = ''
+    filters: List[Filter] = dataclasses.field(default_factory=list)
     group_box: Optional[QGroupBox] = None
 
 
@@ -153,10 +155,11 @@ def filter_is_active(widget: QWidget) -> bool:
         case InfluenceFilter():
             return widget.check.isChecked()
         case _:
+            logger.error('Unexpected widget type %s', type(widget))
             return False
 
 
-def _between_filter(  # pylint: disable=too-many-arguments
+def between_filter(  # pylint: disable=too-many-arguments
     field: Num,
     conv_func: Callable[[str], Num],
     elem1: Optional[QLineEdit],
@@ -237,10 +240,10 @@ def _sat_sockets(
     white: QLineEdit,
 ) -> bool:
     return (
-        _between_filter(sockets.count(m_socket.Socket.R), int, red, None)
-        and _between_filter(sockets.count(m_socket.Socket.G), int, green, None)
-        and _between_filter(sockets.count(m_socket.Socket.B), int, blue, None)
-        and _between_filter(sockets.count(m_socket.Socket.W), int, white, None)
+        between_filter(sockets.count(m_socket.Socket.R), int, red, None)
+        and between_filter(sockets.count(m_socket.Socket.G), int, green, None)
+        and between_filter(sockets.count(m_socket.Socket.B), int, blue, None)
+        and between_filter(sockets.count(m_socket.Socket.W), int, white, None)
     )
 
 
@@ -257,9 +260,9 @@ def _filter_sockets(  # pylint: disable=too-many-arguments
     if not item.has_sockets():
         return False
 
-    return _between_filter(
-        item.num_sockets, int, min_socks, max_socks
-    ) and _sat_sockets(item.sockets, red, green, blue, white)
+    return between_filter(item.num_sockets, int, min_socks, max_socks) and _sat_sockets(
+        item.sockets, red, green, blue, white
+    )
 
 
 def _filter_links(  # pylint: disable=too-many-arguments
@@ -275,7 +278,7 @@ def _filter_links(  # pylint: disable=too-many-arguments
     if not item.has_sockets():
         return False
 
-    return _between_filter(item.num_links, int, min_links, max_links) and any(
+    return between_filter(item.num_links, int, min_links, max_links) and any(
         _sat_sockets(socket_group, red, green, blue, white)
         for socket_group in item.socket_groups
     )
@@ -294,7 +297,7 @@ def _duo(
 
     def filt(item: m_item.Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
         field = prop(item)
-        return field is not None and _between_filter(field, conv_func, elem1, elem2)
+        return field is not None and between_filter(field, conv_func, elem1, elem2)
 
     return filt
 
@@ -328,20 +331,6 @@ def _filter_gem_quality(item: m_item.Item, elem: QComboBox) -> bool:
 def _filter_influences(item: m_item.Item, elem: InfluenceFilter) -> bool:
     """Filter function that uses influence."""
     return elem.item_match(item)
-
-
-def filter_mod(
-    item: m_item.Item, elem: editcombo.ECBox, range1: QLineEdit, range2: QLineEdit
-) -> bool:
-    """Filter function that searches for mods."""
-    mod_str = elem.currentText()
-    if mod_str == '':
-        return True
-
-    return mod_str in item.internal_mods and all(
-        _between_filter(value, float, range1, range2)
-        for value in item.internal_mods[mod_str]
-    )
 
 
 FILTERS: List[Filter | FilterGroup] = [

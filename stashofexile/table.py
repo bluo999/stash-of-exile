@@ -9,7 +9,7 @@ from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QTableView
 
 from stashofexile import consts, log
-from stashofexile.items import filter as m_filter
+from stashofexile.items import filter as m_filter, modfilter
 from stashofexile.items import item as m_item
 from stashofexile.threads import ratelimiting
 
@@ -108,7 +108,7 @@ class TableModel(QAbstractTableModel):
     def apply_filters(
         self,
         reg_filters: List[m_filter.Filter | m_filter.FilterGroup],
-        mod_filters: List[m_filter.Filter],
+        mod_filters: List[modfilter.ModFilterGroup],
         index: int = 1,
         order: Qt.SortOrder = Qt.SortOrder.AscendingOrder,
     ) -> None:
@@ -119,9 +119,10 @@ class TableModel(QAbstractTableModel):
         # Previously selected item
         selection = self.table_view.selectedIndexes()
         selected_item = self.current_items[selection[0].row()] if selection else None
+        prev_time = ratelimiting.get_time_ms()
 
-        # Build list of all filters
-        all_filters: List[m_filter.Filter] = mod_filters.copy()
+        # Regular filters
+        all_filters: List[m_filter.Filter] = []
         for filt in reg_filters:
             match filt:
                 case m_filter.Filter():
@@ -130,19 +131,25 @@ class TableModel(QAbstractTableModel):
                     if group_box is not None and group_box.isChecked():
                         all_filters.extend(filters)
 
-        # m_item.Items that pass every filter
-        prev_time = ratelimiting.get_time_ms()
+        # Filters that are active
         active_filters = [
             filt
             for filt in all_filters
             if any(m_filter.filter_is_active(widget) for widget in filt.widgets)
         ]
+        active_filters.extend(
+            modfilter.filter_group(group)
+            for group in mod_filters
+            if group.group_box is not None and group.group_box.isChecked()
+        )
 
+        # Items that pass filters
         self.current_items = [
             item
             for item in self.items
             if all(filt.filter_func(item, *filt.widgets) for filt in active_filters)
         ]
+
         logger.debug(
             'Filtering took %sms: %s',
             ratelimiting.get_time_ms() - prev_time,
