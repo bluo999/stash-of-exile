@@ -474,7 +474,11 @@ class Item:
         if not self.tooltip:
             return ''
 
-        temp = re.sub(BR_REGEX, '\n', '\n'.join(self.tooltip))
+        # Remove influence icons from tooltip
+        tooltip = self.tooltip[1:] if '<img' in self.tooltip[0] else self.tooltip
+
+        # Clean up inline HTML from tooltip
+        temp = re.sub(BR_REGEX, '\n', '\n'.join(tooltip))
         temp = re.sub(CLEAN_REGEX, '', temp)
         return temp
 
@@ -681,7 +685,7 @@ class Item:
         tooltip.append(util.colorize('Requires', 'grey'))
         for i, req in enumerate(self.reqs):
             if i > 0:
-                tooltip.append(',')
+                tooltip.append(util.colorize(',', 'grey'))
             tooltip.append(' ' + req.description)
 
         return ''.join(tooltip)

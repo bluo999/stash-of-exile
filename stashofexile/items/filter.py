@@ -17,7 +17,6 @@ from PyQt6.QtWidgets import (
 )
 
 from stashofexile import gamedata, log
-from stashofexile import consts
 from stashofexile.items import item as m_item, socket as m_socket
 from stashofexile.widgets import editcombo
 

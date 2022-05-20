@@ -18,7 +18,6 @@ class TabId(NamedTuple):
 class League:
     """Represents a league."""
 
-    tabs: Dict[str, Any] = dataclasses.field(default_factory=dict)
     tab_ids: List[TabId] = dataclasses.field(default_factory=list)
     characters: Dict[str, Any] = dataclasses.field(default_factory=dict)
     character_names: List[str] = dataclasses.field(default_factory=list)
