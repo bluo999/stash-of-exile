@@ -243,11 +243,7 @@ class Item:
         self.tooltip = []
 
         self.category = self.get_category(item_json)
-        self.experience = (
-            item_json.get('additionalProperties')
-            if self.category in {'Skill Gem', 'Support Gem'}
-            else None
-        )
+        self.additional = item_json.get('additionalProperties')
 
         gen = (
             qtype
@@ -324,7 +320,7 @@ class Item:
             return 'Scarab'
         if 'Piece' in item_base:
             return 'Unique Fragment'
-        if 'Crest' in item_base:
+        if '\'s Crest' in item_base:
             return 'Map Fragment'
         if item_base == 'Simulacrum':  # Avoid conflict with splinter
             return 'Map Fragment'
@@ -455,8 +451,8 @@ class Item:
                 _list_mods([ModGroup(self.implicit, 'magic')]),
                 # Mods and Tags
                 f'{mods}<br />{tags}' if mods and tags else mods + tags,
-                # Gem experience
-                self._get_gem_exp_tooltip(),
+                # Additional tooltips
+                self._get_additional_tooltip(),
                 # Skin transfers
                 _list_mods([ModGroup(self.cosmetic, 'currency')]),
                 # Incubator info
@@ -590,8 +586,12 @@ class Item:
         z = re.search(NUMBER_REGEX, property_function('Level')(self))
         self.gem_lvl = int(z.group(1)) if z is not None else None
 
-        if self.experience is not None:
-            exp = self.experience[0]['values'][0][0]
+        # Gem experience
+        if self.additional is not None and self.category in {
+            'Skill Gem',
+            'Support Gem',
+        }:
+            exp = self.additional[0]['values'][0][0]
             index = exp.index('/')
             self.current_exp = int(exp[0:index])
             self.max_exp = int(exp[index + 1 :])
@@ -705,14 +705,34 @@ class Item:
 
         return ''
 
-    def _get_gem_exp_tooltip(self) -> str:
-        """Returns the colorized gem experience tooltip."""
-        if self.experience is None:
+    def _get_additional_tooltip(self) -> str:
+        """Returns the colorized tooltip for additional mods (gem, chronicle)."""
+        if self.additional is None:
             return ''
 
-        label = util.colorize('Experience: ', 'grey')
-        value = util.colorize(f'{self.current_exp:,}/{self.max_exp:,}', 'white')
-        return label + value
+        if self.category in {'Skill Gem', 'Support Gem'}:
+            # Gem experience text
+            label = util.colorize('Experience: ', 'grey')
+            value = util.colorize(f'{self.current_exp:,}/{self.max_exp:,}', 'white')
+            return label + value
+
+        if self.name == 'Chronicle of Atzoatl':
+            # Chronicle of Atzoatl room text
+            lines: List[str] = []
+            for prop in self.additional:
+                if (name := prop.get('name')) != '':
+                    lines.append(util.colorize(name, 'grey'))
+                else:
+                    val = prop.get('values')[0]
+                    lines.append(
+                        util.colorize(val[0], util.valnum_to_color(val[1], val[0]))
+                    )
+            return '<br />'.join(lines)
+
+        logger.error(
+            'Unexpected additional mods for item %s %s', self.name, self.category
+        )
+        return ''
 
     def _get_incubator_tooltip(self) -> str:
         """Returns the colorized, line separated incubator tooltip."""

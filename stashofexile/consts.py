@@ -39,6 +39,7 @@ COLORS = {
     # Generic colors
     'white': '#ffffff',
     'grey': '#777777',
+    'middarkgrey': '#5a5a5a',
     'darkgrey': '#242424',
     # Item rarities
     'normal': '#ffffff',
@@ -83,6 +84,7 @@ VALNUM_TO_COLOR = {
     8: 'magic',
     9: 'rare',
     10: 'unique',
+    15: 'middarkgrey',
     16: 'white',
     18: 'currency',
     19: 'white',

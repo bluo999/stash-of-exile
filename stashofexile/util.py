@@ -28,6 +28,14 @@ def colorize(text: str, color_name: str) -> str:
     return consts.SPAN_TEMPLATE.format(consts.COLORS[color_name], text)
 
 
+def valnum_to_color(val_num: int, text: str = '') -> str:
+    """Returns color string given value number."""
+    if val_num not in consts.VALNUM_TO_COLOR:
+        logger.error('Color not found: %s for text %s', val_num, text)
+
+    return consts.VALNUM_TO_COLOR.get(val_num, 'white')
+
+
 def insert_values(text: str, values: List[List[str | int]]) -> ModifiedStr:
     """Inserts the colorized values into description text provided by the API."""
     obj: ModifiedStr = {'text': text, 'inserted': False}
@@ -37,12 +45,10 @@ def insert_values(text: str, values: List[List[str | int]]) -> ModifiedStr:
         val_index = int(obj['text'][index + 1])
         val_num = values[val_index][1]
         assert isinstance(val_num, int)
-        if val_num not in consts.VALNUM_TO_COLOR:
-            logger.error('Color not found: %s for text %s', val_num, text)
         text = str(values[val_index][0])
         obj['text'] = (
             obj['text'][:index]
-            + colorize(text, consts.VALNUM_TO_COLOR.get(val_num, 'white'))
+            + colorize(text, valnum_to_color(val_num, text))
             + obj['text'][index + 3 :]
         )
         obj['inserted'] = True

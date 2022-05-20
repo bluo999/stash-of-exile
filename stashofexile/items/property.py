@@ -2,7 +2,7 @@
 Defines parsing of properties.
 """
 
-from stashofexile import consts, log, util
+from stashofexile import log, util
 
 logger = log.get_logger(__name__)
 
@@ -51,9 +51,7 @@ class Property:
             assert isinstance(valnum, int)
             if not first:
                 tooltip.append(util.colorize(', ', 'grey'))
-            if valnum not in consts.VALNUM_TO_COLOR:
-                logger.error('Color not found: %s for text %s', valnum, val)
-            color = consts.VALNUM_TO_COLOR.get(valnum, 'white')
+            color = util.valnum_to_color(valnum, str(val))
             tooltip.append(util.colorize(str(val).replace('\n', '<br />'), color))
             first = False
 

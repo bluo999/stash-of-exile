@@ -2,7 +2,7 @@
 Defines parsing of requirements.
 """
 
-from stashofexile import consts, log, util
+from stashofexile import log, util
 
 logger = log.get_logger(__name__)
 
@@ -30,9 +30,7 @@ class Requirement:
             valnum = self.values[0][1]
             val = str(self.values[0][0])
             assert isinstance(valnum, int)
-            if valnum not in consts.VALNUM_TO_COLOR:
-                logger.error('Color not found: %s for text %s', valnum, val)
-            color = consts.VALNUM_TO_COLOR.get(valnum, 'white')
+            color = util.valnum_to_color(valnum, val)
             value = util.colorize(val, color)
 
             # "Level 20" vs "100 Str"
