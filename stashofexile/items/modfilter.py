@@ -4,7 +4,7 @@ Defines mod filter functionality.
 import dataclasses
 import enum
 
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Tuple
 
 from PyQt6.QtWidgets import QGroupBox, QLineEdit, QVBoxLayout, QWidget
 
@@ -23,6 +23,7 @@ class ModFilterGroupType(enum.Enum):
 
     AND = 'And'
     NOT = 'Not'
+    IF = 'If'
     COUNT = 'Count'
     WEIGHTED = 'Weighted Sum'
 
@@ -78,6 +79,28 @@ def _filter_func_group(group: ModFilterGroup) -> Callable[..., bool]:
             return lambda item, *_: all(
                 not filt.filter_func(item, *filt.widgets) for filt in filters
             )
+
+        case ModFilterGroupType.IF:
+            mods: List[editcombo.ECBox] = []
+            widgets: List[Tuple[QLineEdit, QLineEdit]] = []
+            for filt in filters:
+                assert isinstance(filt.widgets[0], editcombo.ECBox)
+                assert isinstance(filt.widgets[1], QLineEdit)
+                assert isinstance(filt.widgets[2], QLineEdit)
+                mods.append(filt.widgets[0])
+                widgets.append((filt.widgets[1], filt.widgets[2]))
+
+            def _filter(item: m_item.Item, *_) -> bool:
+                # If mod exists, then ensure mod is within range
+                values = [
+                    item.internal_mods.get(mod.currentText(), [0])[0] for mod in mods
+                ]
+                return all(
+                    val == 0 or m_filter.between_filter(val, float, bot, top)
+                    for val, (bot, top) in zip(values, widgets)
+                )
+
+            return _filter
 
         case ModFilterGroupType.COUNT:
 
