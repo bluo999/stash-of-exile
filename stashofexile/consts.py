@@ -49,6 +49,7 @@ COLORS = {
     'gem': '#1ba29b',
     'currency': '#aa9e82',
     'divination': '#04adea',
+    'quest': '#4ae63a',
     'prophecy': '#b049f8',
     'foil': '#82ad6a',
     # Other

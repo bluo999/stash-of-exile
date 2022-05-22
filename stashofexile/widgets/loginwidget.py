@@ -226,18 +226,24 @@ class LoginWidget(QWidget):
 
         self.account = search_account[0]
         if self.league not in self.account.leagues.keys():
+            # League is not in saved account
             self.account.leagues[self.league] = save.League()
+            self._get_char_list_api()
+            self._get_num_tabs_api()
             return
 
         account_league = self.account.leagues[self.league]
-        # if not account_league.has_characters():
-        #     logger.info('Character list was not saved')
-        #     self._get_char_list_api()
-        #     return
+        if not account_league.has_characters() or not account_league.has_tabs():
+            if not account_league.has_characters():
+                self._get_char_list_api()
+            if not account_league.has_tabs():
+                self._get_num_tabs_api()
+            return
 
         if self.account.poesessid != poesessid or not account_league.has_tabs():
             logger.info('POESESSID different or number of tabs was not saved')
             self.account.poesessid = poesessid
+            self._check_login_success()
             return
 
         self._get_char_list_api()

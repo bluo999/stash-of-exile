@@ -230,6 +230,8 @@ class Item:
         self.synthesised = item_json.get('synthesised', False)
         self.searing = item_json.get('searing', False)
         self.tangled = item_json.get('tangled', False)
+        self.unmodifiable = item_json.get('unmodifiable', False)
+
         self.scourged = item_json.get('scourged')
 
         self.ilvl = item_json.get('ilvl')
@@ -356,6 +358,8 @@ class Item:
             return 'Divination Card'
         if self.rarity == 'currency':
             return 'Currency'
+        if self.rarity == 'quest':
+            return 'Quest'
 
         logger.warning('Unknown category %s %s %s', self.name, item_base, self.rarity)
         return ''
@@ -451,6 +455,8 @@ class Item:
                 _list_mods([ModGroup(self.implicit, 'magic')]),
                 # Mods and Tags
                 f'{mods}<br />{tags}' if mods and tags else mods + tags,
+                # Unmodifiable tag
+                self._get_unmodifiable_tooltip(),
                 # Additional tooltips
                 self._get_additional_tooltip(),
                 # Skin transfers
@@ -705,6 +711,13 @@ class Item:
 
         return ''
 
+    def _get_unmodifiable_tooltip(self) -> str:
+        """Returns the colorized tooltip for unmodifiable tag."""
+        if not self.unmodifiable:
+            return ''
+
+        return util.colorize('Unmodifiable', 'magic')
+
     def _get_additional_tooltip(self) -> str:
         """Returns the colorized tooltip for additional mods (gem, chronicle)."""
         if self.additional is None:
@@ -715,6 +728,17 @@ class Item:
             label = util.colorize('Experience: ', 'grey')
             value = util.colorize(f'{self.current_exp:,}/{self.max_exp:,}', 'white')
             return label + value
+
+        if self.category == 'Sentinel':
+            # Sentinel charge text
+            lines: List[str] = []
+            for prop in self.additional:
+                val = prop.get('values')[0]
+                lines.append(
+                    util.colorize(prop.get('name') + ': ', 'grey')
+                    + util.colorize(val[0], util.valnum_to_color(val[1], val[0]))
+                )
+            return '<br />'.join(lines)
 
         if self.name == 'Chronicle of Atzoatl':
             # Chronicle of Atzoatl room text

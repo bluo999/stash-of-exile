@@ -75,7 +75,10 @@ class TableModel(QAbstractTableModel):
             if column == 0:
                 # Color item name based on rarity
                 rarity = self.current_items[row].rarity
-                return QColor(consts.COLORS[rarity])
+                if (color := consts.COLORS.get(rarity)) is None:
+                    logger.warning('Unknown color for rarity %s', rarity)
+                    color = 'white'
+                return QColor(color)
             return QColor(consts.COLORS['white'])
 
         if role == Qt.ItemDataRole.BackgroundRole:

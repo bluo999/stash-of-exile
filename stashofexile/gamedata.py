@@ -20,12 +20,13 @@ RARITIES = {
     4: 'gem',
     5: 'currency',
     6: 'divination',
+    7: 'quest',
     8: 'prophecy',
     9: 'foil',
 }
 
 # Keywords in fragment items
-FRAGMENTS = [
+FRAGMENTS = {
     'Sacrifice at',
     'Mortal ',
     '\'s Key',
@@ -36,7 +37,7 @@ FRAGMENTS = [
     ' Vessel',
     'The Maven\'s Writ',
     'Sacred Blossom',
-]
+}
 
 # Unique tab categories
 UNIQUE_CATEGORIES: OrderedDict[int, str] = OrderedDict(
@@ -120,6 +121,8 @@ COMBO_ITEMS = {
         'Heist',
         'Inscribed Ultimatum',
         'Expedition Logbook',
+        'Sentinel',
+        'Quest',
     ],
     'Character Class': [
         'Scion',
@@ -139,7 +142,7 @@ COMBO_ITEMS = {
     ],
 }
 
-PARSE_CATEGORIES = [
+PARSE_CATEGORIES = {
     'Incubator',
     'Quiver',
     'Amulet',
@@ -160,7 +163,8 @@ PARSE_CATEGORIES = [
     'Fossil',
     'Inscribed Ultimatum',
     'Expedition Logbook',
-]
+    'Sentinel',
+}
 
 BASES_FILE = os.path.join(consts.ASSETS_DIR, 'bases.json')
 with open(BASES_FILE, 'rb') as f:

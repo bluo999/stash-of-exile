@@ -25,7 +25,10 @@ class ValInfo(TypedDict):
 
 def colorize(text: str, color_name: str) -> str:
     """Colorizes text using span."""
-    return consts.SPAN_TEMPLATE.format(consts.COLORS[color_name], text)
+    if (color := consts.COLORS.get(color_name)) is None:
+        logger.warning('Unknown color for %s', color_name)
+        color = 'white'
+    return consts.SPAN_TEMPLATE.format(color, text)
 
 
 def valnum_to_color(val_num: int, text: str = '') -> str:
