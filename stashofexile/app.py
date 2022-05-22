@@ -10,9 +10,7 @@ from PyQt6.QtWidgets import QApplication
 from stashofexile import mainwindow
 
 
-def main() -> None:
-    """Entrypoint function."""
-    # Dark colors
+def _set_dark_mode() -> None:
     QApplication.setStyle("fusion")
     dark = QPalette()
     dark.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
@@ -49,6 +47,11 @@ def main() -> None:
         QPalette.ColorGroup.Disabled, QPalette.ColorRole.Light, QColor(53, 53, 53)
     )
     QApplication.setPalette(dark)
+
+
+def main() -> None:
+    """Entrypoint function."""
+    _set_dark_mode()
 
     app = QApplication(sys.argv)
     window = mainwindow.MainWindow()

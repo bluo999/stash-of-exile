@@ -1,5 +1,8 @@
 """
-Defines parsing of the item API and converting into a local object.
+Defines Item class, responsible for:
+ - parsing item API and converting into a local object
+ - generating properties used for filtering
+ - generating tooltips for display
 """
 
 import os
@@ -12,6 +15,8 @@ from PyQt6.QtGui import QImage, QPainter, QPixmap
 
 from stashofexile import consts, gamedata, log, util
 from stashofexile.items import property as m_property, requirement, socket as m_socket
+
+logger = log.get_logger(__name__)
 
 PLUS_PERCENT_REGEX = re.compile(r'\+(\d+)%')  # +x%
 PERCENT_REGEX = re.compile(r'(\d+)%')  # x%
@@ -29,18 +34,16 @@ SOCKET_PX = 47
 LINK_LENGTH = 38
 LINK_WIDTH = 16
 
-logger = log.get_logger(__name__)
-
 
 class ModGroup(NamedTuple):
-    """Represents a mod group."""
+    """Represents a mod group (e.g. explicit, crafted)."""
 
     mods: List[str]
     color: str
 
 
 class Tag(NamedTuple):
-    """Represents a tag."""
+    """Represents a tag (e.g. mirrored, corrupted)."""
 
     name: str
     color: str
@@ -48,19 +51,18 @@ class Tag(NamedTuple):
 
 
 def _list_mods(mod_groups: List[ModGroup]) -> str:
-    """
-    Given a list of mod lists, returns a single complete line separated, colored
-    string of mods.
-    """
+    """Returns a single line-separated, colored string of mods."""
     # Get rid of any empty mod list
     filt_mod_lists = [
-        (mod_group.mods, mod_group.color) for mod_group in mod_groups if mod_group.mods
+        ModGroup(mod_group.mods, mod_group.color)
+        for mod_group in mod_groups
+        if mod_group.mods
     ]
 
     if not filt_mod_lists:
         return ''
 
-    # Split mods with \n
+    # Split mods that have \n
     for mods, _ in filt_mod_lists:
         i = 0
         length = len(mods)
@@ -73,7 +75,7 @@ def _list_mods(mod_groups: List[ModGroup]) -> str:
                 length += 1
             i += 1
 
-    # Add mods on separate lines
+    # Colorize and split mods on separate lines
     text: List[str] = []
     for i, (mods, color) in enumerate(filt_mod_lists):
         for j, mod in enumerate(mods):
@@ -85,10 +87,7 @@ def _list_mods(mod_groups: List[ModGroup]) -> str:
 
 
 def _list_tags(tag_info: List[Tag]) -> str:
-    """
-    Given a list of tags, returns a single complete line separate, colored string of
-    tags.
-    """
+    """Returns a single line-separated, colored string of tags."""
     # Get rid of inactive tags then format them
     formatted_tags = [
         util.colorize(tag.name, tag.color) for tag in tag_info if tag.active
@@ -104,7 +103,7 @@ def _list_tags(tag_info: List[Tag]) -> str:
     return ''.join(text)
 
 
-def _draw_multi_link(
+def _draw_2width_links(
     painter: QPainter, i: int, row: int, link_v: QImage, link_h: QImage
 ) -> None:
     """Draws links for a 2 width item depending on socket index."""
@@ -131,7 +130,7 @@ def _draw_multi_link(
             logger.error('Unexpected socket index %s', i)
 
 
-def _draw_multi_socket(
+def _draw_2width_sockets(
     painter: QPainter,
     socket_groups: List[m_socket.SocketGroup],
     width: int,
@@ -160,7 +159,7 @@ def _draw_multi_socket(
                     col = 1 - col
                 painter.drawImage(SOCKET_PX * col, SOCKET_PX * row, socket_img)
                 if j > 0:
-                    _draw_multi_link(painter, i, row, link_v, link_h)
+                    _draw_2width_links(painter, i, row, link_v, link_h)
                 socket_rows = max(row + 1, socket_rows)
                 socket_cols = max(col + 1, socket_cols)
             i += 1
@@ -244,17 +243,18 @@ class Item:
         self.tab = tab
         self.tooltip = []
 
-        self.category = self.get_category(item_json)
+        self.category = self._get_category(item_json)
         self.additional = item_json.get('additionalProperties')
 
-        gen = (
-            qtype
-            for qtype in gamedata.COMBO_ITEMS['Gem Quality Type'][-3:]
-            if qtype in item_json['typeLine']
-        )
-        self.gem_quality = next(gen, None)
-        if self.gem_quality is None and self.category in {'Skill Gem', 'Support Gem'}:
-            self.gem_quality = 'Superior (Default)'
+        if self.category in gamedata.GEM_CATEGORIES:
+            gen_quality = (
+                alt_quality
+                for alt_quality in gamedata.ALTERNATE_QUALITIES
+                if alt_quality in item_json['typeLine']
+            )
+            self.gem_quality = next(gen_quality, 'Superior (Default)')
+        else:
+            self.gem_quality = None
 
         self.internal_mods: Dict[str, List[float]] = {}
 
@@ -263,10 +263,6 @@ class Item:
         self.file_path = ''
         if (z := re.search(r'\/([^.]+\.png)', self.icon)) is not None:
             paths = z.group().split('/')
-            # Some generated file names are the same for different images:
-            # if 'gen' in paths:
-            #     index = paths.index('gen')
-            #     paths = paths[0: index + 1] + paths[-1:]
             self.file_path = os.path.join(IMAGE_CACHE_DIR, *paths)
 
         self._wep_props()
@@ -276,7 +272,6 @@ class Item:
         self._misc_props()
 
     def __lt__(self, other: 'Item') -> bool:
-        """Default ordering for Items."""
         # TODO: deal with tab num, character names
         if self.tab < other.tab:
             return True
@@ -289,11 +284,281 @@ class Item:
     def __str__(self) -> str:
         return self.name
 
-    def get_category(self, item_json: Dict[str, Any]) -> str:
-        """
-        Determines and returns an item's category based on its other
-        properties.
-        """
+    def _wep_props(self) -> None:
+        # Physical damage
+        z = re.search(NUM_RANGE_REGEX, property_function('Physical Damage')(self))
+        physical_damage = (
+            (float(z.group(1)) + float(z.group(2))) / 2.0 if z is not None else 0
+        )
+
+        # Chaos damage
+        z = re.search(NUM_RANGE_REGEX, property_function('Chaos Damage')(self))
+        chaos_damage = (
+            (float(z.group(1)) + float(z.group(2))) / 2.0 if z is not None else 0
+        )
+
+        # Multiple elements damage
+        elemental_damage = 0
+        item_prop = next((x for x in self.props if x.name == 'Elemental Damage'), None)
+        if item_prop is not None:
+            for val in item_prop.values:
+                assert isinstance(val[0], str)
+                if (z := re.search(NUM_RANGE_REGEX, val[0])) is not None:
+                    elemental_damage += (float(z.group(1)) + float(z.group(2))) / 2.0
+
+        # Total damage
+        self.damage = physical_damage + chaos_damage + elemental_damage
+
+        # APS
+        aps = property_function('Attacks per Second')(self)
+        self.aps = float(aps) if aps != '' else None
+
+        # Crit chance
+        z = re.search(
+            FLAT_PERCENT_REGEX, property_function('Critical Strike Chance')(self)
+        )
+        self.crit = float(z.group(1)) if z is not None else None
+
+        # Calculate DPS
+        self.dps = self.damage * self.aps if self.aps is not None else None
+        self.pdps = physical_damage * self.aps if self.aps is not None else None
+        self.edps = elemental_damage * self.aps if self.aps is not None else None
+
+    def _arm_props(self) -> None:
+        # Defences
+        armour = property_function('Armour')(self)
+        self.armour = int(armour) if armour else None
+
+        evasion = property_function('Evasion')(self)
+        self.evasion = int(evasion) if evasion else None
+
+        energy_shield = property_function('Energy Shield')(self)
+        self.energy_shield = int(energy_shield) if energy_shield else None
+
+        ward = property_function('Ward')(self)
+        self.ward = int(ward) if ward else None
+
+        # Block
+        z = re.search(PERCENT_REGEX, property_function('Chance to Block')(self))
+        self.block = int(z.group(1)) if z is not None else None
+
+    def _sock_props(self) -> None:
+        self.sockets = [
+            socket for socket_group in self.socket_groups for socket in socket_group
+        ]
+        self.sockets_r = self.sockets.count(m_socket.Socket.R)
+        self.sockets_g = self.sockets.count(m_socket.Socket.G)
+        self.sockets_w = self.sockets.count(m_socket.Socket.W)
+        self.sockets_b = self.sockets.count(m_socket.Socket.B)
+        self.num_sockets = len(self.sockets)
+
+        self.num_links = (
+            max([len(socket_group) for socket_group in self.socket_groups])
+            if self.has_sockets()
+            else 0
+        )
+
+    def _req_props(self) -> None:
+        # fmt: off
+        req_level = next((req for req in self.reqs if req.name == 'Level'), None)
+        self.req_level = int(req_level.values[0][0]) if req_level is not None else None
+
+        req_str = next((req for req in self.reqs if req.name in ('Strength', 'Str')), None)
+        self.req_str = int(req_str.values[0][0]) if req_str is not None else None
+
+        req_dex = next((req for req in self.reqs if req.name in ('Dexterity', 'Dex')), None)
+        self.req_dex = int(req_dex.values[0][0]) if req_dex is not None else None
+
+        req_int = next((req for req in self.reqs if req.name in ('Intelligence', 'Int')), None)
+        self.req_int = int(req_int.values[0][0]) if req_int is not None else None
+
+        req_class = next((req for req in self.reqs if req.name == 'Class:'), None)
+        self.req_class = req_class.values[0][0] if req_class is not None else None
+        # fmt: on
+
+    def _misc_props(self) -> None:
+        # Pre-formatted properties
+        self.quality = property_function('Quality')(self)
+        z = re.search(PLUS_PERCENT_REGEX, self.quality)
+        self.quality_num = int(z.group(1)) if z is not None else None
+
+        z = re.search(NUMBER_REGEX, property_function('Level')(self))
+        self.gem_lvl = int(z.group(1)) if z is not None else None
+
+        # Gem experience
+        if self.category in gamedata.GEM_CATEGORIES and self.additional is not None:
+            exp = self.additional[0]['values'][0][0]
+            index = exp.index('/')
+            self.current_exp = int(exp[0:index])
+            self.max_exp = int(exp[index + 1 :])
+            self.gem_exp = self.current_exp / self.max_exp * 100
+        else:
+            self.current_exp = None
+            self.max_exp = None
+            self.gem_exp = None
+
+        self.altart = any(name in self.icon for name in gamedata.ALTART)
+        self.crafted_tag = len(self.crafted) > 0
+        self.veiled_tag = len(self.veiled) > 0
+        self.enchanted_tag = len(self.enchanted) > 0
+        self.scourge_tier: int = (
+            self.scourged['tier'] if self.scourged is not None else 0
+        )
+        self.cosmetic_tag = len(self.cosmetic) > 0
+
+    def _get_influence_tooltip(self) -> str:
+        icons = list(self.influences)
+        if self.veiled_tag:
+            icons.append('veiled')
+        if self.fractured_tag:
+            icons.append('fractured')
+        if self.synthesised:
+            icons.append('synthesised')
+        if self.tangled:
+            icons.append('tangled')
+        if self.searing:
+            icons.append('searing')
+
+        influence_icons = [f'<img src="assets/{infl}.png" />' for infl in icons]
+        return ''.join(influence_icons)
+
+    def _get_header_tooltip(self) -> str:
+        name = util.colorize(self.name.replace(', ', '<br />'), self.rarity)
+        return consts.HEADER_TEMPLATE.format(name)
+
+    def _get_prophecy_tooltip(self) -> str:
+        return (
+            util.colorize(self.prophecy, 'white') if self.prophecy is not None else ''
+        )
+
+    def _get_property_tooltip(self) -> str:
+        if not self.props:
+            return ''
+
+        tooltip: List[str] = []
+        for i, item_prop in enumerate(self.props):
+            tooltip.append(item_prop.description)
+            if i < len(self.props) - 1:
+                tooltip.append('<br />')
+
+        return ''.join(tooltip)
+
+    def _get_utility_tooltip(self) -> str:
+        mods = _list_mods([ModGroup(self.utility, 'magic')])
+        if mods:
+            return '<br />' + mods
+
+        return ''
+
+    def _get_expedition_tooltips(self) -> List[str]:
+        if not self.logbook:
+            return []
+
+        tooltips: List[str] = []
+        for area in self.logbook:
+            tooltip = [
+                util.colorize(area['name'], 'white'),
+                util.colorize(area['faction']['name'], 'grey'),
+            ]
+            for mod in area['mods']:
+                tooltip.append(util.colorize(mod, 'magic'))
+            tooltips.append('<br />'.join(tooltip))
+
+        return tooltips
+
+    def _get_requirement_tooltip(self) -> str:
+        if not self.reqs:
+            return ''
+
+        tooltip: List[str] = []
+        tooltip.append(util.colorize('Requires', 'grey'))
+        for i, req in enumerate(self.reqs):
+            if i > 0:
+                tooltip.append(util.colorize(',', 'grey'))
+            tooltip.append(' ' + req.description)
+
+        return ''.join(tooltip)
+
+    def _get_gem_secondary_tooltip(self) -> str:
+        return util.colorize(self.gem, 'gem') if self.gem is not None else ''
+
+    def _get_ilevel_tooltip(self) -> str:
+        """For Metamorph samples and Captured beasts."""
+        if 'Metamorph' in self.icon or 'BestiaryOrb' in self.icon:
+            label = util.colorize('Item Level: ', 'grey')
+            value = util.colorize(self.ilvl, 'white')
+            return label + value
+
+        return ''
+
+    def _get_unmodifiable_tooltip(self) -> str:
+        if not self.unmodifiable:
+            return ''
+
+        return util.colorize('Unmodifiable', 'magic')
+
+    def _get_additional_tooltip(self) -> str:
+        if self.additional is None:
+            return ''
+
+        if self.category in gamedata.GEM_CATEGORIES:
+            # Gem experience text
+            label = util.colorize('Experience: ', 'grey')
+            value = util.colorize(f'{self.current_exp:,}/{self.max_exp:,}', 'white')
+            return label + value
+
+        if self.category == 'Sentinel':
+            # Sentinel charge text
+            lines: List[str] = []
+            for prop in self.additional:
+                val = prop.get('values')[0]
+                lines.append(
+                    util.colorize(prop.get('name') + ': ', 'grey')
+                    + util.colorize(val[0], util.valnum_to_color(val[1], val[0]))
+                )
+            return '<br />'.join(lines)
+
+        if self.name == 'Chronicle of Atzoatl':
+            # Chronicle of Atzoatl room text
+            lines: List[str] = []
+            for prop in self.additional:
+                if (name := prop.get('name')) != '':
+                    lines.append(util.colorize(name, 'grey'))
+                else:
+                    val = prop.get('values')[0]
+                    lines.append(
+                        util.colorize(val[0], util.valnum_to_color(val[1], val[0]))
+                    )
+            return '<br />'.join(lines)
+
+        logger.error(
+            'Unexpected additional mods for item %s %s', self.name, self.category
+        )
+        return ''
+
+    def _get_incubator_tooltip(self) -> str:
+        if self.incubator is None:
+            return ''
+
+        progress = int(self.incubator['progress'])
+        total = int(self.incubator['total'])
+        name = self.incubator['name']
+        level = self.incubator['level']
+        return (
+            util.colorize(f'Incubating {name}', 'craft')
+            + '<br />'
+            + util.colorize(f'{progress:,}/{total:,}', 'white')
+            + util.colorize(f' level {level}+ monster kills', 'grey')
+        )
+
+    def _get_scourge_tooltip(self) -> str:
+        if self.scourge_tier < 1:
+            return ''
+
+        return util.colorize(f'Scourged (Tier {self.scourge_tier})', 'scourged')
+
+    def _get_category(self, item_json: Dict[str, Any]) -> str:
+        """Returns an item's category based on its other properties."""
         # Gem
         if (support := item_json.get('support')) is not None:
             return 'Support Gem' if support else 'Skill Gem'
@@ -353,6 +618,10 @@ class Item:
         if 'Invitation' in item_base:
             return 'Map'
 
+        # Chronicle of Atzoatl
+        if item_base == 'Chronicle of Atzoatl':
+            return 'Map'
+
         # Rarity
         if self.rarity == 'divination':
             return 'Divination Card'
@@ -388,7 +657,7 @@ class Item:
             socket_img = QImage(SOCKET_FILE.format(self.sockets[0].name))
             socket_painter.drawImage(0, 0, socket_img)
         else:
-            socket_rows, socket_cols = _draw_multi_socket(
+            socket_rows, socket_cols = _draw_2width_sockets(
                 socket_painter, self.socket_groups, self.width
             )
 
@@ -407,8 +676,8 @@ class Item:
 
     def get_tooltip(self) -> List[str]:
         """
-        Returns a list of strings, with each representing a single section of the
-        entire tooltip.
+        Returns a list of strings, with each representing a single section of the entire
+        tooltip.
         """
         if self.tooltip:
             return self.tooltip
@@ -430,12 +699,8 @@ class Item:
             ]
         )
         self.tooltip = [
-            # # Image
-            # f'<img src="{self.file_path}" />',
             self._get_influence_tooltip(),
-            # Item name (header)
             self._get_header_tooltip(),
-            # Prophecy, properties, utility mods
             self._get_prophecy_tooltip()
             + self._get_property_tooltip()
             + self._get_utility_tooltip(),
@@ -443,27 +708,17 @@ class Item:
         self.tooltip.extend(self._get_expedition_tooltips())
         self.tooltip.extend(
             (
-                # Requirements
                 self._get_requirement_tooltip(),
-                # Gem secondary description
                 self._get_gem_secondary_tooltip(),
-                # Item level (metamorph, bestiary orb)
                 self._get_ilevel_tooltip(),
-                # Mods
                 _list_mods([ModGroup(self.enchanted, 'craft')]),
                 _list_mods([ModGroup(self.scourge, 'scourged')]),
                 _list_mods([ModGroup(self.implicit, 'magic')]),
-                # Mods and Tags
                 f'{mods}<br />{tags}' if mods and tags else mods + tags,
-                # Unmodifiable tag
                 self._get_unmodifiable_tooltip(),
-                # Additional tooltips
                 self._get_additional_tooltip(),
-                # Skin transfers
                 _list_mods([ModGroup(self.cosmetic, 'currency')]),
-                # Incubator info
                 self._get_incubator_tooltip(),
-                # Scourge info
                 self._get_scourge_tooltip(),
             )
         )
@@ -480,304 +735,10 @@ class Item:
         tooltip = self.tooltip[1:] if '<img' in self.tooltip[0] else self.tooltip
 
         # Clean up inline HTML from tooltip
-        temp = re.sub(BR_REGEX, '\n', '\n'.join(tooltip))
-        temp = re.sub(CLEAN_REGEX, '', temp)
-        return temp
+        text = re.sub(BR_REGEX, '\n', '\n'.join(tooltip))
+        text = re.sub(CLEAN_REGEX, '', text)
+        return text
 
     def has_sockets(self) -> bool:
         """Returns whether item has sockets."""
         return len(self.socket_groups) > 0
-
-    def _wep_props(self) -> None:
-        """Populates weapon properties of item from base stats (e.g. pdps)."""
-        # Physical damage
-        z = re.search(NUM_RANGE_REGEX, property_function('Physical Damage')(self))
-        physical_damage = (
-            (float(z.group(1)) + float(z.group(2))) / 2.0 if z is not None else 0
-        )
-
-        # Chaos damage
-        z = re.search(NUM_RANGE_REGEX, property_function('Chaos Damage')(self))
-        chaos_damage = (
-            (float(z.group(1)) + float(z.group(2))) / 2.0 if z is not None else 0
-        )
-
-        # Multiple elements damage
-        elemental_damage = 0
-        item_prop = next((x for x in self.props if x.name == 'Elemental Damage'), None)
-        if item_prop is not None:
-            for val in item_prop.values:
-                assert isinstance(val[0], str)
-                if (z := re.search(NUM_RANGE_REGEX, val[0])) is not None:
-                    elemental_damage += (float(z.group(1)) + float(z.group(2))) / 2.0
-
-        # Total damage
-        self.damage = physical_damage + chaos_damage + elemental_damage
-
-        # APS
-        aps = property_function('Attacks per Second')(self)
-        self.aps = float(aps) if aps != '' else None
-
-        # Crit chance
-        z = re.search(
-            FLAT_PERCENT_REGEX, property_function('Critical Strike Chance')(self)
-        )
-        self.crit = float(z.group(1)) if z is not None else None
-
-        # Calculate DPS
-        self.dps = self.damage * self.aps if self.aps is not None else None
-        self.pdps = physical_damage * self.aps if self.aps is not None else None
-        self.edps = elemental_damage * self.aps if self.aps is not None else None
-
-    def _arm_props(self) -> None:
-        """Populates armour properties of item from base stats (e.g. evasion)."""
-        armour = property_function('Armour')(self)
-        self.armour = int(armour) if armour else None
-
-        evasion = property_function('Evasion')(self)
-        self.evasion = int(evasion) if evasion else None
-
-        energy_shield = property_function('Energy Shield')(self)
-        self.energy_shield = int(energy_shield) if energy_shield else None
-
-        ward = property_function('Ward')(self)
-        self.ward = int(ward) if ward else None
-
-        # Block
-        z = re.search(PERCENT_REGEX, property_function('Chance to Block')(self))
-        self.block = int(z.group(1)) if z is not None else None
-
-    def _sock_props(self) -> None:
-        self.sockets = [
-            socket for socket_group in self.socket_groups for socket in socket_group
-        ]
-        self.sockets_r = self.sockets.count(m_socket.Socket.R)
-        self.sockets_g = self.sockets.count(m_socket.Socket.G)
-        self.sockets_w = self.sockets.count(m_socket.Socket.W)
-        self.sockets_b = self.sockets.count(m_socket.Socket.B)
-        self.num_sockets = len(self.sockets)
-
-        self.num_links = (
-            max([len(socket_group) for socket_group in self.socket_groups])
-            if self.has_sockets()
-            else 0
-        )
-
-    def _req_props(self) -> None:
-        """Populates requirement properties."""
-        # fmt: off
-        req_level = next((req for req in self.reqs if req.name == 'Level'), None)
-        self.req_level = int(req_level.values[0][0]) if req_level is not None else None
-
-        req_str = next((req for req in self.reqs if req.name in ('Strength', 'Str')), None)
-        self.req_str = int(req_str.values[0][0]) if req_str is not None else None
-
-        req_dex = next((req for req in self.reqs if req.name in ('Dexterity', 'Dex')), None)
-        self.req_dex = int(req_dex.values[0][0]) if req_dex is not None else None
-
-        req_int = next((req for req in self.reqs if req.name in ('Intelligence', 'Int')), None)
-        self.req_int = int(req_int.values[0][0]) if req_int is not None else None
-
-        req_class = next((req for req in self.reqs if req.name == 'Class:'), None)
-        self.req_class = req_class.values[0][0] if req_class is not None else None
-        # fmt: on
-
-    def _misc_props(self) -> None:
-        """Populates miscelaneous properties."""
-        # Pre-formatted properties
-        self.quality = property_function('Quality')(self)
-        z = re.search(PLUS_PERCENT_REGEX, self.quality)
-        self.quality_num = int(z.group(1)) if z is not None else None
-
-        z = re.search(NUMBER_REGEX, property_function('Level')(self))
-        self.gem_lvl = int(z.group(1)) if z is not None else None
-
-        # Gem experience
-        if self.additional is not None and self.category in {
-            'Skill Gem',
-            'Support Gem',
-        }:
-            exp = self.additional[0]['values'][0][0]
-            index = exp.index('/')
-            self.current_exp = int(exp[0:index])
-            self.max_exp = int(exp[index + 1 :])
-            self.gem_exp = self.current_exp / self.max_exp * 100
-        else:
-            self.current_exp = None
-            self.max_exp = None
-            self.gem_exp = None
-
-        self.altart = any(name in self.icon for name in gamedata.ALTART)
-        self.crafted_tag = len(self.crafted) > 0
-        self.veiled_tag = len(self.veiled) > 0
-        self.enchanted_tag = len(self.enchanted) > 0
-        self.scourge_tier: int = (
-            self.scourged['tier'] if self.scourged is not None else 0
-        )
-        self.cosmetic_tag = len(self.cosmetic) > 0
-
-    def _get_influence_tooltip(self) -> str:
-        """Returns influence icons tooltip."""
-        icons = list(self.influences)
-        if self.veiled_tag:
-            icons.append('veiled')
-        if self.fractured_tag:
-            icons.append('fractured')
-        if self.synthesised:
-            icons.append('synthesised')
-        if self.tangled:
-            icons.append('tangled')
-        if self.searing:
-            icons.append('searing')
-
-        influence_icons = [f'<img src="assets/{infl}.png" />' for infl in icons]
-        return ''.join(influence_icons)
-
-    def _get_header_tooltip(self) -> str:
-        """Returns the header tooltip, including influence icons and a colorized name."""
-        name = util.colorize(self.name.replace(', ', '<br />'), self.rarity)
-        return consts.HEADER_TEMPLATE.format(name)
-
-    def _get_prophecy_tooltip(self) -> str:
-        """Returns the colorized prophecy tooltip."""
-        return (
-            util.colorize(self.prophecy, 'white') if self.prophecy is not None else ''
-        )
-
-    def _get_property_tooltip(self) -> str:
-        """Returns the colorized, line separated properties tooltip."""
-        if not self.props:
-            return ''
-
-        tooltip: List[str] = []
-        for i, item_prop in enumerate(self.props):
-            tooltip.append(item_prop.description)
-            if i < len(self.props) - 1:
-                tooltip.append('<br />')
-
-        return ''.join(tooltip)
-
-    def _get_utility_tooltip(self) -> str:
-        """Returns the colorized, line separated utility mods tooltip."""
-        mods = _list_mods([ModGroup(self.utility, 'magic')])
-        if mods:
-            return '<br />' + mods
-
-        return ''
-
-    def _get_expedition_tooltips(self) -> List[str]:
-        """Returns the colorized, line separated expedition tooltip."""
-        if not self.logbook:
-            return []
-
-        tooltips: List[str] = []
-        for area in self.logbook:
-            tooltip = [
-                util.colorize(area['name'], 'white'),
-                util.colorize(area['faction']['name'], 'grey'),
-            ]
-            for mod in area['mods']:
-                tooltip.append(util.colorize(mod, 'magic'))
-            tooltips.append('<br />'.join(tooltip))
-
-        return tooltips
-
-    def _get_requirement_tooltip(self) -> str:
-        """Returns the colorized, line separated requirements tooltip."""
-        if not self.reqs:
-            return ''
-
-        tooltip: List[str] = []
-        tooltip.append(util.colorize('Requires', 'grey'))
-        for i, req in enumerate(self.reqs):
-            if i > 0:
-                tooltip.append(util.colorize(',', 'grey'))
-            tooltip.append(' ' + req.description)
-
-        return ''.join(tooltip)
-
-    def _get_gem_secondary_tooltip(self) -> str:
-        """Returns the colorized, line separated gem description tooltip."""
-        return util.colorize(self.gem, 'gem') if self.gem is not None else ''
-
-    def _get_ilevel_tooltip(self) -> str:
-        """
-        Returns the colorized item level tooltip for organs and bestiary orbs.
-        """
-        if 'Metamorph' in self.icon or 'BestiaryOrb' in self.icon:
-            label = util.colorize('Item Level: ', 'grey')
-            value = util.colorize(self.ilvl, 'white')
-            return label + value
-
-        return ''
-
-    def _get_unmodifiable_tooltip(self) -> str:
-        """Returns the colorized tooltip for unmodifiable tag."""
-        if not self.unmodifiable:
-            return ''
-
-        return util.colorize('Unmodifiable', 'magic')
-
-    def _get_additional_tooltip(self) -> str:
-        """Returns the colorized tooltip for additional mods (gem, chronicle)."""
-        if self.additional is None:
-            return ''
-
-        if self.category in {'Skill Gem', 'Support Gem'}:
-            # Gem experience text
-            label = util.colorize('Experience: ', 'grey')
-            value = util.colorize(f'{self.current_exp:,}/{self.max_exp:,}', 'white')
-            return label + value
-
-        if self.category == 'Sentinel':
-            # Sentinel charge text
-            lines: List[str] = []
-            for prop in self.additional:
-                val = prop.get('values')[0]
-                lines.append(
-                    util.colorize(prop.get('name') + ': ', 'grey')
-                    + util.colorize(val[0], util.valnum_to_color(val[1], val[0]))
-                )
-            return '<br />'.join(lines)
-
-        if self.name == 'Chronicle of Atzoatl':
-            # Chronicle of Atzoatl room text
-            lines: List[str] = []
-            for prop in self.additional:
-                if (name := prop.get('name')) != '':
-                    lines.append(util.colorize(name, 'grey'))
-                else:
-                    val = prop.get('values')[0]
-                    lines.append(
-                        util.colorize(val[0], util.valnum_to_color(val[1], val[0]))
-                    )
-            return '<br />'.join(lines)
-
-        logger.error(
-            'Unexpected additional mods for item %s %s', self.name, self.category
-        )
-        return ''
-
-    def _get_incubator_tooltip(self) -> str:
-        """Returns the colorized, line separated incubator tooltip."""
-        if self.incubator is None:
-            return ''
-
-        progress = int(self.incubator['progress'])
-        total = int(self.incubator['total'])
-        name = self.incubator['name']
-        level = self.incubator['level']
-        return (
-            util.colorize(f'Incubating {name}', 'craft')
-            + '<br />'
-            + util.colorize(f'{progress:,}/{total:,}', 'white')
-            + util.colorize(f' level {level}+ monster kills', 'grey')
-        )
-
-    def _get_scourge_tooltip(self) -> str:
-        """Returns the colorized, line separated scourge tooltip."""
-        return (
-            util.colorize(f'Scourged (Tier {self.scourge_tier})', 'scourged')
-            if self.scourge_tier > 0
-            else ''
-        )

@@ -142,6 +142,10 @@ COMBO_ITEMS = {
     ],
 }
 
+ALTERNATE_QUALITIES = COMBO_ITEMS['Gem Quality Type'][-3:]
+
+GEM_CATEGORIES = {'Skill Gem', 'Support Gem'}
+
 PARSE_CATEGORIES = {
     'Incubator',
     'Quiver',

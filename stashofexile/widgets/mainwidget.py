@@ -60,12 +60,10 @@ UNIQUE_REGEX = re.compile(r'new R\((.*)\)\)\.run')
 
 
 def _toggle_visibility(widget: QWidget) -> None:
-    """Toggles the visibility of a widget."""
     widget.setVisible(not widget.isVisible())
 
 
 def _populate_combo(filt: m_filter.Filter) -> None:
-    """Populates a filter's combo box if necessary."""
     if (options := gamedata.COMBO_ITEMS.get(filt.name)) is not None:
         widget = filt.widgets[0]
         assert isinstance(widget, QComboBox)
@@ -113,12 +111,8 @@ class MainWidget(QWidget):
         force_refresh: bool = False,
         cached: bool = False,
     ) -> None:
-        """
-        Build menu bar, retrieves existing tabs or send API calls, then build the table.
-        """
         self.account = account
         self._send_api(league, tabs, characters, uniques, force_refresh, cached)
-
         self._build_table()
 
     def _send_api(  # pylint: disable=too-many-arguments
@@ -130,17 +124,13 @@ class MainWidget(QWidget):
         force_refresh: bool,
         cached: bool,
     ) -> None:
-        """
-        Generates and sends API calls based on selected league, tabs, and characters.
-        """
         assert self.account is not None
-
-        api_manager = self.main_window.api_manager
-
         if not force_refresh:
             logger.debug('Begin checking cache')
 
+        api_manager = self.main_window.api_manager
         api_calls: List[thread.Call] = []
+
         # Queue stash tab API calls
         for tab_num in tabs:
             filename = os.path.join(
@@ -160,7 +150,7 @@ class MainWidget(QWidget):
                 api_manager.get_tab_items,
                 (self.account.username, self.account.poesessid, league, tab_num),
                 self,
-                self._get_stash_tab_callback,
+                self._get_tab_callback,
                 (item_tab,),
             )
             api_calls.append(api_call)
@@ -184,7 +174,7 @@ class MainWidget(QWidget):
                 api_manager.get_character_items,
                 (self.account.username, self.account.poesessid, char),
                 self,
-                self._get_char_callback,
+                self._get_tab_callback,
                 (item_tab,),
             )
             api_calls.append(api_call)
@@ -208,12 +198,12 @@ class MainWidget(QWidget):
                 api_manager.get_character_jewels,
                 (self.account.username, self.account.poesessid, char),
                 self,
-                self._get_char_callback,
+                self._get_tab_callback,
                 (item_tab,),
             )
             api_calls.append(api_call)
 
-        # Cache existing unique tabs (cannot queue API calls with just POESESSID)
+        # Queue unique tab API calls
         if self.account.leagues[league].uid:
             for unique in uniques:
                 filename = os.path.join(
@@ -246,15 +236,17 @@ class MainWidget(QWidget):
         api_manager.insert(api_calls)
 
     def _on_receive_tab(self, tab: m_tab.ItemTab) -> None:
-        """Inserts items in model and queues image downloading."""
         items = tab.get_items()
 
+        # Queue image downloading
         icons: Set[Tuple[str, str]] = set()
         download_manager = self.main_window.download_manager
         icons.update((item.icon, item.file_path) for item in items)
         download_manager.insert(
             thread.Call(download_manager.get_image, icon, None) for icon in icons
         )
+
+        # Insert items into model
         self.model.insert_items(items)
         self._insert_mods(items)
         self._apply_filters()
@@ -264,50 +256,26 @@ class MainWidget(QWidget):
             if isinstance(widget, editcombo.ECBox):
                 widget.addItem(tab.get_tab_name())
 
-    def _get_stash_tab_callback(
-        self, tab: m_tab.StashTab, data, err_message: str
-    ) -> None:
-        """Takes tab API data and inserts the items into the table."""
+    def _get_tab_callback(self, tab: m_tab.ItemTab, data, err_message: str) -> None:
         if data is None:
             # Use error message
             logger.warning(err_message)
             return
 
-        assert self.account is not None
-
-        logger.info('Writing tab json to %s', tab.filepath)
+        logger.info('Writing item json to %s', tab.filepath)
         file.create_directories(tab.filepath)
         with open(tab.filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f)
 
         self.main_window.statusBar().showMessage(
-            f'Stash tab received: {tab.tab_num}', consts.STATUS_TIMEOUT
-        )
-        self._on_receive_tab(tab)
-
-    def _get_char_callback(
-        self, tab: m_tab.CharacterTab, data, err_message: str
-    ) -> None:
-        """Takes character API data and inserts the items into the table."""
-        if data is None:
-            # Use error message
-            logger.warning(err_message)
-            return
-
-        logger.info('Writing character json to %s', tab.filepath)
-        file.create_directories(tab.filepath)
-        with open(tab.filepath, 'w', encoding='utf-8') as f:
-            json.dump(data, f)
-
-        self.main_window.statusBar().showMessage(
-            f'Character items received: {tab.char_name}', consts.STATUS_TIMEOUT
+            f'Items received: {tab.get_tab_name()}', consts.STATUS_TIMEOUT
         )
         self._on_receive_tab(tab)
 
     def _get_unique_subtab_callback(
         self, tab: m_tab.UniqueSubTab, js_code: str, err_message: str
     ) -> None:
-        """Takes unique subtab data and inserts the items into the table."""
+        """Specific for unique subtab (since it uses JS code rather than direct JSON)."""
         if js_code is None:
             # Use error message
             logger.warning(err_message)
@@ -331,18 +299,16 @@ class MainWidget(QWidget):
         self._on_receive_tab(tab)
 
     def _build_table(self) -> None:
-        """Sets up the items, downloads their images, and sets up the table."""
-        # Get available items
+        # Gets items and icons
         download_manager = self.main_window.download_manager
         items: List[m_item.Item] = []
         icons: Set[Tuple[str, str]] = set()
         for tab in self.item_tabs:
-            # Open each tab
-            # logger.debug(tab.filepath)
             tab_items = tab.get_items()
             icons.update((item.icon, item.file_path) for item in tab_items)
             items.extend(tab_items)
 
+        # Add tab names to tab filter
         if self.tab_filt is not None:
             widget = self.tab_filt.widgets[0]
             assert isinstance(widget, QComboBox)
@@ -350,9 +316,11 @@ class MainWidget(QWidget):
 
         self._insert_mods(items)
 
+        # Download item icons
         download_manager.insert(
             thread.Call(download_manager.get_image, icon, None) for icon in icons
         )
+
         logger.debug('Cached tabs: %s, items: %s', len(self.item_tabs), len(items))
         self.item_tabs = []
 
@@ -365,10 +333,10 @@ class MainWidget(QWidget):
         # Insert remaining items
         self.model.insert_items(items[1:])
 
-        # Connect selection to update tooltip
+        # Connect selecting an item to update tooltip
         self.table.selectionModel().selectionChanged.connect(self._update_tooltip)
 
-        # Connect sort
+        # Connect property headers to sort
         self.table.horizontalHeader().sortIndicatorChanged.connect(
             lambda logicalIndex, order: self.model.apply_filters(
                 self.reg_filters, self.mod_filters, index=logicalIndex, order=order
@@ -380,7 +348,6 @@ class MainWidget(QWidget):
         self.table.resizeColumnsToContents()
 
     def _static_build(self) -> None:
-        """Sets up the static base UI, including properties and widgets."""
         # Main Area
         main_hlayout = QHBoxLayout(self)
         splitter = QSplitter(Qt.Orientation.Horizontal)
@@ -537,7 +504,6 @@ class MainWidget(QWidget):
         form_layout: QFormLayout,
         index: int,
     ) -> None:
-        """Builds an individual filter and inserts it into the UI."""
         # Create label
         label = QLabel(self.filter_scroll_widget)
         label.setText(filt.name)
@@ -570,7 +536,7 @@ class MainWidget(QWidget):
         form_layout.setLayout(index, QFormLayout.ItemRole.FieldRole, layout)
 
     def _build_filter_group_box(self, title: str) -> Tuple[QGroupBox, QWidget]:
-        """Builds filter group box. Returns group box and interior widget."""
+        """Returns filter's group box and interior widget."""
         group_box = QGroupBox()
         group_box.setTitle(title)
         group_box.setCheckable(True)
@@ -585,7 +551,6 @@ class MainWidget(QWidget):
         return group_box, widget
 
     def _build_regular_filters(self) -> QWidget:
-        """Builds regular filter widgets (name, rarity, properties, etc)."""
         index = 0
         first_filt_widget: Optional[QWidget] = None
         for filt in m_filter.FILTERS:
@@ -597,7 +562,6 @@ class MainWidget(QWidget):
                     index += 1
 
                 case m_filter.FilterGroup(group_name, filters, _):
-                    # Filter group box
                     filt.group_box, widget = self._build_filter_group_box(group_name)
                     self.filter_form_layout.setWidget(
                         index, QFormLayout.ItemRole.SpanningRole, filt.group_box
@@ -612,7 +576,6 @@ class MainWidget(QWidget):
         return first_filt_widget
 
     def _add_mod_group(self) -> None:
-        """Add mod filter group to list."""
         group = modfilter.ModFilterGroup(
             modfilter.ModFilterGroupType(self.mod_combo.currentText())
         )
@@ -640,6 +603,7 @@ class MainWidget(QWidget):
             group.max_lineedit.textChanged.connect(self._apply_filters)
             button_layout.addWidget(group.max_lineedit)
 
+        # x and + buttons
         button_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
         plus_button = QPushButton()
         plus_button.setText('+')
@@ -666,7 +630,6 @@ class MainWidget(QWidget):
         self._add_mod_filter(group, weighted)
 
     def _delete_mod_group(self, group: modfilter.ModFilterGroup) -> None:
-        """Deletes a mod filter group from the list."""
         assert group.group_box is not None
         assert group.vlayout is not None
         self.mods_vlayout.removeWidget(group.group_box)
@@ -678,7 +641,6 @@ class MainWidget(QWidget):
     def _add_mod_filter(
         self, group: modfilter.ModFilterGroup, weight: bool = False
     ) -> None:
-        """Add mod filter to group."""
         assert group.vlayout is not None
 
         hlayout = QHBoxLayout()
@@ -728,7 +690,6 @@ class MainWidget(QWidget):
         group: modfilter.ModFilterGroup,
         filt: m_filter.Filter,
     ) -> None:
-        """Deletes a mod filter from its layout then reruns filtering."""
         self.mods_vlayout.removeItem(filt_layout)
         _clear_layout(filt_layout)
         filt_layout.deleteLater()
@@ -736,7 +697,6 @@ class MainWidget(QWidget):
         self._apply_filters()
 
     def _dynamic_build_filters(self) -> None:
-        """Sets up the filter widgets and labels."""
         first_filt_widget = self._build_regular_filters()
         range_height = first_filt_widget.sizeHint().height()
         self.range_size = QSize((int)(range_height * 1.5), range_height)
@@ -747,7 +707,6 @@ class MainWidget(QWidget):
         self.mods_group_box.setMinimumWidth(width)
 
     def _name_ui(self) -> None:
-        """Names the UI elements, including window title and labels."""
         self.filter_group_box.setTitle('Filters')
         self.mods_group_box.setTitle('Mods')
 
@@ -764,7 +723,6 @@ class MainWidget(QWidget):
         QApplication.clipboard().setText(item.get_text())
 
     def _update_tooltip(self, selected: QItemSelection) -> None:
-        """Updates item tooltip, triggered when a row is clicked."""
         if not selected.indexes():
             # Nothing selected
             return
@@ -795,7 +753,6 @@ class MainWidget(QWidget):
         self.tooltip.moveCursor(QTextCursor.MoveOperation.Start)
 
     def _apply_filters(self) -> None:
-        """Function that applies filters."""
         self.model.apply_filters(
             self.reg_filters,
             self.mod_filters,

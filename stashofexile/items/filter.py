@@ -37,9 +37,12 @@ class InfluenceFilter(QWidget):
         super().__init__(parent)
         hlayout = QHBoxLayout(self)
         hlayout.setContentsMargins(0, 0, 0, 0)
+
         self.check = QCheckBox()
         self.check.stateChanged.connect(self._main_unchecked)
         hlayout.addWidget(self.check)
+
+        # 6 QCheckBoxes for each influence
         self.influences: List[QCheckBox] = []
         for i in range(6):
             influence = QCheckBox()
@@ -54,6 +57,7 @@ class InfluenceFilter(QWidget):
             influence.setObjectName(gamedata.INFLUENCES[i])
             hlayout.addWidget(influence)
             self.influences.append(influence)
+
         self.setMinimumHeight(22)
 
     def __repr__(self) -> str:
@@ -133,9 +137,7 @@ class Filter:
 
 @dataclasses.dataclass
 class FilterGroup:
-    """
-    Represents a group of item filters.
-    """
+    """Represents a group of item filters."""
 
     name: str = ''
     filters: List[Filter] = dataclasses.field(default_factory=list)
@@ -206,18 +208,15 @@ def between_filter(  # pylint: disable=too-many-arguments
 
 
 def _filter_name(item: m_item.Item, elem: QLineEdit) -> bool:
-    """Filter function that uses name."""
     return elem.text().lower() in item.name.lower()
 
 
 def _filter_category(item: m_item.Item, elem: QComboBox) -> bool:
-    """Filter function that uses category."""
     text = elem.currentText()
     return text == item.category
 
 
 def _filter_rarity(item: m_item.Item, elem: QComboBox) -> bool:
-    """Filter function that uses rarity."""
     text = elem.currentText()
     if item.rarity == text.lower():
         return True
@@ -228,11 +227,10 @@ def _filter_rarity(item: m_item.Item, elem: QComboBox) -> bool:
 
 
 def _filter_tab(item: m_item.Item, elem: QComboBox) -> bool:
-    """Filter function for tab."""
     return item.tab == elem.currentText()
 
 
-def _sat_sockets(
+def _sat_socket_types(
     sockets: List[m_socket.Socket],
     red: QLineEdit,
     green: QLineEdit,
@@ -256,13 +254,12 @@ def _filter_sockets(  # pylint: disable=too-many-arguments
     min_socks: QLineEdit,
     max_socks: QLineEdit,
 ) -> bool:
-    """Filter function for sockets."""
     if not item.has_sockets():
         return False
 
-    return between_filter(item.num_sockets, int, min_socks, max_socks) and _sat_sockets(
-        item.sockets, red, green, blue, white
-    )
+    return between_filter(
+        item.num_sockets, int, min_socks, max_socks
+    ) and _sat_socket_types(item.sockets, red, green, blue, white)
 
 
 def _filter_links(  # pylint: disable=too-many-arguments
@@ -274,18 +271,16 @@ def _filter_links(  # pylint: disable=too-many-arguments
     min_links: QLineEdit,
     max_links: QLineEdit,
 ) -> bool:
-    """Filter function for links."""
     if not item.has_sockets():
         return False
 
     return between_filter(item.num_links, int, min_links, max_links) and any(
-        _sat_sockets(socket_group, red, green, blue, white)
+        _sat_socket_types(socket_group, red, green, blue, white)
         for socket_group in item.socket_groups
     )
 
 
-def _filter_class(item: m_item.Item, elem: QComboBox) -> bool:
-    """Filter function that uses character class."""
+def _filter_char_class(item: m_item.Item, elem: QComboBox) -> bool:
     text = elem.currentText()
     return text == item.req_class
 
@@ -293,13 +288,29 @@ def _filter_class(item: m_item.Item, elem: QComboBox) -> bool:
 def _duo(
     prop: Callable[[m_item.Item], Optional[Num]], conv_func: Callable[[str], Num]
 ) -> Callable[[m_item.Item, QLineEdit, QLineEdit], bool]:
-    """Generic double QLineEditor filter function."""
+    """Returns a generic double QLineEditor filter function."""
 
     def filt(item: m_item.Item, elem1: QLineEdit, elem2: QLineEdit) -> bool:
         field = prop(item)
         return field is not None and between_filter(field, conv_func, elem1, elem2)
 
     return filt
+
+
+def _filter_gem_quality(item: m_item.Item, elem: QComboBox) -> bool:
+    text = elem.currentText()
+    if item.gem_quality == text:
+        return True
+
+    alternates = ('Anomalous', 'Divergent', 'Phantsmal')
+    if text == 'Any Alternate' and item.gem_quality in alternates:
+        return True
+
+    return False
+
+
+def _filter_influences(item: m_item.Item, elem: InfluenceFilter) -> bool:
+    return elem.item_match(item)
 
 
 def _bool(
@@ -313,24 +324,6 @@ def _bool(
         return text == '' or (text == 'Yes') == field
 
     return filt
-
-
-def _filter_gem_quality(item: m_item.Item, elem: QComboBox) -> bool:
-    """Filter function that uses gem quality type."""
-    text = elem.currentText()
-    if item.gem_quality == text:
-        return True
-
-    alternates = ('Anomalous', 'Divergent', 'Phantsmal')
-    if text == 'Any Alternate' and item.gem_quality in alternates:
-        return True
-
-    return False
-
-
-def _filter_influences(item: m_item.Item, elem: InfluenceFilter) -> bool:
-    """Filter function that uses influence."""
-    return elem.item_match(item)
 
 
 FILTERS: List[Filter | FilterGroup] = [
@@ -375,7 +368,7 @@ FILTERS: List[Filter | FilterGroup] = [
             Filter('Strength', QLineEdit, _duo(lambda i: i.req_str, int), IV),
             Filter('Dexterity', QLineEdit, _duo(lambda i: i.req_dex, int), IV),
             Filter('Intelligence', QLineEdit, _duo(lambda i: i.req_int, int), IV),
-            Filter('Character Class', editcombo.ECBox, _filter_class),
+            Filter('Character Class', editcombo.ECBox, _filter_char_class),
         ],
     ),
     FilterGroup(

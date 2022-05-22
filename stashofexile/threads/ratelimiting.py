@@ -20,8 +20,7 @@ logger = log.get_logger(__name__)
 
 def get_time_ms() -> int:
     """
-    Gets time in milliseconds (epoch doesn't matter since only used for
-    relativity).
+    Gets time in milliseconds (epoch doesn't matter since only used for relativity).
     """
     return round(datetime.utcnow().timestamp() * 1000)
 

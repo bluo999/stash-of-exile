@@ -102,10 +102,7 @@ class ThreadManager(abc.ABC):
 
         ret = self.queue.popleft()
         # Special Signals
-        if isinstance(ret, KillThread):
-            return ret
-
-        if isinstance(ret, ratelimiting.TooManyReq):
+        if isinstance(ret, (KillThread, ratelimiting.TooManyReq)):
             return ret
 
         # Process api method and store its result

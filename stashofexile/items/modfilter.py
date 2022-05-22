@@ -17,9 +17,7 @@ logger = log.get_logger(__name__)
 
 
 class ModFilterGroupType(enum.Enum):
-    """
-    Enum for types of mod filter groups.
-    """
+    """Enum for types of mod filter groups."""
 
     AND = 'And'
     NOT = 'Not'
@@ -90,7 +88,7 @@ def _filter_func_group(group: ModFilterGroup) -> Callable[..., bool]:
                 mods.append(filt.widgets[0])
                 widgets.append((filt.widgets[1], filt.widgets[2]))
 
-            def _filter(item: m_item.Item, *_) -> bool:
+            def _filt(item: m_item.Item, *_) -> bool:
                 # If mod exists, then ensure mod is within range
                 values = [
                     item.internal_mods.get(mod.currentText(), [0])[0] for mod in mods
@@ -100,11 +98,11 @@ def _filter_func_group(group: ModFilterGroup) -> Callable[..., bool]:
                     for val, (bot, top) in zip(values, widgets)
                 )
 
-            return _filter
+            return _filt
 
         case ModFilterGroupType.COUNT:
 
-            def _filter(item: m_item.Item, *_) -> bool:
+            def _filt(item: m_item.Item, *_) -> bool:
                 # Run each filter against the item and count occurences of True
                 filts = [filt.filter_func(item, *filt.widgets) for filt in filters]
                 return m_filter.between_filter(
@@ -115,7 +113,7 @@ def _filter_func_group(group: ModFilterGroup) -> Callable[..., bool]:
                     default_val=-1,
                 )
 
-            return _filter
+            return _filt
 
         case ModFilterGroupType.WEIGHTED:
             mods: List[editcombo.ECBox] = []
@@ -127,7 +125,7 @@ def _filter_func_group(group: ModFilterGroup) -> Callable[..., bool]:
                 weight_str = filt.widgets[1].text()
                 weights.append(float(weight_str) if weight_str else 1)
 
-            def _filter(item: m_item.Item, *_) -> bool:
+            def _filt(item: m_item.Item, *_) -> bool:
                 # Perform a weighted sum of the selected mods
                 values = [
                     item.internal_mods.get(mod.currentText(), [0])[0] for mod in mods
@@ -141,7 +139,7 @@ def _filter_func_group(group: ModFilterGroup) -> Callable[..., bool]:
                     default_val=m_filter.MIN_VAL,
                 )
 
-            return _filter
+            return _filt
 
         case group_type:
             logger.error('Unexpected group type %s', group_type)

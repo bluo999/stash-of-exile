@@ -45,6 +45,8 @@ MOD_CATEGORIES = [
     'Contract',
     'Blueprint',
     'Heist',
+    'Expedition Logbook',
+    'Sentinel',
 ]
 
 NUMERIC_REGEX = r'(\d+(\.\d+)?(\d+)?)'
@@ -65,12 +67,12 @@ def _parse_mod(mod_str: str) -> Mod:
 
 
 class ModDb(dict):
-    """Stores mods."""
+    """Represents a mod database which stores mods."""
 
     def insert_items(self, items: List[m_item.Item]) -> None:
         """
-        Inserts items' mods into the db. Also adds a field which makes them
-        suitable for searching.
+        Inserts items' mods into the db. Also adds a field which makes them suitable for
+        searching.
         """
         for item in items:
             if item.category not in MOD_CATEGORIES:

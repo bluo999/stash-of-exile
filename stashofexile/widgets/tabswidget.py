@@ -54,7 +54,6 @@ class TabsWidget(QWidget):
         league: str,
         cached: bool,
     ) -> None:
-        """Sets up tree based on saved_data and account."""
         self.saved_data = saved_data
         self.account = account
         self.league = league
@@ -65,6 +64,7 @@ class TabsWidget(QWidget):
         self.refresh_button.setEnabled(not cached)
         self.cached = cached
 
+        # Reset tree
         for _ in range(self.tab_group.childCount()):
             self.tab_group.removeChild(self.tab_group.child(0))
         for _ in range(self.char_group.childCount()):
@@ -114,8 +114,6 @@ class TabsWidget(QWidget):
         self.back_button.clicked.connect(
             lambda: self.main_window.switch_widget(self.main_window.login_widget)
         )
-        # Not sure whether to remove or keep - maybe useful if selected wrong league?
-        # self.back_button.setDisabled(True)
         self.button_layout.addWidget(self.back_button)
 
         # Import Buttons
@@ -131,10 +129,11 @@ class TabsWidget(QWidget):
         self.main_hlayout.addWidget(self.login_box, 0, Qt.AlignmentFlag.AlignCenter)
 
     def _setup_tree(self):
-        """Sets up tabs in tree widget."""
         assert self.account is not None
         assert self.league is not None
         account_league = self.account.leagues[self.league]
+
+        # Set up stash tabs
         self.tab_group.setText(0, f'Stash Tabs ({len(account_league.tab_ids)})')
         self.tab_group.setFlags(
             self.tab_group.flags()
@@ -146,9 +145,8 @@ class TabsWidget(QWidget):
             tab_widget.setText(0, f'{i} ({tab.name})')
             tab_widget.setFlags(tab_widget.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             tab_widget.setCheckState(0, Qt.CheckState.Checked)
-        # self.tab_group.setCheckState(0, Qt.CheckState.Checked)
 
-        # Setup characters in tree widget
+        # Set up characters
         self.char_group.setText(
             0, f'Characters ({len(account_league.character_names)})'
         )
@@ -159,7 +157,7 @@ class TabsWidget(QWidget):
             char_widget.setFlags(char_widget.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             char_widget.setCheckState(0, Qt.CheckState.Checked)
 
-        # Setup unique subtabs
+        # Set up unique subtabs
         self.unique_group.setText(0, f'Unique Tab ({len(gamedata.UNIQUE_CATEGORIES)})')
         self.unique_group.setFlags(self.tab_group.flags())
         for cat in gamedata.UNIQUE_CATEGORIES.values():
