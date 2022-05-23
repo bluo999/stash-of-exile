@@ -491,12 +491,6 @@ class Item:
 
         return ''
 
-    def _get_unmodifiable_tooltip(self) -> str:
-        if not self.unmodifiable:
-            return ''
-
-        return util.colorize('Unmodifiable', 'magic')
-
     def _get_additional_tooltip(self) -> str:
         if self.additional is None:
             return ''
@@ -682,22 +676,6 @@ class Item:
         if self.tooltip:
             return self.tooltip
 
-        mods = _list_mods(
-            [
-                ModGroup(self.fractured, 'currency'),
-                ModGroup(self.explicit, 'magic'),
-                ModGroup(self.veiled, 'grey'),
-                ModGroup(self.crafted, 'craft'),
-            ]
-        )
-        tags = _list_tags(
-            [
-                Tag('Split', 'magic', self.split),
-                Tag('Corrupted', 'red', self.corrupted),
-                Tag('Unidentified', 'red', not self.identified),
-                Tag('Mirrored', 'magic', self.mirrored),
-            ]
-        )
         self.tooltip = [
             self._get_influence_tooltip(),
             self._get_header_tooltip(),
@@ -714,8 +692,23 @@ class Item:
                 _list_mods([ModGroup(self.enchanted, 'craft')]),
                 _list_mods([ModGroup(self.scourge, 'scourged')]),
                 _list_mods([ModGroup(self.implicit, 'magic')]),
-                f'{mods}<br />{tags}' if mods and tags else mods + tags,
-                self._get_unmodifiable_tooltip(),
+                _list_mods(
+                    [
+                        ModGroup(self.fractured, 'currency'),
+                        ModGroup(self.explicit, 'magic'),
+                        ModGroup(self.veiled, 'grey'),
+                        ModGroup(self.crafted, 'craft'),
+                    ]
+                ),
+                _list_tags(
+                    [
+                        Tag('Split', 'magic', self.split),
+                        Tag('Corrupted', 'red', self.corrupted),
+                        Tag('Unidentified', 'red', not self.identified),
+                        Tag('Mirrored', 'magic', self.mirrored),
+                        Tag('Unmodifiable', 'magic', self.unmodifiable),
+                    ]
+                ),
                 self._get_additional_tooltip(),
                 _list_mods([ModGroup(self.cosmetic, 'currency')]),
                 self._get_incubator_tooltip(),
