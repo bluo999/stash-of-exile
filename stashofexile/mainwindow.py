@@ -86,6 +86,8 @@ class MainWindow(QMainWindow):
 
         # Init logging widget
         self.log_widget = log.qlogger.create_widget()
+        self.log_widget.setMinimumHeight(300)
+        self.log_widget.setMaximumHeight(300)
         self.central_layout.addWidget(self.log_widget)
         self.log_widget.setVisible(False)
 

@@ -3,9 +3,10 @@ Defines an EditComboBox.
 """
 
 from typing import Optional
+
 from PyQt6 import QtGui
-from PyQt6.QtCore import QAbstractItemModel, QSortFilterProxyModel, Qt
-from PyQt6.QtWidgets import QComboBox, QCompleter, QLineEdit, QWidget
+from PyQt6.QtCore import QAbstractItemModel, Qt
+from PyQt6.QtWidgets import QComboBox, QCompleter, QLineEdit, QListView, QWidget
 
 
 class ClickLineEdit(QLineEdit):
@@ -13,16 +14,16 @@ class ClickLineEdit(QLineEdit):
 
     def __init__(self, completer: QCompleter, parent: Optional[QWidget] = None):
         super().__init__(parent)
-        self.test = completer
+        self._completer = completer
 
     def mousePressEvent(  # pylint: disable=invalid-name
         self, e: QtGui.QMouseEvent
     ) -> None:
         """Open completer on click."""
         super().mousePressEvent(e)
-
         if e.button() == Qt.MouseButton.LeftButton:
-            self.test.complete()
+            if not self._completer.popup().isVisible():
+                self._completer.complete()
 
 
 class ECBox(QComboBox):
@@ -34,21 +35,29 @@ class ECBox(QComboBox):
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setEditable(True)
         self.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
+        self.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+        )
+        view = self.view()
+        assert isinstance(view, QListView)
+        view.setUniformItemSizes(True)
 
-        # Filter Model
-        self.filter_model = QSortFilterProxyModel(self)
-        self.filter_model.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        self.filter_model.setSourceModel(self.model())
+        completer = QCompleter(self.model(), self)
+        view = completer.popup()
+        assert isinstance(view, QListView)
+        view.setUniformItemSizes(True)
 
-        # Completer
-        completer = QCompleter(self.filter_model, self)
-        completer.setCompletionMode(QCompleter.CompletionMode.UnfilteredPopupCompletion)
+        # Cusutom LineEdit
+        self.setLineEdit(ClickLineEdit(completer))
+        self.lineEdit().textChanged.connect(self.text_changed)
+
+        completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
+        completer.setFilterMode(Qt.MatchFlag.MatchContains)
+        completer.setModelSorting(QCompleter.ModelSorting.CaseInsensitivelySortedModel)
+        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        completer.setMaxVisibleItems(10)
         completer.activated.connect(self.on_completer_activated)
         self.setCompleter(completer)
-
-        # self.setLineEdit(ClickLineEdit(completer))
-        self.lineEdit().textChanged.connect(self.text_changed)
-        self.lineEdit().textEdited.connect(self.filter_model.setFilterFixedString)
 
         self.addItems(('',))
 
@@ -64,16 +73,23 @@ class ECBox(QComboBox):
             self.setCurrentIndex(index)
 
     def setModel(self, model: QAbstractItemModel):  # pylint: disable=invalid-name
-        """Sets model."""
+        """Also update completer model."""
         super().setModel(model)
-        self.filter_model.setSourceModel(model)
-        self.completer().setModel(self.filter_model)
+        self.completer().setModel(model)
 
     def setModelColumn(self, visibleColumn: int):  # pylint: disable=invalid-name
-        """Sets model column."""
+        """Also update completer column."""
         super().setModelColumn(visibleColumn)
         self.completer().setCompletionColumn(visibleColumn)
-        self.filter_model.setFilterKeyColumn(visibleColumn)
+
+    def focusOutEvent(  # pylint: disable=invalid-name
+        self, e: QtGui.QFocusEvent
+    ) -> None:
+        """Resets LineEdit text and completion prefix to selected text."""
+        text = self.itemText(self.currentIndex())
+        self.setEditText(text)
+        self.completer().setCompletionPrefix(text)
+        super().focusOutEvent(e)
 
 
 class BoolECBox(ECBox):

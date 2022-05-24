@@ -47,6 +47,8 @@ class TableModel(QAbstractTableModel):
         self.property_funcs = [func for _, func in TableModel.PROPERTY_FUNCS.items()]
         self.headers = list(TableModel.PROPERTY_FUNCS.keys())
         self.table_view = table_view
+        self.reg_filters: List[m_filter.Filter | m_filter.FilterGroup] = []
+        self.mod_filters: List[modfilter.ModFilterGroup] = []
 
     def rowCount(  # pylint: disable=invalid-name,unused-argument
         self, parent: QModelIndex
@@ -106,6 +108,8 @@ class TableModel(QAbstractTableModel):
         self.beginInsertRows(QModelIndex(), 0, len(items) - 1)
         self.items.extend(items)
         self.current_items.extend(items)
+        if self.reg_filters and self.mod_filters:
+            self.apply_filters(self.reg_filters, self.mod_filters)
         self.endInsertRows()
 
     def apply_filters(
@@ -119,6 +123,9 @@ class TableModel(QAbstractTableModel):
         Applies a filter based on several search parameters, updating the current
         items and layout.
         """
+        self.reg_filters = reg_filters
+        self.mod_filters = mod_filters
+
         # Previously selected item
         selection = self.table_view.selectedIndexes()
         selected_item = self.current_items[selection[0].row()] if selection else None

@@ -48,7 +48,7 @@ if TYPE_CHECKING:
 
 logger = log.get_logger(__name__)
 
-MOD_DB_FILE = os.path.join(consts.APPDATA_DIR, 'item_db.pkl')
+MOD_DB_FILE = os.path.join(consts.APPDATA_DIR, 'mod_db.pkl')
 ITEM_CACHE_DIR = os.path.join(consts.APPDATA_DIR, 'item_cache')
 
 TABS_DIR = 'tabs'
@@ -111,6 +111,7 @@ class MainWidget(QWidget):
         force_refresh: bool = False,
         cached: bool = False,
     ) -> None:
+        """Sends API calls and builds the item table."""
         self.account = account
         self._send_api(league, tabs, characters, uniques, force_refresh, cached)
         self._build_table()
@@ -484,7 +485,7 @@ class MainWidget(QWidget):
 
     def _insert_mods(self, items):
         self.mod_db.insert_items(items)
-        self.mod_db: moddb.ModDb = moddb.ModDb(sorted(self.mod_db.items()))
+        self.mod_db = moddb.ModDb(sorted(self.mod_db.items()))
 
         logger.info('Writing mod db file to %s', MOD_DB_FILE)
         with open(MOD_DB_FILE, 'wb') as f:
@@ -649,13 +650,7 @@ class MainWidget(QWidget):
 
         # Combo box
         widget = editcombo.ECBox()
-        widget.setMinimumContentsLength(0)
-        widget.setSizeAdjustPolicy(
-            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
-        )
         widget.addItems(search for search in self.mod_db)
-        for i, search in enumerate(self.mod_db):
-            widget.setItemData(i + 1, search, Qt.ItemDataRole.ToolTipRole)
         widget.currentIndexChanged.connect(self._apply_filters)
         filt.widgets.append(widget)
         hlayout.addWidget(widget)
@@ -756,8 +751,6 @@ class MainWidget(QWidget):
         self.model.apply_filters(
             self.reg_filters,
             self.mod_filters,
-            index=1,
-            order=Qt.SortOrder.AscendingOrder,
         )
 
     def _connect_signal(self, filt: m_filter.Filter) -> None:

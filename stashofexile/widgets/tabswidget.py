@@ -54,6 +54,7 @@ class TabsWidget(QWidget):
         league: str,
         cached: bool,
     ) -> None:
+        """Loads tab selection tree."""
         self.saved_data = saved_data
         self.account = account
         self.league = league

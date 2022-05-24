@@ -63,7 +63,7 @@ def _parse_mod(mod_str: str) -> Mod:
     """Parses a mod string and returns Mod, with numeric values extracted."""
     values = [float(x) for x, _, _ in re.findall(NUMERIC_REGEX, mod_str) if x != '']
     key = re.sub(NUMERIC_REGEX, '#', mod_str)
-    return Mod(key, values)
+    return Mod(key.replace('\n', ' '), values)
 
 
 class ModDb(dict):
