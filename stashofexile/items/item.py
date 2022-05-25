@@ -198,13 +198,17 @@ class Item:
         self.influences = list(item_json.get('influences', {}).keys())
 
         self.props = [
-            m_property.Property({'name': p['name'], 'vals': p['values']})
+            m_property.Property(p['name'], p['values'])
             for p in item_json.get('properties', [])
         ]
         self.reqs = [
-            requirement.Requirement({'name': r['name'], 'vals': r['values']})
+            requirement.Requirement(r['name'], r['values'])
             for r in item_json.get('requirements', [])
         ]
+
+        self.stack_size = item_json.get('stackSize')
+        if self.stack_size and not self.props:
+            self.props.append(m_property.Property('Stack Size', [[self.stack_size, 0]]))
 
         self.logbook: List[Dict[str, Any]] = item_json.get('logbookMods', [])
         self.implicit = item_json.get('implicitMods', [])

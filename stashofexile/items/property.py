@@ -10,9 +10,9 @@ logger = log.get_logger(__name__)
 class Property:
     """Class to represent an item property."""
 
-    def __init__(self, prop_info: util.ValInfo) -> None:
-        self.name = prop_info['name']
-        self.values = prop_info['vals']
+    def __init__(self, name: str, vals: util.ValInfo) -> None:
+        self.name = name
+        self.values = vals
         self.tooltip = None
 
     @property

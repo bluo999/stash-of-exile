@@ -10,9 +10,9 @@ logger = log.get_logger(__name__)
 class Requirement:
     """Class to represent an item requirement."""
 
-    def __init__(self, req_info: util.ValInfo):
-        self.name = req_info['name']
-        self.values = req_info['vals']
+    def __init__(self, name: str, vals: util.ValInfo) -> None:
+        self.name = name
+        self.values = vals
         self.tooltip = None
 
     @property

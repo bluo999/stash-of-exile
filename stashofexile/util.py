@@ -9,18 +9,14 @@ from stashofexile import consts, log
 logger = log.get_logger(__name__)
 
 
+ValInfo = List[List[str | int]]
+
+
 class ModifiedStr(TypedDict):
     """Class to represent a string and whether it has been modified."""
 
     text: str
     inserted: bool
-
-
-class ValInfo(TypedDict):
-    """Class to represent a property or requirement from the API."""
-
-    name: str
-    vals: List[List[str | int]]
 
 
 def colorize(text: str, color_name: str) -> str:
