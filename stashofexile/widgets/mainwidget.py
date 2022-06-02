@@ -38,8 +38,14 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from stashofexile import consts, file, gamedata, log, save, tab as m_tab, table
-from stashofexile.items import filter as m_filter, item as m_item, moddb, modfilter
+from stashofexile import consts, file, gamedata, log, save, table
+from stashofexile.items import (
+    filter as m_filter,
+    item as m_item,
+    moddb,
+    modfilter,
+    tab as m_tab,
+)
 from stashofexile.threads import thread
 from stashofexile.widgets import editcombo
 
@@ -313,7 +319,9 @@ class MainWidget(QWidget):
         if self.tab_filt is not None:
             widget = self.tab_filt.widgets[0]
             assert isinstance(widget, QComboBox)
-            widget.addItems(tab.get_tab_name() for tab in self.item_tabs)
+            # Remove duplicates
+            names = dict.fromkeys(tab.get_tab_name() for tab in self.item_tabs)
+            widget.addItems(names)
 
         self._insert_mods(items)
 

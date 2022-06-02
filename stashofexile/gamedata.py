@@ -4,7 +4,6 @@ Constants that involve game data.
 import json
 import os
 
-from collections import OrderedDict
 from typing import Dict, List
 
 from stashofexile import consts
@@ -40,31 +39,29 @@ FRAGMENTS = {
 }
 
 # Unique tab categories
-UNIQUE_CATEGORIES: OrderedDict[int, str] = OrderedDict(
-    [
-        (1, 'Flask'),
-        (2, 'Amulet'),
-        (3, 'Ring'),
-        (4, 'Claw'),
-        (5, 'Dagger'),
-        (6, 'Wand'),
-        (7, 'Sword'),
-        (8, 'Axe'),
-        (9, 'Mace'),
-        (10, 'Bow'),
-        (11, 'Staff'),
-        (12, 'Quiver'),
-        (13, 'Belt'),
-        (14, 'Gloves'),
-        (15, 'Boots'),
-        (16, 'Body Armour'),
-        (17, 'Helmet'),
-        (18, 'Shield'),
-        (19, 'Map'),
-        (20, 'Jewel'),
-        (22, 'Contract'),
-    ]
-)
+UNIQUE_CATEGORIES: Dict[int, str] = {
+    1: 'Flask',
+    2: 'Amulet',
+    3: 'Ring',
+    4: 'Claw',
+    5: 'Dagger',
+    6: 'Wand',
+    7: 'Sword',
+    8: 'Axe',
+    9: 'Mace',
+    10: 'Bow',
+    11: 'Staff',
+    12: 'Quiver',
+    13: 'Belt',
+    14: 'Gloves',
+    15: 'Boots',
+    16: 'Body Armour',
+    17: 'Helmet',
+    18: 'Shield',
+    19: 'Map',
+    20: 'Jewel',
+    22: 'Contract',
+}
 
 # Selectable options for ComboBox filters
 COMBO_ITEMS = {
