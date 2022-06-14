@@ -84,6 +84,12 @@ class InfluenceFilter(QWidget):
         if checked == 2:
             self.check.setCheckState(Qt.CheckState.Checked)
 
+    def clear(self) -> None:
+        """Clears filter."""
+        self.check.setChecked(False)
+        for infl in self.influences:
+            infl.setCheckable(False)
+
     def item_match(self, item: m_item.Item) -> bool:
         """Returns whether an item conforms to the filter's selection."""
         assert self.check.isChecked()
@@ -133,6 +139,23 @@ class Filter:
         info = ' '.join(values)
 
         return f'{self.name}: {info}'
+
+    def clear_filter(self):
+        """Clears a filter's selection and inputs."""
+        for widget in self.widgets:
+            match widget:
+                case QCheckBox():
+                    widget.setChecked(False)
+                case QLineEdit():
+                    widget.setText('')
+                case QComboBox():
+                    widget.setCurrentIndex(0)
+                case InfluenceFilter():
+                    widget.clear()
+                case _:
+                    logger.error(
+                        'Unexpected widget type %s for filter %s', widget, self.name
+                    )
 
 
 @dataclasses.dataclass

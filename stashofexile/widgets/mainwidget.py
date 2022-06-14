@@ -101,6 +101,7 @@ class MainWidget(QWidget):
         self.range_size = QSize()
         self.reg_filters = m_filter.FILTERS.copy()
         self.mod_filters: List[modfilter.ModFilterGroup] = []
+        self.pause_filter = False
         self._static_build()
         self._load_mod_file()
         self._dynamic_build_filters()
@@ -426,8 +427,13 @@ class MainWidget(QWidget):
         # plus_hlayout.setAlignment(plus_button, Qt.AlignmentFlag.AlignRight)
         self.mods_vlayout.addLayout(plus_hlayout)
 
+        # Clear Filters Button
+        self.clear_button = QPushButton()
+        self.clear_button.clicked.connect(self._clear_all_filters)
+
         left_vlayout.addWidget(self.filter_group_box)
         left_vlayout.addWidget(self.mods_group_box)
+        left_vlayout.addWidget(self.clear_button)
 
         # Middle scroll
         self.middle_widget = QWidget()
@@ -699,6 +705,24 @@ class MainWidget(QWidget):
         group.filters.remove(filt)
         self._apply_filters()
 
+    def _clear_all_filters(self) -> None:
+        # Pause filtering to prevent costly callbacks on resetting each field
+        self.pause_filter = True
+
+        for filt in self.reg_filters:
+            match filt:
+                case m_filter.Filter():
+                    filt.clear_filter()
+                case m_filter.FilterGroup(_, filters, _):
+                    for ind_filter in filters:
+                        ind_filter.clear_filter()
+
+        while self.mod_filters:
+            self._delete_mod_group(self.mod_filters[0])
+
+        self.pause_filter = False
+        self._apply_filters()
+
     def _dynamic_build_filters(self) -> None:
         first_filt_widget = self._build_regular_filters()
         range_height = first_filt_widget.sizeHint().height()
@@ -712,6 +736,7 @@ class MainWidget(QWidget):
     def _name_ui(self) -> None:
         self.filter_group_box.setTitle('Filters')
         self.mods_group_box.setTitle('Mods')
+        self.clear_button.setText('Clear Filters')
 
     def _copy_item_text(self) -> None:
         """Copies item text to clipboard."""
@@ -756,6 +781,9 @@ class MainWidget(QWidget):
         self.tooltip.moveCursor(QTextCursor.MoveOperation.Start)
 
     def _apply_filters(self) -> None:
+        if self.pause_filter:
+            return
+
         self.model.apply_filters(
             self.reg_filters,
             self.mod_filters,
