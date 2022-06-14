@@ -36,9 +36,9 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        logger.info('Stash of Exile starting')
+        logger.info('Stash of Exile %s starting', consts.VERSION)
         self.resize(1280, 720)
-        self.setWindowTitle('Stash of Exile')
+        self.setWindowTitle(f'Stash of Exile {consts.VERSION}')
 
         QFontDatabase.addApplicationFont(TTF_FILE)
 

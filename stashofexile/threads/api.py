@@ -12,13 +12,15 @@ from typing import Any, List, Tuple
 
 from PyQt6.QtCore import pyqtSignal
 
-from stashofexile import log
+from stashofexile import consts, log
 from stashofexile.threads import ratelimiting, thread
 
 logger = log.get_logger(__name__)
 
 # HTTPS request headers
-HEADERS = {'User-Agent': 'stash-of-exile/0.1.0 (contact:brianluo999@gmail.com)'}
+HEADERS = {
+    'User-Agent': f'stash-of-exile/{consts.VERSION} (contact:brianluo999@gmail.com)'
+}
 
 URL_LEAGUES = 'https://api.pathofexile.com/leagues?type=main&compact=1'
 URL_TAB_INFO = (

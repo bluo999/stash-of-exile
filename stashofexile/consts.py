@@ -1,5 +1,5 @@
 """
-Constants that do not involve game data (found in gameData.py).
+Constants that do not involve game data (found in gamedata.py).
 """
 
 import os
@@ -8,6 +8,8 @@ import sys
 from PyQt6.QtCore import QSettings
 
 from stashofexile import file
+
+VERSION = '0.2.0'
 
 # Assets directory
 if getattr(sys, 'frozen', False):

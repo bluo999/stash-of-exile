@@ -33,6 +33,7 @@ from PyQt6.QtWidgets import (
     QSizePolicy,
     QSplitter,
     QTableView,
+    QTabWidget,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -361,25 +362,34 @@ class MainWidget(QWidget):
         # Main Area
         main_hlayout = QHBoxLayout(self)
         splitter = QSplitter(Qt.Orientation.Horizontal)
+        main_hlayout.addWidget(splitter)
 
-        # Left Area (Filters, Mods)
+        self._build_left()
+        self._build_middle()
+        self._build_right()
+
+        splitter.addWidget(self.left_widget)
+        splitter.addWidget(self.middle_widget)
+        splitter.addWidget(self.table)
+        splitter.setSizes((700, 700, 700))
+
+    def _build_left(self) -> None:
         self.left_widget = QWidget()
         left_vlayout = QVBoxLayout(self.left_widget)
 
-        # Filters Group Box
-        self.filter_group_box = QGroupBox()
-        self.filter_group_box.setCheckable(True)
-        filter_scroll_layout = QVBoxLayout(self.filter_group_box)
+        self.tabs = QTabWidget()
+        left_vlayout.addWidget(self.tabs)
+
+        # Filters Tab
+        self.tab_filter = QWidget()
+        self.tabs.addTab(self.tab_filter, 'Filters')
+        filter_scroll_layout = QVBoxLayout(self.tab_filter)
         filter_scroll_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Filters Scroll
         self.filter_scroll = QScrollArea()
         self.filter_scroll.setWidgetResizable(True)
         self.filter_scroll.setContentsMargins(0, 0, 0, 0)
         self.filter_scroll.setFrameShape(QFrame.Shape.NoFrame)
-        self.filter_group_box.toggled.connect(
-            lambda: _toggle_visibility(self.filter_scroll)
-        )
         filter_scroll_layout.addWidget(self.filter_scroll)
 
         # Intermediate Filter Widget
@@ -389,10 +399,10 @@ class MainWidget(QWidget):
         self.filter_vlayout = QVBoxLayout(self.filter_scroll_widget)
         self.filter_vlayout.addLayout(self.filter_form_layout)
 
-        # Mods Group Box
-        self.mods_group_box = QGroupBox()
-        self.mods_group_box.setCheckable(True)
-        mods_scroll_layout = QVBoxLayout(self.mods_group_box)
+        # Mods Tab
+        self.tab_mod = QWidget()
+        self.tabs.addTab(self.tab_mod, 'Mods')
+        mods_scroll_layout = QVBoxLayout(self.tab_mod)
         mods_scroll_layout.setContentsMargins(0, 0, 0, 0)
 
         # Mods Scroll
@@ -400,9 +410,6 @@ class MainWidget(QWidget):
         self.mods_scroll.setWidgetResizable(True)
         self.mods_scroll.setContentsMargins(0, 0, 0, 0)
         self.mods_scroll.setFrameShape(QFrame.Shape.NoFrame)
-        self.mods_group_box.toggled.connect(
-            lambda: _toggle_visibility(self.mods_scroll)
-        )
         mods_scroll_layout.addWidget(self.mods_scroll)
 
         # Intermediate Mods Widget
@@ -424,17 +431,33 @@ class MainWidget(QWidget):
         plus_button.setMaximumWidth(plus_button.sizeHint().height())
         plus_button.clicked.connect(self._add_mod_group)
         plus_hlayout.addWidget(plus_button)
-        # plus_hlayout.setAlignment(plus_button, Qt.AlignmentFlag.AlignRight)
         self.mods_vlayout.addLayout(plus_hlayout)
+
+        # Preset Tab
+        self.tab_preset = QWidget()
+        self.tabs.addTab(self.tab_preset, 'Presets')
+        preset_scroll_layout = QVBoxLayout(self.tab_preset)
+        preset_scroll_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Preset Scroll
+        self.preset_scroll = QScrollArea()
+        self.preset_scroll.setWidgetResizable(True)
+        self.preset_scroll.setContentsMargins(0, 0, 0, 0)
+        self.preset_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        preset_scroll_layout.addWidget(self.preset_scroll)
+
+        # Intermediate Preset Widget
+        preset_scroll_widget = QWidget()
+        self.preset_scroll.setWidget(preset_scroll_widget)
+        self.preset_vlayout = QVBoxLayout(preset_scroll_widget)
+        self.preset_vlayout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # Clear Filters Button
         self.clear_button = QPushButton()
         self.clear_button.clicked.connect(self._clear_all_filters)
-
-        left_vlayout.addWidget(self.filter_group_box)
-        left_vlayout.addWidget(self.mods_group_box)
         left_vlayout.addWidget(self.clear_button)
 
+    def _build_middle(self) -> None:
         # Middle scroll
         self.middle_widget = QWidget()
         middle_vlayout = QVBoxLayout(self.middle_widget)
@@ -462,7 +485,7 @@ class MainWidget(QWidget):
         middle_vlayout.addWidget(copy_button)
         copy_button.clicked.connect(self._copy_item_text)
 
-        # Item Table
+    def _build_right(self) -> None:
         self.table = QTableView()
         self.table.setMinimumSize(QSize(200, 0))
         self.table.setMouseTracking(True)
@@ -482,13 +505,6 @@ class MainWidget(QWidget):
         # Custom Table Model
         self.model = table.TableModel(self.table, parent=self)
         self.table.setModel(self.model)
-
-        splitter.addWidget(self.left_widget)
-        splitter.addWidget(self.middle_widget)
-        splitter.addWidget(self.table)
-        splitter.setSizes((700, 700, 700))
-
-        main_hlayout.addWidget(splitter)
 
     def _group_toggle(self, widget: QWidget) -> Callable:
         def f():
@@ -728,14 +744,7 @@ class MainWidget(QWidget):
         range_height = first_filt_widget.sizeHint().height()
         self.range_size = QSize((int)(range_height * 1.5), range_height)
 
-        # Resize left panel widths
-        width = self.filter_group_box.sizeHint().width()
-        self.filter_group_box.setMinimumWidth(width)
-        self.mods_group_box.setMinimumWidth(width)
-
     def _name_ui(self) -> None:
-        self.filter_group_box.setTitle('Filters')
-        self.mods_group_box.setTitle('Mods')
         self.clear_button.setText('Clear Filters')
 
     def _copy_item_text(self) -> None:
