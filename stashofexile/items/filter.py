@@ -3,7 +3,7 @@ Defines Filter class and filter functions for each item filter.
 """
 import dataclasses
 
-from typing import Callable, List, Optional, Type
+from typing import Callable, Dict, List, Optional, Type
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QDoubleValidator, QIntValidator, QValidator
@@ -104,6 +104,23 @@ class InfluenceFilter(QWidget):
         for influence in self.influences:
             influence.stateChanged.connect(func)
 
+    def to_json(self) -> str:
+        return ''
+
+
+def get_widget_value(widget: QWidget) -> str:
+    """Returns the value of a widget."""
+    match widget:
+        case QLineEdit():
+            return widget.text()
+        case QComboBox():
+            return widget.currentText()
+        case InfluenceFilter():
+            return widget.to_json()
+        case _:
+            logger.error('Unexpected widget type %s', widget)
+            return ''
+
 
 @dataclasses.dataclass
 class Filter:
@@ -128,8 +145,6 @@ class Filter:
         values: List[str] = []
         for widget in self.widgets:
             match widget:
-                case QCheckBox():
-                    values.append(str(widget.isChecked()))
                 case QLineEdit():
                     values.append(widget.text())
                 case QComboBox():
@@ -140,12 +155,25 @@ class Filter:
 
         return f'{self.name}: {info}'
 
-    def clear_filter(self):
+    def set_values(self, values: List[str]) -> None:
+        """Sets filter's values."""
+        for widget, val in zip(self.widgets, values):
+            match widget:
+                case QLineEdit():
+                    widget.setText(val)
+                case QComboBox():
+                    widget.setCurrentIndex(widget.findText(val))
+                case InfluenceFilter():
+                    widget.clear()
+                case _:
+                    logger.error(
+                        'Unexpected widget type %s for filter %s', widget, self.name
+                    )
+
+    def clear_filter(self) -> None:
         """Clears a filter's selection and inputs."""
         for widget in self.widgets:
             match widget:
-                case QCheckBox():
-                    widget.setChecked(False)
                 case QLineEdit():
                     widget.setText('')
                 case QComboBox():
@@ -157,6 +185,14 @@ class Filter:
                         'Unexpected widget type %s for filter %s', widget, self.name
                     )
 
+    def to_json(self, include_empty=False) -> List[str]:
+        """Returns the filter's data in JSON format."""
+        return [
+            val
+            for widget in self.widgets
+            if (val := get_widget_value(widget)) or include_empty
+        ]
+
 
 @dataclasses.dataclass
 class FilterGroup:
@@ -166,12 +202,29 @@ class FilterGroup:
     filters: List[Filter] = dataclasses.field(default_factory=list)
     group_box: Optional[QGroupBox] = None
 
+    def set_values(self, values: Dict) -> None:
+        """Sets values for each filter in the filter group."""
+        for filt in self.filters:
+            filt.set_values(values.get(filt.name, []))
+
+    def clear_filter(self) -> None:
+        """Clears the filter group."""
+        for filt in self.filters:
+            filt.clear_filter()
+
+    def to_json(self) -> Dict:
+        """Returns the filter group's data in JSON format."""
+        json = {}
+        for filt in self.filters:
+            if val := filt.to_json():
+                json[filt.name] = val
+
+        return json
+
 
 def filter_is_active(widget: QWidget) -> bool:
     """Determines whether a filter is active (based on widget type)."""
     match widget:
-        case QCheckBox():
-            return widget.isChecked()
         case QLineEdit():
             return len(widget.text()) > 0
         case QComboBox():

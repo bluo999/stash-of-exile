@@ -10,7 +10,7 @@ import os
 import pickle
 import re
 
-from typing import Callable, List, TYPE_CHECKING, Optional, Set, Tuple
+from typing import Callable, Dict, List, TYPE_CHECKING, Optional, Set, Tuple
 
 from PyQt6.QtCore import QItemSelection, QSize, Qt
 from PyQt6.QtGui import QDoubleValidator, QFont, QTextCursor
@@ -18,13 +18,13 @@ from PyQt6.QtWidgets import (
     QAbstractItemView,
     QAbstractScrollArea,
     QApplication,
-    QCheckBox,
     QComboBox,
     QFormLayout,
     QFrame,
     QGroupBox,
     QHBoxLayout,
     QHeaderView,
+    QInputDialog,
     QLabel,
     QLayout,
     QLineEdit,
@@ -57,6 +57,7 @@ logger = log.get_logger(__name__)
 
 MOD_DB_FILE = os.path.join(consts.APPDATA_DIR, 'mod_db.pkl')
 ITEM_CACHE_DIR = os.path.join(consts.APPDATA_DIR, 'item_cache')
+PRESETS_DIR = os.path.join(consts.APPDATA_DIR, 'presets')
 
 TABS_DIR = 'tabs'
 CHARACTER_DIR = 'characters'
@@ -106,6 +107,7 @@ class MainWidget(QWidget):
         self._static_build()
         self._load_mod_file()
         self._dynamic_build_filters()
+        self._build_presets()
         self._setup_filters()
         self._name_ui()
 
@@ -429,7 +431,11 @@ class MainWidget(QWidget):
         plus_button = QPushButton()
         plus_button.setText('+')
         plus_button.setMaximumWidth(plus_button.sizeHint().height())
-        plus_button.clicked.connect(self._add_mod_group)
+        plus_button.clicked.connect(
+            lambda _: self._add_mod_group(
+                modfilter.ModFilterGroupType(self.mod_combo.currentText())
+            )
+        )
         plus_hlayout.addWidget(plus_button)
         self.mods_vlayout.addLayout(plus_hlayout)
 
@@ -452,10 +458,15 @@ class MainWidget(QWidget):
         self.preset_vlayout = QVBoxLayout(preset_scroll_widget)
         self.preset_vlayout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        # Clear Filters Button
+        # Bottom Buttons
         self.clear_button = QPushButton()
-        self.clear_button.clicked.connect(self._clear_all_filters)
+        self.clear_button.clicked.connect(lambda _: self._clear_all_filters(True))
+
+        self.save_button = QPushButton()
+        self.save_button.clicked.connect(self._save_filter)
+
         left_vlayout.addWidget(self.clear_button)
+        left_vlayout.addWidget(self.save_button)
 
     def _build_middle(self) -> None:
         # Middle scroll
@@ -606,20 +617,20 @@ class MainWidget(QWidget):
         assert first_filt_widget is not None
         return first_filt_widget
 
-    def _add_mod_group(self) -> None:
-        group = modfilter.ModFilterGroup(
-            modfilter.ModFilterGroupType(self.mod_combo.currentText())
-        )
+    def _add_mod_group(
+        self, group_type: modfilter.ModFilterGroupType, blank=True
+    ) -> None:
+        group = modfilter.ModFilterGroup(group_type)
 
         # Create mod filter group UI
-        group.group_box, widget = self._build_filter_group_box(group.group_type.value)
+        group.group_box, widget = self._build_filter_group_box(group_type.value)
         group.vlayout = QVBoxLayout(widget)
 
         button_layout = QHBoxLayout()
         button_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
         # Insert QLineEdit for certain group types
-        if group.group_type in (
+        if group_type in (
             modfilter.ModFilterGroupType.COUNT,
             modfilter.ModFilterGroupType.WEIGHTED,
         ):
@@ -649,7 +660,7 @@ class MainWidget(QWidget):
         group.vlayout.addLayout(button_layout)
 
         # Connect signals
-        weighted = group.group_type == modfilter.ModFilterGroupType.WEIGHTED
+        weighted = group_type == modfilter.ModFilterGroupType.WEIGHTED
         plus_button.clicked.connect(
             functools.partial(self._add_mod_filter, group, weighted)
         )
@@ -658,7 +669,9 @@ class MainWidget(QWidget):
         # Finish adding group
         self.mod_filters.append(group)
         self.mods_vlayout.insertWidget(self.mods_vlayout.count() - 1, group.group_box)
-        self._add_mod_filter(group, weighted)
+
+        if blank:
+            self._add_mod_filter(group, weighted)
 
     def _delete_mod_group(self, group: modfilter.ModFilterGroup) -> None:
         assert group.group_box is not None
@@ -721,7 +734,7 @@ class MainWidget(QWidget):
         group.filters.remove(filt)
         self._apply_filters()
 
-    def _clear_all_filters(self) -> None:
+    def _clear_all_filters(self, refresh=True) -> None:
         # Pause filtering to prevent costly callbacks on resetting each field
         self.pause_filter = True
 
@@ -729,15 +742,82 @@ class MainWidget(QWidget):
             match filt:
                 case m_filter.Filter():
                     filt.clear_filter()
-                case m_filter.FilterGroup(_, filters, _):
-                    for ind_filter in filters:
-                        ind_filter.clear_filter()
+                case m_filter.FilterGroup():
+                    filt.clear_filter()
 
         while self.mod_filters:
             self._delete_mod_group(self.mod_filters[0])
 
         self.pause_filter = False
+        if refresh:
+            self._apply_filters()
+
+    def _load_preset(self, preset: Dict) -> None:
+        self._clear_all_filters(False)
+        self.pause_filter = True
+
+        filter_data = preset['filters']
+        for filt in self.reg_filters:
+            match filt:
+                case m_filter.Filter():
+                    filt.set_values(filter_data.get(filt.name, []))
+                case m_filter.FilterGroup():
+                    filt.set_values(filter_data.get(filt.name, {}))
+
+        for group_data in preset['mod_groups']:
+            group_type = modfilter.ModFilterGroupType(group_data['group_type'])
+            self._add_mod_group(group_type, False)
+            mod_group = self.mod_filters[-1]
+            if mod_group.min_lineedit:
+                mod_group.min_lineedit.setText(group_data.get('min', ''))
+            if mod_group.max_lineedit:
+                mod_group.max_lineedit.setText(group_data.get('max', ''))
+
+            for mods_data in group_data['mods']:
+                self._add_mod_filter(
+                    mod_group,
+                    group_type == modfilter.ModFilterGroupType.WEIGHTED,
+                )
+                widgets = mod_group.filters[-1].widgets
+
+                ecbox = widgets[0]
+                assert isinstance(ecbox, editcombo.ECBox)
+                ecbox.setCurrentIndex(ecbox.findText(mods_data[0]))
+
+                for val, widget in zip(mods_data[1:], widgets[1:]):
+                    assert isinstance(widget, QLineEdit)
+                    if val:
+                        widget.setText(val)
+
+        self.pause_filter = False
         self._apply_filters()
+
+    def _export_preset(self, name: str, filename: str) -> None:
+        data = {}
+        data['name'] = name
+        data['filters'] = {}
+        for filt in self.reg_filters:
+            match filt:
+                case m_filter.Filter(name, _):
+                    if val := filt.to_json():
+                        data['filters'][name] = val
+                case m_filter.FilterGroup(name, _):
+                    if val := filt.to_json():
+                        data['filters'][name] = val
+
+        data['mod_groups'] = [mod_group.to_json() for mod_group in self.mod_filters]
+
+        filepath = os.path.join(PRESETS_DIR, f'{filename}.json')
+        file.create_directories(filepath)
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(data, f)
+        self._build_preset(filepath)
+
+    def _save_filter(self) -> None:
+        name, ok = QInputDialog.getText(self, 'Input', 'Enter filter name:')
+
+        if ok and name:
+            self._export_preset(name, name)
 
     def _dynamic_build_filters(self) -> None:
         first_filt_widget = self._build_regular_filters()
@@ -746,6 +826,36 @@ class MainWidget(QWidget):
 
     def _name_ui(self) -> None:
         self.clear_button.setText('Clear Filters')
+        self.save_button.setText('Save Current Filter')
+
+    def _build_preset(self, filepath: str) -> None:
+        widget = QWidget()
+        hlayout = QHBoxLayout(widget)
+        label = QLabel(file.get_file_name(filepath))
+        hlayout.addWidget(label)
+
+        button = QPushButton('Load')
+        button.setFixedSize(self.range_size)
+        button.clicked.connect(
+            functools.partial(
+                lambda x: self._load_preset(json.load(open(x, 'rb'))), filepath
+            )
+        )
+        hlayout.addWidget(button)
+        button = QPushButton('Delete')
+        button.setFixedSize(self.range_size)
+        hlayout.addWidget(button)
+
+        hlayout.setContentsMargins(0, 0, 0, 0)
+        self.preset_vlayout.addWidget(widget)
+
+    def _build_presets(self) -> None:
+        jsons = file.get_jsons(PRESETS_DIR)
+        if not jsons:
+            return
+
+        for filepath in jsons:
+            self._build_preset(filepath)
 
     def _copy_item_text(self) -> None:
         """Copies item text to clipboard."""
@@ -807,8 +917,6 @@ class MainWidget(QWidget):
                     signal = widget.textChanged
                 case QComboBox():
                     signal = widget.currentIndexChanged
-                case QCheckBox():
-                    signal = widget.stateChanged
                 case m_filter.InfluenceFilter():
                     signal = widget
 

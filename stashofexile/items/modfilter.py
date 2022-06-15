@@ -4,7 +4,7 @@ Defines mod filter functionality.
 import dataclasses
 import enum
 
-from typing import Callable, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 from PyQt6.QtWidgets import QGroupBox, QLineEdit, QVBoxLayout, QWidget
 
@@ -45,6 +45,19 @@ class ModFilterGroup:
     vlayout: Optional[QVBoxLayout] = None
     min_lineedit: Optional[QLineEdit] = None
     max_lineedit: Optional[QLineEdit] = None
+
+    def to_json(self) -> Dict:
+        """Returns the mod filter group's data in JSON format."""
+        json = {
+            'group_type': self.group_type.value,
+            'mods': [filt.to_json(True) for filt in self.filters],
+        }
+        if self.min_lineedit:
+            json['min'] = self.min_lineedit.text()
+        if self.max_lineedit:
+            json['max'] = self.max_lineedit.text()
+
+        return json
 
 
 def filter_mod(
