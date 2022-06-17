@@ -10,7 +10,7 @@ import os
 import pickle
 import re
 
-from typing import Callable, Dict, List, TYPE_CHECKING, Optional, Set, Tuple
+from typing import Callable, List, TYPE_CHECKING, Optional, Set, Tuple
 
 from PyQt6.QtCore import QItemSelection, QSize, Qt
 from PyQt6.QtGui import QDoubleValidator, QFont, QTextCursor
@@ -28,6 +28,7 @@ from PyQt6.QtWidgets import (
     QLabel,
     QLayout,
     QLineEdit,
+    QMessageBox,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -87,6 +88,12 @@ def _clear_layout(layout: QLayout) -> None:
             widget.deleteLater()
         else:
             _clear_layout(item.layout())
+
+
+def _delete_preset(widget: QWidget, layout: QLayout, filepath: str) -> None:
+    _clear_layout(layout)
+    widget.deleteLater()
+    os.remove(filepath)
 
 
 class MainWidget(QWidget):
@@ -752,9 +759,12 @@ class MainWidget(QWidget):
         if refresh:
             self._apply_filters()
 
-    def _load_preset(self, preset: Dict) -> None:
+    def _load_preset(self, filepath: str) -> None:
         self._clear_all_filters(False)
         self.pause_filter = True
+
+        with open(filepath, 'rb') as f:
+            preset = json.load(f)
 
         filter_data = preset['filters']
         for filt in self.reg_filters:
@@ -828,6 +838,18 @@ class MainWidget(QWidget):
         self.clear_button.setText('Clear Filters')
         self.save_button.setText('Save Current Filter')
 
+    def _confirm_delete_preset(
+        self, widget: QWidget, layout: QLayout, filepath: str
+    ) -> None:
+        confirm = QMessageBox.question(
+            self,
+            'Confirm',
+            'Delete preset?',
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if confirm == QMessageBox.StandardButton.Yes:
+            _delete_preset(widget, layout, filepath)
+
     def _build_preset(self, filepath: str) -> None:
         widget = QWidget()
         hlayout = QHBoxLayout(widget)
@@ -836,14 +858,13 @@ class MainWidget(QWidget):
 
         button = QPushButton('Load')
         button.setFixedSize(self.range_size)
-        button.clicked.connect(
-            functools.partial(
-                lambda x: self._load_preset(json.load(open(x, 'rb'))), filepath
-            )
-        )
+        button.clicked.connect(functools.partial(self._load_preset, filepath))
         hlayout.addWidget(button)
         button = QPushButton('Delete')
         button.setFixedSize(self.range_size)
+        button.clicked.connect(
+            functools.partial(self._confirm_delete_preset, widget, hlayout, filepath)
+        )
         hlayout.addWidget(button)
 
         hlayout.setContentsMargins(0, 0, 0, 0)
