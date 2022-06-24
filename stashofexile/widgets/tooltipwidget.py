@@ -23,6 +23,8 @@ from stashofexile import consts
 if TYPE_CHECKING:
     from stashofexile.widgets import mainwidget
 
+SEPARATOR_DIR = os.path.join(consts.ASSETS_DIR, 'separator')
+
 
 class TooltipWidget(QWidget):
     """Widget for the item tooltip display."""
@@ -89,7 +91,7 @@ class TooltipWidget(QWidget):
 
         # Construct tooltip from sections
         separator = os.path.join(
-            consts.ASSETS_DIR,
+            SEPARATOR_DIR,
             consts.FRAME_TYPES.get(item.rarity, consts.FRAME_TYPES['normal']),
         )
         for i, html in enumerate(sections):

@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from stashofexile import gamedata, log
+from stashofexile import consts, gamedata, log
 from stashofexile.items import item as m_item, socket as m_socket
 from stashofexile.widgets import editcombo
 
@@ -48,8 +48,8 @@ class InfluenceFilter(QWidget):
             influence = QCheckBox()
             influence.stateChanged.connect(self._influence_checked)
             infl = gamedata.INFLUENCES[i]
-            image = f'assets/{infl}.png'
-            image_off = f'assets/{infl}_off.png'
+            image = f'{consts.ITEM_TYPE_SRC}/{infl}.png'
+            image_off = f'{consts.ITEM_TYPE_SRC}/{infl}_off.png'
             influence.setStyleSheet(
                 f'QCheckBox::indicator:checked {{image: url({image})}}'
                 f'QCheckBox::indicator:unchecked {{image: url({image_off})}}'

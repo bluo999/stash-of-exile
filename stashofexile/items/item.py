@@ -28,7 +28,8 @@ BR_REGEX = re.compile(r'<br />')
 CLEAN_REGEX = re.compile(r'<.*?>')
 
 IMAGE_CACHE_DIR = os.path.join(consts.APPDATA_DIR, 'image_cache')
-SOCKET_FILE = os.path.join(consts.ASSETS_DIR, 'Socket{}.png')
+SOCKET_DIR = os.path.join(consts.ASSETS_DIR, 'socket')
+SOCKET_FILE = os.path.join(SOCKET_DIR, 'Socket{}.png')
 
 SOCKET_PX = 47
 LINK_LENGTH = 38
@@ -136,8 +137,8 @@ def _draw_2width_sockets(
     width: int,
 ) -> Tuple[int, int]:
     """Draws sockets and links for a 2 width item."""
-    link_v = QImage(os.path.join(consts.ASSETS_DIR, 'LinkV.png'))
-    link_h = QImage(os.path.join(consts.ASSETS_DIR, 'LinkH.png'))
+    link_v = QImage(os.path.join(SOCKET_DIR, 'LinkV.png'))
+    link_h = QImage(os.path.join(SOCKET_DIR, 'LinkH.png'))
 
     i = 0
     socket_rows = 0
@@ -423,7 +424,9 @@ class Item:
         if self.searing:
             icons.append('searing')
 
-        influence_icons = [f'<img src="assets/{infl}.png" />' for infl in icons]
+        influence_icons = (
+            f'<img src="{consts.ITEM_TYPE_SRC}/{infl}.png" />' for infl in icons
+        )
         return ''.join(influence_icons)
 
     def _get_header_tooltip(self) -> str:
@@ -490,6 +493,7 @@ class Item:
         """For Metamorph samples and Captured beasts."""
         if 'Metamorph' in self.icon or 'BestiaryOrb' in self.icon:
             label = util.colorize('Item Level: ', 'grey')
+            assert self.ilvl is not None
             value = util.colorize(self.ilvl, 'white')
             return label + value
 

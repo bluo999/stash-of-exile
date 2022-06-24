@@ -18,6 +18,7 @@ else:
     app_path = os.path.dirname(os.path.dirname(__file__))
 
 ASSETS_DIR = os.path.join(app_path, 'assets')
+ITEM_TYPE_SRC = 'assets/item_type'
 
 # Milliseconds for status bar to timeout
 STATUS_TIMEOUT = 10000
