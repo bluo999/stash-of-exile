@@ -26,6 +26,7 @@ class Requirement:
 
         if obj['inserted']:
             self.tooltip = name
+            logger.error('Unexpected inserted: %s', self.tooltip)
         else:
             valnum = self.values[0][1]
             val = str(self.values[0][0])

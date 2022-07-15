@@ -62,7 +62,7 @@ class InfluenceFilter(QWidget):
 
     def __repr__(self) -> str:
         if not self.check.isChecked():
-            return 'off'
+            return ''
 
         values = []
         for widget, influence in zip(self.influences, gamedata.INFLUENCES):
@@ -84,11 +84,21 @@ class InfluenceFilter(QWidget):
         if checked == 2:
             self.check.setCheckState(Qt.CheckState.Checked)
 
+    def set_values(self, values: str) -> None:
+        """Checks specific values."""
+        self.check.setChecked(True)
+        if values == 'on':
+            return
+
+        for widget, influence in zip(self.influences, gamedata.INFLUENCES):
+            if influence in values:
+                widget.setChecked(True)
+
     def clear(self) -> None:
         """Clears filter."""
         self.check.setChecked(False)
         for infl in self.influences:
-            infl.setCheckable(False)
+            infl.setChecked(False)
 
     def item_match(self, item: m_item.Item) -> bool:
         """Returns whether an item conforms to the filter's selection."""
@@ -104,9 +114,6 @@ class InfluenceFilter(QWidget):
         for influence in self.influences:
             influence.stateChanged.connect(func)
 
-    def to_json(self) -> str:
-        return ''
-
 
 def get_widget_value(widget: QWidget) -> str:
     """Returns the value of a widget."""
@@ -116,10 +123,24 @@ def get_widget_value(widget: QWidget) -> str:
         case QComboBox():
             return widget.currentText()
         case InfluenceFilter():
-            return widget.to_json()
+            return str(widget)
         case _:
             logger.error('Unexpected widget type %s', widget)
             return ''
+
+
+def _filter_active(widget: QWidget) -> bool:
+    """Determines whether a filter is active (based on widget type)."""
+    match widget:
+        case QLineEdit():
+            return len(widget.text()) > 0
+        case QComboBox():
+            return widget.currentIndex() > 0
+        case InfluenceFilter():
+            return widget.check.isChecked()
+        case _:
+            logger.error('Unexpected widget type %s', type(widget))
+            return False
 
 
 @dataclasses.dataclass
@@ -164,7 +185,7 @@ class Filter:
                 case QComboBox():
                     widget.setCurrentIndex(widget.findText(val))
                 case InfluenceFilter():
-                    widget.clear()
+                    widget.set_values(val)
                 case _:
                     logger.error(
                         'Unexpected widget type %s for filter %s', widget, self.name
@@ -193,6 +214,9 @@ class Filter:
             if (val := get_widget_value(widget)) or include_empty
         ]
 
+    def is_active(self) -> bool:
+        return any(_filter_active(widget) for widget in self.widgets)
+
 
 @dataclasses.dataclass
 class FilterGroup:
@@ -220,20 +244,6 @@ class FilterGroup:
                 json[filt.name] = val
 
         return json
-
-
-def filter_is_active(widget: QWidget) -> bool:
-    """Determines whether a filter is active (based on widget type)."""
-    match widget:
-        case QLineEdit():
-            return len(widget.text()) > 0
-        case QComboBox():
-            return widget.currentIndex() > 0
-        case InfluenceFilter():
-            return widget.check.isChecked()
-        case _:
-            logger.error('Unexpected widget type %s', type(widget))
-            return False
 
 
 def between_filter(  # pylint: disable=too-many-arguments
@@ -272,7 +282,7 @@ def between_filter(  # pylint: disable=too-many-arguments
         # Filter field is blank
         return True
 
-    if field is None or field == default_val:
+    if field == default_val:
         # Field is default value or not set
         return False
 

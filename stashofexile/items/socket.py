@@ -17,6 +17,9 @@ class Socket(enum.Enum):
     A = 4  # Abyssal
     DV = 9  # Resonator
 
+    def __str__(self) -> str:
+        return self.name
+
 
 SocketGroup = List[Socket]
 

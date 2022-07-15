@@ -20,7 +20,7 @@ RARITIES = {
     5: 'currency',
     6: 'divination',
     7: 'quest',
-    8: 'prophecy',
+    # 8: 'prophecy',
     9: 'foil',
 }
 
@@ -102,9 +102,7 @@ COMBO_ITEMS = {
         'Map Fragment',
         'Maven\'s Invitation',
         'Scarab',
-        'Watchstone',
         'Leaguestone',
-        'Prophecy',
         'Divination Card',
         'Captured Beast',
         'Metamorph Sample',
@@ -115,7 +113,6 @@ COMBO_ITEMS = {
         'Resonator',
         'Fossil',
         'Incubator',
-        'Heist',
         'Inscribed Ultimatum',
         'Expedition Logbook',
         'Sentinel',
@@ -143,7 +140,9 @@ ALTERNATE_QUALITIES = COMBO_ITEMS['Gem Quality Type'][-3:]
 
 GEM_CATEGORIES = {'Skill Gem', 'Support Gem'}
 
-PARSE_CATEGORIES = {
+
+# Not a set so cluster jewel gets parsed before jewel
+PARSE_CATEGORIES = [
     'Incubator',
     'Quiver',
     'Amulet',
@@ -156,7 +155,6 @@ PARSE_CATEGORIES = {
     'Map',
     'Maven\'s Invitation',
     'Scarab',
-    'Watchstone',
     'Leaguestone',
     'Contract',
     'Blueprint',
@@ -165,7 +163,7 @@ PARSE_CATEGORIES = {
     'Inscribed Ultimatum',
     'Expedition Logbook',
     'Sentinel',
-}
+]
 
 BASES_FILE = os.path.join(consts.ASSETS_DIR, 'bases.json')
 with open(BASES_FILE, 'rb') as f:

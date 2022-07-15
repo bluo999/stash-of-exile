@@ -76,9 +76,7 @@ def filter_mod(
 
 def _filter_func_group(group: ModFilterGroup) -> Callable[..., bool]:
     """Filter function that determines whether an item fits the group."""
-    filters = [
-        filt for filt in group.filters if m_filter.filter_is_active(filt.widgets[0])
-    ]
+    filters = [filt for filt in group.filters if filt.is_active()]
 
     match group.group_type:
         case ModFilterGroupType.AND:

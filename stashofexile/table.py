@@ -141,11 +141,7 @@ class TableModel(QAbstractTableModel):
                         all_filters.extend(filters)
 
         # Filters that are active
-        active_filters = [
-            filt
-            for filt in all_filters
-            if any(m_filter.filter_is_active(widget) for widget in filt.widgets)
-        ]
+        active_filters = [filt for filt in all_filters if filt.is_active()]
         active_filters.extend(
             modfilter.filter_group(group)
             for group in mod_filters

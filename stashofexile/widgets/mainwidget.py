@@ -55,7 +55,6 @@ class MainWidget(QWidget):
         self.main_window = main_window
         self.item_tabs: List[m_tab.ItemTab] = []
         self.account: Optional[save.Account] = None
-        self.tab_filt: Optional[m_filter.Filter] = None
         self.range_size = QSize()
         self.pause_filter = False
         self._static_build()
@@ -122,8 +121,8 @@ class MainWidget(QWidget):
             items.extend(tab_items)
 
         # Add tab names to tab filter
-        if self.tab_filt is not None:
-            widget = self.tab_filt.widgets[0]
+        if self.filter_widget.tab_filt is not None:
+            widget = self.filter_widget.tab_filt.widgets[0]
             assert isinstance(widget, QComboBox)
             # Remove duplicates
             names = dict.fromkeys(tab.get_tab_name() for tab in self.item_tabs)
@@ -303,8 +302,8 @@ class MainWidget(QWidget):
         self.filter_widget.insert_mods(items)
         self.apply_filters()
 
-        assert self.tab_filt is not None
-        for widget in self.tab_filt.widgets:
+        assert self.filter_widget.tab_filt is not None
+        for widget in self.filter_widget.tab_filt.widgets:
             if isinstance(widget, editcombo.ECBox):
                 widget.addItem(tab.get_tab_name())
 

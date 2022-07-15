@@ -40,11 +40,9 @@ MOD_CATEGORIES = [
     'Flask',
     'Map',
     'Maven\'s Invitation',
-    'Watchstone',
     'Leaguestone',
     'Contract',
     'Blueprint',
-    'Heist',
     'Expedition Logbook',
     'Sentinel',
 ]

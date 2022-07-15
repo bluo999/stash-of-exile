@@ -207,9 +207,9 @@ class Item:
             for r in item_json.get('requirements', [])
         ]
 
-        self.stack_size = item_json.get('stackSize')
-        if self.stack_size and not self.props:
-            self.props.append(m_property.Property('Stack Size', [[self.stack_size, 0]]))
+        stack_size = item_json.get('stackSize')
+        if stack_size and not self.props:
+            self.props.append(m_property.Property('Stack Size', [[stack_size, 0]]))
 
         self.logbook: List[Dict[str, Any]] = item_json.get('logbookMods', [])
         self.implicit = item_json.get('implicitMods', [])
@@ -334,7 +334,7 @@ class Item:
         armour = property_function('Armour')(self)
         self.armour = int(armour) if armour else None
 
-        evasion = property_function('Evasion')(self)
+        evasion = property_function('Evasion Rating')(self)
         self.evasion = int(evasion) if evasion else None
 
         energy_shield = property_function('Energy Shield')(self)
