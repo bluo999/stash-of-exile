@@ -185,3 +185,48 @@ def test_filter_category(example_items: ItemDict, filters: FilterDict):
     combobox.setCurrentIndex(combobox.findText('Bow'))
     assert filt.filter_func(bow, combobox)
     assert not filt.filter_func(wand, combobox)
+
+
+def test_filter_rarity(example_items: ItemDict, filters: FilterDict):
+    combobox = editcombo.ECBox()
+    combobox.addItems(gamedata.COMBO_ITEMS['Rarity'])
+
+    filt = filters['Rarity']
+    filt.widgets.append(combobox)
+
+    oh_sword = example_items['One Handed Sword']
+    sceptre = example_items['Sceptre']
+    helmet = example_items['Helmet']
+    shield = example_items['Shield']
+    warstaff = example_items['Warstaff']
+
+    combobox.setCurrentIndex(combobox.findText('Normal'))
+    assert filt.filter_func(oh_sword, combobox)
+    assert not filt.filter_func(helmet, combobox)
+
+    combobox.setCurrentIndex(combobox.findText('Magic'))
+    assert filt.filter_func(sceptre, combobox)
+    assert not filt.filter_func(helmet, combobox)
+
+    combobox.setCurrentIndex(combobox.findText('Rare'))
+    assert filt.filter_func(helmet, combobox)
+    assert not filt.filter_func(sceptre, combobox)
+
+    combobox.setCurrentIndex(combobox.findText('Unique'))
+    assert filt.filter_func(shield, combobox)
+    assert not filt.filter_func(sceptre, combobox)
+
+    combobox.setCurrentIndex(combobox.findText('Foil'))
+    assert filt.filter_func(warstaff, combobox)
+    assert not filt.filter_func(sceptre, combobox)
+
+    combobox.setCurrentIndex(combobox.findText('Any Non-Unique'))
+    assert filt.filter_func(oh_sword, combobox)
+    assert filt.filter_func(sceptre, combobox)
+    assert filt.filter_func(helmet, combobox)
+    assert not filt.filter_func(shield, combobox)
+    assert not filt.filter_func(warstaff, combobox)
+
+
+# def test_filter_tab(example_items: ItemDict, filters: FilterDict):
+#     for i, in enumerate():
