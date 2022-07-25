@@ -41,6 +41,8 @@ class LoginWidget(QWidget):
         self.saved_data = save.SavedData()
         self.account = None
         self.league = None
+        self.char_list_rcvd = False
+        self.tab_info_rcvd = False
         self._static_build()
         self._dynamic_build()
         self._name_ui()
@@ -247,6 +249,7 @@ class LoginWidget(QWidget):
     def _get_num_tabs_api(self) -> None:
         assert self.account is not None
         assert self.league is not None
+        self.tab_info_rcvd = False
         logger.debug('Getting num tabs')
         api_manager: api.APIManager = self.main_window.api_manager
         api_call = thread.Call(
@@ -268,6 +271,8 @@ class LoginWidget(QWidget):
         assert self.account is not None
         assert self.league is not None
 
+        self.tab_info_rcvd = True
+
         # Save username/poessesid to saved data
         if self.account not in self.saved_data.accounts:
             self.saved_data.accounts.append(self.account)
@@ -280,6 +285,7 @@ class LoginWidget(QWidget):
     def _get_char_list_api(self) -> None:
         assert self.account is not None
         assert self.league is not None
+        self.char_list_rcvd = False
         logger.debug('Getting character list')
         api_manager = self.main_window.api_manager
         api_call = thread.Call(
@@ -303,6 +309,7 @@ class LoginWidget(QWidget):
         assert self.account is not None
         assert self.league is not None
 
+        self.char_list_rcvd = True
         logger.info('Success: %s', char_list)
         self.account.leagues[self.league].character_names = char_list
         self.error_text.setText('')
@@ -313,6 +320,8 @@ class LoginWidget(QWidget):
         assert self.league is not None
         account_league = self.account.leagues[self.league]
         if not account_league.has_characters() or not account_league.has_tabs():
+            return
+        if not self.tab_info_rcvd or not self.char_list_rcvd:
             return
 
         # Switch to tab widget

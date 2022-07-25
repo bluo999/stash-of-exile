@@ -76,9 +76,9 @@ def _get(func):
                         ratelimiting.RateLimit(int(hits), int(period) * 1000)
                     )
                 self.too_many_reqs(rate_limits, retry_after)
-            return (None, f'HTTP Error {e.code} {e.reason}')
+            return (None, f'HTTP Error {e.code} {e.reason} {func.__name__}')
         except urllib.error.URLError as e:
-            return (None, f'URL Error {e.reason}')
+            return (None, f'URL Error {e.reason} {func.__name__}')
 
     return wrapper
 
@@ -107,7 +107,7 @@ class APIManager(thread.ThreadManager):
         """Retrieves number of tabs."""
         logger.info('Sending GET request for num tabs')
         req = _elevated_request(
-            URL_TAB_INFO.format(username, league).replace(' ', '%20'), poesessid
+            URL_TAB_ITEMS.format(username, league, 0).replace(' ', '%20'), poesessid
         )
         with urllib.request.urlopen(req) as response:
             tab_info = json.loads(response.read())

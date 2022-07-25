@@ -22,11 +22,7 @@ from PyQt6.QtWidgets import (
 )
 
 from stashofexile import consts, file, log, save, table
-from stashofexile.items import (
-    filter as m_filter,
-    item as m_item,
-    tab as m_tab,
-)
+from stashofexile.items import item as m_item, tab as m_tab
 from stashofexile.threads import thread
 from stashofexile.widgets import editcombo, filterwidget
 from stashofexile.widgets import tooltipwidget

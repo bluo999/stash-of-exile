@@ -129,8 +129,8 @@ def get_widget_value(widget: QWidget) -> str:
             return ''
 
 
-def _filter_active(widget: QWidget) -> bool:
-    """Determines whether a filter is active (based on widget type)."""
+def _widget_active(widget: QWidget) -> bool:
+    """Determines whether a widget is active."""
     match widget:
         case QLineEdit():
             return len(widget.text()) > 0
@@ -215,7 +215,8 @@ class Filter:
         ]
 
     def is_active(self) -> bool:
-        return any(_filter_active(widget) for widget in self.widgets)
+        """Returns whether the filter is active or not."""
+        return any(_widget_active(widget) for widget in self.widgets)
 
 
 @dataclasses.dataclass
