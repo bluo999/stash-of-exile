@@ -161,6 +161,8 @@ class LoginWidget(QWidget):
 
         self.account = search_account[0]
 
+        self.char_list_rcvd = True
+        self.tab_info_rcvd = True
         self._check_login_success(True)
 
     def _get_leagues_api(self) -> None:
@@ -237,9 +239,11 @@ class LoginWidget(QWidget):
                 self._get_num_tabs_api()
             return
 
-        if self.account.poesessid != poesessid or not account_league.has_tabs():
-            logger.info('POESESSID different or number of tabs was not saved')
+        if self.account.poesessid != poesessid:
+            logger.info('POESESSID different')
             self.account.poesessid = poesessid
+            self.char_list_rcvd = True
+            self.tab_info_rcvd = True
             self._check_login_success()
             return
 
