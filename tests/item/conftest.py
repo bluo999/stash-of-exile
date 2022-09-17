@@ -21,4 +21,5 @@ def fixture_example_items() -> ItemDict:
         items = json.load(f)
     items = [m_item.Item(item, str(i)) for i, item in enumerate(items['items'])]
     categories = gamedata.COMBO_ITEMS['Category']
+    assert len(items) == len(categories), "Test data missing item"
     return {cat: items[categories.index(cat)] for cat in categories}

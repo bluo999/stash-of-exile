@@ -103,6 +103,7 @@ COMBO_ITEMS = {
         'Maven\'s Invitation',
         'Scarab',
         'Leaguestone',
+        'Memory Line',
         'Divination Card',
         'Captured Beast',
         'Metamorph Sample',

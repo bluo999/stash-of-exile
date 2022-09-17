@@ -587,12 +587,14 @@ class Item:
             return 'Amulet'
         if 'Lure' in item_base:
             return 'Scarab'
-        if 'Piece' in item_base:
+        if item_base == 'Ultimatum Aspect' or 'Piece' in item_base:
             return 'Unique Fragment'
         if '\'s Crest' in item_base:
             return 'Map Fragment'
         if item_base == 'Simulacrum':  # Avoid conflict with splinter
             return 'Map Fragment'
+        if 'Memory' in item_base:
+            return 'Memory Line'
         if item_base in (
             'Charged Compass',
             'Fossilised Delirium Orb',  # Conflict: fossil
