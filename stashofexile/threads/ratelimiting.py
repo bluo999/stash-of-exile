@@ -5,15 +5,10 @@ Handles rate limiting for Retrieve Threads.
 import collections
 import dataclasses
 import math
-import time
-
 from datetime import datetime
-from typing import TYPE_CHECKING, List, NamedTuple
+from typing import List, NamedTuple, Optional
 
 from stashofexile import log
-
-if TYPE_CHECKING:
-    from stashofexile.threads.thread import RetrieveThread
 
 logger = log.get_logger(__name__)
 
@@ -56,11 +51,10 @@ class RateQueue(collections.deque):
 class RateLimiter:
     """Rate limiter for a retrieve thread."""
 
-    def __init__(self, rate_limits: List[RateLimit], thread: 'RetrieveThread'):
+    def __init__(self, rate_limits: List[RateLimit]):
         self.queues = [
             RateQueue(rate_limit.hits, rate_limit.period) for rate_limit in rate_limits
         ]
-        self.thread = thread
 
     def update_rate_limits(self, rate_limits: List[RateLimit]) -> None:
         """Update to new rate limits."""
@@ -78,10 +72,13 @@ class RateLimiter:
         for queue in self.queues:
             queue.append(get_time_ms())
 
-    def block_until_ready(self) -> None:
-        """Sleeps until the next API call won't be rejected (if necessary)."""
+    def get_sleep_time(self) -> Optional[int]:
+        """
+        Gets the sleep time such that the next API call won't be rejected. Returns None
+        if not necessary.
+        """
         if all(len(queue) < queue.hits for queue in self.queues):
-            return
+            return None
 
         # Pop excess elements (needed when rate limits change)
         for queue in self.queues:
@@ -96,14 +93,7 @@ class RateLimiter:
             if len(queue) == queue.hits
         )
         sleep_time = max((next_avail_time - get_time_ms()) / 1000, 0.0)
-        if math.isclose(sleep_time, 0.0):
-            return
+        if not math.isclose(sleep_time, 0.0) and sleep_time > 1:
+            return sleep_time
 
-        if sleep_time > 1:
-            message = f'Cooling off API calls for {sleep_time}s'
-            logger.info(message)
-            self.thread.rate_limit(message)
-
-        # TODO: figure out a way to not block so that insert can be called during
-        # this cool off period. Same with retry after.
-        time.sleep(sleep_time)
+        return None

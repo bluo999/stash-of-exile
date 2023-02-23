@@ -4,9 +4,8 @@ Contains image downloading related classes.
 
 import http
 import os
-import urllib.request
 import urllib.error
-
+import urllib.request
 from typing import Tuple
 
 from stashofexile import file, log
@@ -15,11 +14,8 @@ from stashofexile.threads import thread
 logger = log.get_logger(__name__)
 
 
-class DownloadManager(thread.ThreadManager):
-    """Manages downloading images for items."""
-
-    def __init__(self):
-        super().__init__(DownloadThread)
+class DownloadThread(thread.RetrieveThread):
+    """Downloads images for items."""
 
     def get_image(self, icon: str, file_path: str) -> Tuple[None]:
         """Gets an image given item info."""
@@ -40,13 +36,6 @@ class DownloadManager(thread.ThreadManager):
                 logger.error('URL error: %s', e.reason)
 
         return (None,)
-
-
-class DownloadThread(thread.RetrieveThread):
-    """Thread that downloads images."""
-
-    def __init__(self, download_manager: DownloadManager) -> None:
-        super().__init__(download_manager)
 
     def service_success(self, ret: thread.Ret) -> None:
         """Don't do anything for now."""

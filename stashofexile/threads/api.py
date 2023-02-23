@@ -5,9 +5,8 @@ Contains API related classes.
 import functools
 import http
 import json
-import urllib.request
 import urllib.error
-
+import urllib.request
 from typing import Any, List, Tuple
 
 from PyQt6.QtCore import pyqtSignal
@@ -58,9 +57,9 @@ def _get(func):
 
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs) -> Tuple:
-        assert isinstance(self, APIManager)
+        assert isinstance(self, APIThread)
         try:
-            return (func(self, *args, **kwargs), '')
+            ret = (func(self, *args, **kwargs), '')
         except urllib.error.HTTPError as e:
             if e.code == http.HTTPStatus.TOO_MANY_REQUESTS:
                 rules = e.headers.get('X-Rate-Limit-Rules').split(',')
@@ -76,20 +75,31 @@ def _get(func):
                         ratelimiting.RateLimit(int(hits), int(period) * 1000)
                     )
                 self.too_many_reqs(rate_limits, retry_after)
-            return (None, f'HTTP Error {e.code} {e.reason} {func.__name__}')
+            ret = (None, f'HTTP Error {e.code} {e.reason} {func.__name__}')
         except urllib.error.URLError as e:
-            return (None, f'URL Error {e.reason} {func.__name__}')
+            ret = (None, f'URL Error {e.reason} {func.__name__}')
+
+        return ret
 
     return wrapper
 
 
-class APIManager(thread.ThreadManager):
-    """Manages sending official API calls."""
+class APIThread(thread.RetrieveThread):
+    """Thread that handles API calls."""
 
-    def __init__(self):
-        super().__init__(APIThread)
-        # Guarantee type to be APIThread
-        self.thread: APIThread = self.thread
+    output = pyqtSignal(thread.Ret)
+    status_output = pyqtSignal(str)
+
+    def __init__(self) -> None:
+        super().__init__(ratelimiting.RateLimiter(RATE_LIMITS))
+
+    def service_success(self, ret: thread.Ret) -> None:
+        """Emits the API output."""
+        self.output.emit(ret)
+
+    def rate_limit(self, message: str) -> None:
+        """Emits status update."""
+        self.status_output.emit(message)
 
     @_get
     def get_leagues(self) -> List[str]:  # pylint: disable=no-self-use
@@ -174,21 +184,3 @@ class APIManager(thread.ThreadManager):
         with urllib.request.urlopen(req) as response:
             encoding = response.info().get_param('charset', 'utf-8')
             return response.read().decode(encoding)
-
-
-class APIThread(thread.RetrieveThread):
-    """Thread that handles API calls."""
-
-    output = pyqtSignal(thread.Ret)
-    status_output = pyqtSignal(str)
-
-    def __init__(self, api_manager: APIManager) -> None:
-        super().__init__(api_manager, ratelimiting.RateLimiter(RATE_LIMITS, self))
-
-    def service_success(self, ret: thread.Ret) -> None:
-        """Emits the API output."""
-        self.output.emit(ret)
-
-    def rate_limit(self, message: str) -> None:
-        """Emits status update."""
-        self.status_output.emit(message)

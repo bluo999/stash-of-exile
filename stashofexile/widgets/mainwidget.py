@@ -6,8 +6,7 @@ import dataclasses
 import json
 import os
 import re
-
-from typing import List, TYPE_CHECKING, Optional, Set, Tuple
+from typing import TYPE_CHECKING, List, Optional, Set, Tuple
 
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import (
@@ -22,10 +21,10 @@ from PyQt6.QtWidgets import (
 )
 
 from stashofexile import consts, file, log, save, table
-from stashofexile.items import item as m_item, tab as m_tab
+from stashofexile.items import item as m_item
+from stashofexile.items import tab as m_tab
 from stashofexile.threads import thread
-from stashofexile.widgets import editcombo, filterwidget
-from stashofexile.widgets import tooltipwidget
+from stashofexile.widgets import editcombo, filterwidget, tooltipwidget
 
 if TYPE_CHECKING:
     from stashofexile import mainwindow
@@ -108,7 +107,7 @@ class MainWidget(QWidget):
 
     def _build_table(self) -> None:
         # Gets items and icons
-        download_manager = self.main_window.download_manager
+        download_thread = self.main_window.download_thread
         items: List[m_item.Item] = []
         icons: Set[Tuple[str, str]] = set()
         for tab in self.item_tabs:
@@ -127,8 +126,8 @@ class MainWidget(QWidget):
         self.filter_widget.insert_mods(items)
 
         # Download item icons
-        download_manager.insert(
-            thread.Call(download_manager.get_image, icon, None) for icon in icons
+        download_thread.insert(
+            thread.Call(download_thread.get_image, icon, None) for icon in icons
         )
 
         logger.debug('Cached tabs: %s, items: %s', len(self.item_tabs), len(items))
@@ -175,7 +174,7 @@ class MainWidget(QWidget):
         if not force_refresh:
             logger.debug('Begin checking cache')
 
-        api_manager = self.main_window.api_manager
+        api_thread = self.main_window.api_thread
         api_calls: List[thread.Call] = []
 
         # Queue stash tab API calls
@@ -194,7 +193,7 @@ class MainWidget(QWidget):
             if cached:
                 continue
             api_call = thread.Call(
-                api_manager.get_tab_items,
+                api_thread.get_tab_items,
                 (self.account.username, self.account.poesessid, league, tab_num),
                 self,
                 self._get_tab_callback,
@@ -218,7 +217,7 @@ class MainWidget(QWidget):
             if cached:
                 continue
             api_call = thread.Call(
-                api_manager.get_character_items,
+                api_thread.get_character_items,
                 (self.account.username, self.account.poesessid, char),
                 self,
                 self._get_tab_callback,
@@ -242,7 +241,7 @@ class MainWidget(QWidget):
             if cached:
                 continue
             api_call = thread.Call(
-                api_manager.get_character_jewels,
+                api_thread.get_character_jewels,
                 (self.account.username, self.account.poesessid, char),
                 self,
                 self._get_tab_callback,
@@ -268,7 +267,7 @@ class MainWidget(QWidget):
                     continue
                 api_calls.append(
                     thread.Call(
-                        api_manager.get_unique_subtab,
+                        api_thread.get_unique_subtab,
                         (
                             self.account.username,
                             self.account.leagues[league].uid,
@@ -280,17 +279,17 @@ class MainWidget(QWidget):
                     )
                 )
 
-        api_manager.insert(api_calls)
+        api_thread.insert(api_calls)
 
     def _on_receive_tab(self, tab: m_tab.ItemTab) -> None:
         items = tab.get_items()
 
         # Queue image downloading
         icons: Set[Tuple[str, str]] = set()
-        download_manager = self.main_window.download_manager
+        download_thread = self.main_window.download_thread
         icons.update((item.icon, item.file_path) for item in items)
-        download_manager.insert(
-            thread.Call(download_manager.get_image, icon, None) for icon in icons
+        download_thread.insert(
+            thread.Call(download_thread.get_image, icon, None) for icon in icons
         )
 
         # Insert items into model

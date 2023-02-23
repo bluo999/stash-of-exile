@@ -4,7 +4,6 @@ Handles league retrieving and login sequence.
 
 import os
 import pickle
-
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from PyQt6.QtCore import QSize, Qt
@@ -167,9 +166,9 @@ class LoginWidget(QWidget):
 
     def _get_leagues_api(self) -> None:
         logger.debug('Getting leagues')
-        api_manager = self.main_window.api_manager
-        api_manager.insert(
-            [thread.Call(api_manager.get_leagues, (), self, self._get_leagues_callback)]
+        api_thread = self.main_window.api_thread
+        api_thread.insert(
+            [thread.Call(api_thread.get_leagues, (), self, self._get_leagues_callback)]
         )
 
     def _get_leagues_callback(
@@ -255,14 +254,14 @@ class LoginWidget(QWidget):
         assert self.league is not None
         self.tab_info_rcvd = False
         logger.debug('Getting num tabs')
-        api_manager: api.APIManager = self.main_window.api_manager
+        api_thread: api.APIThread = self.main_window.api_thread
         api_call = thread.Call(
-            api_manager.get_tab_info,
+            api_thread.get_tab_info,
             (self.account.username, self.account.poesessid, self.league),
             self,
             self._get_tab_info_callback,
         )
-        api_manager.insert([api_call])
+        api_thread.insert([api_call])
 
     def _get_tab_info_callback(
         self, tab_info: Optional[Dict[str, Any]], err_message: str = ''
@@ -291,14 +290,14 @@ class LoginWidget(QWidget):
         assert self.league is not None
         self.char_list_rcvd = False
         logger.debug('Getting character list')
-        api_manager = self.main_window.api_manager
+        api_thread = self.main_window.api_thread
         api_call = thread.Call(
-            api_manager.get_character_list,
+            api_thread.get_character_list,
             (self.account.poesessid, self.league),
             self,
             self._get_char_list_callback,
         )
-        api_manager.insert([api_call])
+        api_thread.insert([api_call])
 
     def _get_char_list_callback(
         self, char_list: Optional[List[str]], err_message: str = ''

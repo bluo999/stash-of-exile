@@ -5,17 +5,15 @@ Threads used in the application.
 import abc
 import collections
 import dataclasses
-import time
 import threading
-
-from typing import Callable, Deque, Iterable, List, Optional, Tuple, Type
+import time
+from typing import Callable, Deque, Iterable, List, NamedTuple, Optional, Tuple, Type
 
 from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QWidget
 
 from stashofexile import log
 from stashofexile.threads import ratelimiting
-
 
 logger = log.get_logger(__name__)
 
@@ -48,31 +46,36 @@ class KillThread:
 Action = Call | ratelimiting.TooManyReq | KillThread
 
 
-class ThreadManager(abc.ABC):
+class QThreadABCMeta(type(QThread), type(abc.ABC)):
+    """Final metatype for QThread and ABC."""
+
+
+class RetrieveThread(QThread, abc.ABC, metaclass=QThreadABCMeta):
     """
-    Manager for a thread. Handles consuming messages from a queue, serving these
-    calls and sending results to some callback.
+    QThread that will retrieve from some service. Consumes messages from a
+    queue, serving these calls and sending results to some callback.
     """
 
-    def __init__(self, thread_type: Type['RetrieveThread']):
+    def __init__(self, rate_limiter: Optional[ratelimiting.RateLimiter] = None) -> None:
+        super().__init__()
         self.queue: Deque[Action] = collections.deque()
         self.cond = threading.Condition()
         self.last_call: Optional[Call] = None
-        self.thread = thread_type(self)
-        self.thread.start()
+        self.rate_limiter = rate_limiter
+        self.start()
 
     def kill_thread(self) -> None:
-        """Kills the API thread."""
+        """KIlls the thread."""
         self.cond.acquire()
         self.queue.appendleft(KillThread())
         self.cond.notify()
         self.cond.release()
-        self.thread.wait()
+        self.wait()
 
     def too_many_reqs(
         self, rate_limits: List[ratelimiting.RateLimit], retry_after: int = 0
     ) -> None:
-        """Updates the rate limits based on the string from response headers."""
+        """Updates the rate limits based on a new set of rate limits."""
         self.cond.acquire()
         self.queue.appendleft(ratelimiting.TooManyReq(rate_limits, retry_after))
         self.cond.notify()
@@ -86,7 +89,7 @@ class ThreadManager(abc.ABC):
         self.cond.release()
 
     def retry_last(self) -> None:
-        """Inserts the last API call popped into the front of the API queue."""
+        """Inserts the last call popped into the front of the queue."""
         if self.last_call is None:
             return
         self.cond.acquire()
@@ -105,40 +108,32 @@ class ThreadManager(abc.ABC):
         if isinstance(ret, (KillThread, ratelimiting.TooManyReq)):
             return ret
 
-        # Process api method and store its result
-        self.last_call = ret
-        api_result = self.__getattribute__(ret.service_method.__name__)(
+        # Process call and store its result
+        call_result = self.__getattribute__(ret.service_method.__name__)(
             *ret.service_args
         )
-
         self.cond.release()
-        return Ret(ret.cb_obj, ret.cb, ret.cb_args, api_result)
+        return Ret(ret.cb_obj, ret.cb, ret.cb_args, call_result)
 
-
-class QThreadABCMeta(type(QThread), type(abc.ABC)):
-    """Final metatype for QThread and ABC."""
-
-
-class RetrieveThread(QThread, abc.ABC, metaclass=QThreadABCMeta):
-    """QThread that will retrieve from some service."""
-
-    def __init__(
-        self,
-        thread_manager: ThreadManager,
-        rate_limiter: Optional[ratelimiting.RateLimiter] = None,
-    ) -> None:
-        super().__init__()
-        self.thread_manager = thread_manager
-        self.rate_limiter = rate_limiter
+    def sleep(self, sleep_time: int) -> None:
+        """Display warning trigger rate_limit callback, and sleep."""
+        message = f'Hit rate limit, sleeping for {sleep_time}s'
+        logger.warning(message)
+        self.rate_limit(message)
+        time.sleep(sleep_time)
 
     def run(self) -> None:
         """Runs the thread."""
         while True:
             # Block and wait if there is a rate limiter
             if self.rate_limiter is not None:
-                self.rate_limiter.block_until_ready()
+                sleep_time = self.rate_limiter.get_sleep_time()
+                if sleep_time is not None:
+                    self.sleep(sleep_time)
+                    continue
+
             # Consume queue element (blocking if empty)
-            ret = self.thread_manager.consume()
+            ret = self.consume()
 
             # Add timestamp if there is a rate limiter
             if self.rate_limiter is not None:
@@ -150,15 +145,12 @@ class RetrieveThread(QThread, abc.ABC, metaclass=QThreadABCMeta):
 
             if isinstance(ret, ratelimiting.TooManyReq):
                 if self.rate_limiter is None:
-                    logger.error('Service received too many requests, exiting service')
+                    logger.error('Service received too many requests, exiting')
                     break
 
                 self.rate_limiter.update_rate_limits(ret.rate_limits)
-                self.thread_manager.retry_last()
-                message = f'Hit rate limit, sleeping for {ret.retry_after}s'
-                logger.warning(message)
-                self.rate_limit(message)
-                time.sleep(ret.retry_after)
+                self.retry_last()
+                self.sleep(ret.retry_after)
                 continue
 
             self.service_success(ret)
@@ -169,5 +161,5 @@ class RetrieveThread(QThread, abc.ABC, metaclass=QThreadABCMeta):
         """Callback for a successful service."""
 
     @abc.abstractmethod
-    def rate_limit(self, message: str) -> None:
-        """Callback for hitting ratelimit."""
+    def rate_limit(self, message: Ret) -> None:
+        """Callback for hitting rate limit."""

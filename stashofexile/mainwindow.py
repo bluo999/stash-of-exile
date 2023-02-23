@@ -4,7 +4,6 @@ Handles creation of widgets, status bar, and some initial setup.
 
 import os
 import sys
-
 from typing import List
 
 from PyQt6.QtCore import Qt
@@ -20,7 +19,7 @@ from PyQt6.QtWidgets import (
 
 from stashofexile import consts, log
 from stashofexile.threads import api, download, thread
-from stashofexile.widgets import loginwidget, tabswidget, mainwidget
+from stashofexile.widgets import loginwidget, mainwidget, tabswidget
 
 logger = log.get_logger(__name__)
 
@@ -65,12 +64,12 @@ class MainWindow(QMainWindow):
         self.central_layout = QVBoxLayout(self.center_widget)
 
         # Start API thread
-        self.api_manager = api.APIManager()
-        self.api_manager.thread.output.connect(MainWindow.callback)
-        self.api_manager.thread.status_output.connect(self.update_status)
+        self.api_thread = api.APIThread()
+        self.api_thread.output.connect(MainWindow.callback)
+        self.api_thread.status_output.connect(self.update_status)
 
         # Start download thread
-        self.download_manager = download.DownloadManager()
+        self.download_thread = download.DownloadThread()
 
         # Initialize (and build) widgets
         self.login_widget = loginwidget.LoginWidget(self)
@@ -94,7 +93,7 @@ class MainWindow(QMainWindow):
         # Default to login widget on start
         self.switch_widget(self.login_widget)
 
-    def closeEvent(  # pylint: disable=invalid-name,no-self-use
+    def closeEvent(  # pylint: disable=invalid-name
         self, _: QCloseEvent
     ) -> None:
         """Exits the application."""
