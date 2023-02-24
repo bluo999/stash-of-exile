@@ -4625,6 +4625,42 @@
             "verified": false,
             "w": 1,
             "h": 2,
+            "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmVsaWNzLzJQbGF5ZXJSZWxpYyIsInciOjEsImgiOjIsInNjYWxlIjoxfV0/e231bce229/2PlayerRelic.png",
+            "league": "Sanctum",
+            "id": "443162bdc8d67aa0c9881a4f1c0066633f84c3cce70e925fd30c5cb6d92101a6",
+            "name": "",
+            "typeLine": "Aiming Sanctified Relic",
+            "baseType": "Sanctified Relic",
+            "identified": true,
+            "ilvl": 85,
+            "lockedToAccount": true,
+            "unmodifiable": true,
+            "requirements": [
+                {
+                    "name": "Level",
+                    "values": [
+                        [
+                            "60",
+                            0
+                        ]
+                    ],
+                    "displayMode": 0,
+                    "type": 62
+                }
+            ],
+            "explicitMods": [
+                "18% increased Global Accuracy Rating"
+            ],
+            "descrText": "Place this item on the Relic Altar to affect your character",
+            "frameType": 1,
+            "x": 1,
+            "y": 4,
+            "inventoryId": "Stash1"
+        },
+        {
+            "verified": false,
+            "w": 1,
+            "h": 2,
             "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUXVlc3RJdGVtcy9MYW50ZXJuIiwidyI6MSwiaCI6Miwic2NhbGUiOjF9XQ/bbbf315603/Lantern.png",
             "league": "Sentinel",
             "id": "fe3fcf08619c86f41c48d6c3dfec5eb4a5b7c3ab9e67f57ea979b548cbee68da",

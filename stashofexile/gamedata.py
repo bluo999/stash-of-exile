@@ -117,6 +117,7 @@ COMBO_ITEMS = {
         'Inscribed Ultimatum',
         'Expedition Logbook',
         'Sentinel',
+        'Relic',
         'Quest',
     ],
     'Character Class': [
@@ -164,6 +165,7 @@ PARSE_CATEGORIES = [
     'Inscribed Ultimatum',
     'Expedition Logbook',
     'Sentinel',
+    'Relic',
 ]
 
 BASES_FILE = os.path.join(consts.ASSETS_DIR, 'bases.json')
