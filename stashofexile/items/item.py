@@ -358,7 +358,7 @@ class Item:
         self.num_sockets = len(self.sockets)
 
         self.num_links = (
-            max([len(socket_group) for socket_group in self.socket_groups])
+            max(len(socket_group) for socket_group in self.socket_groups)
             if self.has_sockets()
             else 0
         )

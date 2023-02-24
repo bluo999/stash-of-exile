@@ -7,7 +7,7 @@ import collections
 import dataclasses
 import threading
 import time
-from typing import Callable, Deque, Iterable, List, NamedTuple, Optional, Tuple, Type
+from typing import Callable, Deque, Iterable, List, Optional, Tuple
 
 from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QWidget
@@ -46,11 +46,7 @@ class KillThread:
 Action = Call | ratelimiting.TooManyReq | KillThread
 
 
-class QThreadABCMeta(type(QThread), type(abc.ABC)):
-    """Final metatype for QThread and ABC."""
-
-
-class RetrieveThread(QThread, abc.ABC, metaclass=QThreadABCMeta):
+class RetrieveThread(QThread):
     """
     QThread that will retrieve from some service. Consumes messages from a
     queue, serving these calls and sending results to some callback.
@@ -109,9 +105,7 @@ class RetrieveThread(QThread, abc.ABC, metaclass=QThreadABCMeta):
             return ret
 
         # Process call and store its result
-        call_result = self.__getattribute__(ret.service_method.__name__)(
-            *ret.service_args
-        )
+        call_result = getattr(self, ret.service_method.__name__)(*ret.service_args)
         self.cond.release()
         return Ret(ret.cb_obj, ret.cb, ret.cb_args, call_result)
 

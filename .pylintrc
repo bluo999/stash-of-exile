@@ -14,7 +14,7 @@ ignore=CVS
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
-ignore-patterns=test_.*?py
+ignore-patterns=tests/**/*.py
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
@@ -512,5 +512,5 @@ valid-metaclass-classmethod-first-arg=cls
 
 # Exceptions that will emit a warning when being caught. Defaults to
 # "BaseException, Exception".
-overgeneral-exceptions=BaseException,
-                       Exception
+overgeneral-exceptions=builtins.BaseException,
+                       builtins.Exception

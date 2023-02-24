@@ -93,9 +93,7 @@ class MainWindow(QMainWindow):
         # Default to login widget on start
         self.switch_widget(self.login_widget)
 
-    def closeEvent(  # pylint: disable=invalid-name
-        self, _: QCloseEvent
-    ) -> None:
+    def closeEvent(self, _: QCloseEvent) -> None:  # pylint: disable=invalid-name
         """Exits the application."""
         logger.info('Stash of Exile exiting')
         sys.exit()

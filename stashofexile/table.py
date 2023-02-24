@@ -54,7 +54,7 @@ class TableModel(QAbstractTableModel):
         """Returns the current number of current rows (excluding filtered)."""
         return len(self.current_items)
 
-    def columnCount(  # pylint: disable=invalid-name,unused-argument,no-self-use
+    def columnCount(  # pylint: disable=invalid-name,unused-argument
         self, parent: QModelIndex
     ) -> int:
         """Returns the number of columns / properties."""

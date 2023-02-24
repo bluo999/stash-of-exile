@@ -102,7 +102,7 @@ class APIThread(thread.RetrieveThread):
         self.status_output.emit(message)
 
     @_get
-    def get_leagues(self) -> List[str]:  # pylint: disable=no-self-use
+    def get_leagues(self) -> List[str]:
         """Retrieves current leagues."""
         logger.info('Sending GET request for leagues')
         req = urllib.request.Request(URL_LEAGUES, headers=HEADERS)
@@ -111,9 +111,7 @@ class APIThread(thread.RetrieveThread):
             return [league['id'] for league in leagues]
 
     @_get
-    def get_tab_info(  # pylint: disable=no-self-use
-        self, username: str, poesessid: str, league: str
-    ) -> Any:
+    def get_tab_info(self, username: str, poesessid: str, league: str) -> Any:
         """Retrieves number of tabs."""
         logger.info('Sending GET request for num tabs')
         req = _elevated_request(
@@ -124,7 +122,7 @@ class APIThread(thread.RetrieveThread):
             return tab_info
 
     @_get
-    def get_tab_items(  # pylint: disable=no-self-use
+    def get_tab_items(
         self, username: str, poesessid: str, league: str, tab_index: int
     ) -> Any:
         """Retrieves items from a specific tab."""
@@ -138,9 +136,7 @@ class APIThread(thread.RetrieveThread):
             return tab
 
     @_get
-    def get_character_list(  # pylint: disable=no-self-use
-        self, poesessid: str, league: str
-    ) -> List[str]:
+    def get_character_list(self, poesessid: str, league: str) -> List[str]:
         """Retrieves character list."""
         logger.info('Sending GET request for characters')
         req = _elevated_request(URL_CHARACTERS, poesessid)
@@ -149,9 +145,7 @@ class APIThread(thread.RetrieveThread):
             return [char['name'] for char in char_info if char['league'] == league]
 
     @_get
-    def get_character_items(  # pylint: disable=no-self-use
-        self, username: str, poesessid: str, character: str
-    ) -> Any:
+    def get_character_items(self, username: str, poesessid: str, character: str) -> Any:
         """Retrieves character list."""
         logger.info('Sending GET request for character %s', character)
         req = _elevated_request(URL_CHAR_ITEMS.format(username, character), poesessid)
@@ -160,7 +154,7 @@ class APIThread(thread.RetrieveThread):
             return char
 
     @_get
-    def get_character_jewels(  # pylint: disable=no-self-use
+    def get_character_jewels(
         self, username: str, poesessid: str, character: str
     ) -> Any:
         """Retrieves socketed jewels in a character."""
@@ -171,9 +165,7 @@ class APIThread(thread.RetrieveThread):
             return tree
 
     @_get
-    def get_unique_subtab(  # pylint: disable=no-self-use
-        self, username: str, uid: str, tab_index: int
-    ) -> Any:
+    def get_unique_subtab(self, username: str, uid: str, tab_index: int) -> Any:
         """Retrieves items from unique subtab."""
         req = urllib.request.Request(
             URL_UNIQUE.format(username, uid, tab_index), headers=HEADERS
