@@ -39,7 +39,7 @@ URL_UNIQUE = 'https://www.pathofexile.com/account/view-stash/{}/{}/{}'
 
 
 # Default rate limit values (hits, period (in ms))
-RATE_LIMITS = [ratelimiting.RateLimit(45, 60000), ratelimiting.RateLimit(240, 240000)]
+RATE_LIMITS = [ratelimiting.RateLimit(30, 60000), ratelimiting.RateLimit(100, 1800000)]
 
 
 def _elevated_request(url: str, poesessid: str) -> urllib.request.Request:

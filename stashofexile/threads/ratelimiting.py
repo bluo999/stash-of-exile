@@ -92,8 +92,8 @@ class RateLimiter:
             for queue in self.queues
             if len(queue) == queue.hits
         )
-        sleep_time = max((next_avail_time - get_time_ms()) / 1000, 0.0)
-        if not math.isclose(sleep_time, 0.0) and sleep_time > 1:
+        sleep_time = max(round((next_avail_time - get_time_ms()) / 1000), 0)
+        if sleep_time > 0:
             return sleep_time
 
         return None
