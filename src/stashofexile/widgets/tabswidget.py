@@ -4,7 +4,6 @@ Defines a tab widget to select tabs and characters.
 
 import pickle
 import re
-
 from typing import TYPE_CHECKING, List, Optional
 
 from PyQt6.QtCore import QSize, Qt

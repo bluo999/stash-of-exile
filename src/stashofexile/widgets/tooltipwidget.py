@@ -3,17 +3,16 @@ Handles tooltip display of items.
 """
 
 import os
-
 from typing import TYPE_CHECKING
 
-from PyQt6.QtCore import Qt, QItemSelection
+from PyQt6.QtCore import QItemSelection, Qt
 from PyQt6.QtGui import QFont, QTextCursor
 from PyQt6.QtWidgets import (
     QApplication,
     QFrame,
-    QTextEdit,
     QLabel,
     QPushButton,
+    QTextEdit,
     QVBoxLayout,
     QWidget,
 )

@@ -4,7 +4,6 @@ File functions.
 
 import os
 import pathlib
-
 from typing import Generator, Optional
 
 

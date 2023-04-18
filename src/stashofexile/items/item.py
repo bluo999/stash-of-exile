@@ -7,14 +7,15 @@ Defines Item class, responsible for:
 
 import os
 import re
-
 from typing import Any, Callable, Dict, List, NamedTuple, Tuple
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QImage, QPainter, QPixmap
 
 from stashofexile import consts, gamedata, log, util
-from stashofexile.items import property as m_property, requirement, socket as m_socket
+from stashofexile.items import property as m_property
+from stashofexile.items import requirement
+from stashofexile.items import socket as m_socket
 
 logger = log.get_logger(__name__)
 

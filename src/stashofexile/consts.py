@@ -4,6 +4,7 @@ Constants that do not involve game data (found in gamedata.py).
 
 import os
 import sys
+import importlib.resources
 
 from PyQt6.QtCore import QSettings
 
@@ -15,7 +16,7 @@ VERSION = '0.3.0'
 if getattr(sys, 'frozen', False):
     app_path = os.path.dirname(sys.executable)
 else:
-    app_path = os.path.dirname(os.path.dirname(__file__))
+    app_path = importlib.resources.files(__package__)
 
 ASSETS_DIR = os.path.join(app_path, 'assets')
 ITEM_TYPE_SRC = 'assets/item_type'

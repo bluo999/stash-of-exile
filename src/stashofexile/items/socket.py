@@ -3,7 +3,6 @@ Defines item sockets and groups.
 """
 
 import enum
-
 from typing import Any, Dict, List, Optional
 
 

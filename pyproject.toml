@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "stash-of-exile"
+version = "0.4.0"
+description = ""
+authors = ["Brian Luo <brianluo999@gmail.com>"]
+packages = [{ include = "stashofexile", from = "src" }]
+
+[tool.poetry.scripts]
+stash-of-exile = "stashofexile.app:main"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+PyQt6 = "^6.5.0"
+
+[tool.poetry.dev-dependencies]
+black = "^23.3.0"
+isort = "^5.12.0"
+pytest = "^7.3.1"
+pytest-qt = "^4.2.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
