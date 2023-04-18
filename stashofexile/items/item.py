@@ -220,6 +220,7 @@ class Item:
         self.crafted = item_json.get('craftedMods', [])
         self.veiled = ['Veiled ' + mod[:-2] for mod in item_json.get('veiledMods', [])]
         self.enchanted = item_json.get('enchantMods', [])
+        self.crucible = item_json.get('crucibleMods', [])
         self.cosmetic = item_json.get('cosmeticMods', [])
 
         self.incubator = item_json.get('incubatedItem')
@@ -721,6 +722,7 @@ class Item:
                         Tag('Unmodifiable', 'magic', self.unmodifiable),
                     ]
                 ),
+                _list_mods([ModGroup(self.crucible, 'scourged')]),
                 self._get_additional_tooltip(),
                 _list_mods([ModGroup(self.cosmetic, 'currency')]),
                 self._get_incubator_tooltip(),

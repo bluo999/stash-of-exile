@@ -466,6 +466,9 @@ FILTERS: List[Filter | FilterGroup] = [
             Filter('Gem Level', QLineEdit, _duo(lambda i: i.gem_lvl, int), IV),
             Filter('Gem Experience %', QLineEdit, _duo(lambda i: i.gem_exp, float), DV),
             Filter('Gem Quality Type', editcombo.ECBox, _filter_gem_quality),
+            Filter(
+                'Crucible', editcombo.BoolECBox, _bool(lambda i: len(i.crucible) > 0)
+            ),
             Filter('Fractured', editcombo.BoolECBox, _bool(lambda i: i.fractured_tag)),
             Filter('Synthesised', editcombo.BoolECBox, _bool(lambda i: i.synthesised)),
             Filter('Searing Exarch', editcombo.BoolECBox, _bool(lambda i: i.searing)),

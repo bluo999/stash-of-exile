@@ -82,6 +82,7 @@ class ModDb(dict):
                 item.explicit,
                 item.crafted,
                 item.enchanted,
+                item.crucible,
             )
             for mod_group in mod_groups:
                 for mod_str in mod_group:
