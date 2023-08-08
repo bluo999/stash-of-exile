@@ -2,9 +2,9 @@
 Constants that do not involve game data (found in gamedata.py).
 """
 
+import importlib.resources
 import os
 import sys
-import importlib.resources
 
 from PyQt6.QtCore import QSettings
 

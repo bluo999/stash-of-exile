@@ -7,17 +7,9 @@ import re
 from typing import TYPE_CHECKING, List, Optional
 
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtWidgets import (
-    QGroupBox,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QTreeWidget,
-    QTreeWidgetItem,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt6.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QLineEdit,
+                             QPushButton, QTreeWidget, QTreeWidgetItem,
+                             QVBoxLayout, QWidget)
 
 from stashofexile import gamedata, log, save
 from stashofexile.widgets import loginwidget

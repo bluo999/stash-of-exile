@@ -3,19 +3,13 @@ Defines Filter class and filter functions for each item filter.
 """
 import dataclasses
 import os
-from typing import Callable, Dict, List, Optional, Type
 from pathlib import Path
+from typing import Callable, Dict, List, Optional, Type
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QDoubleValidator, QIntValidator, QValidator
-from PyQt6.QtWidgets import (
-    QCheckBox,
-    QComboBox,
-    QGroupBox,
-    QHBoxLayout,
-    QLineEdit,
-    QWidget,
-)
+from PyQt6.QtWidgets import (QCheckBox, QComboBox, QGroupBox, QHBoxLayout,
+                             QLineEdit, QWidget)
 
 from stashofexile import consts, gamedata, log
 from stashofexile.items import item as m_item

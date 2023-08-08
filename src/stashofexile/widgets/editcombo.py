@@ -6,7 +6,8 @@ from typing import Optional
 
 from PyQt6 import QtGui
 from PyQt6.QtCore import QAbstractItemModel, Qt
-from PyQt6.QtWidgets import QComboBox, QCompleter, QLineEdit, QListView, QWidget
+from PyQt6.QtWidgets import (QComboBox, QCompleter, QLineEdit, QListView,
+                             QWidget)
 
 
 class ClickLineEdit(QLineEdit):

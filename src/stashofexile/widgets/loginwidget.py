@@ -7,17 +7,9 @@ import pickle
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtWidgets import (
-    QComboBox,
-    QFormLayout,
-    QGroupBox,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt6.QtWidgets import (QComboBox, QFormLayout, QGroupBox, QHBoxLayout,
+                             QLabel, QLineEdit, QPushButton, QVBoxLayout,
+                             QWidget)
 
 from stashofexile import consts, log, save
 from stashofexile.threads import api, thread

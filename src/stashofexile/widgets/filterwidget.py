@@ -11,24 +11,10 @@ from typing import TYPE_CHECKING, Callable, List, Optional, Tuple
 
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QDoubleValidator
-from PyQt6.QtWidgets import (
-    QComboBox,
-    QFormLayout,
-    QFrame,
-    QGroupBox,
-    QHBoxLayout,
-    QInputDialog,
-    QLabel,
-    QLayout,
-    QLineEdit,
-    QMessageBox,
-    QPushButton,
-    QScrollArea,
-    QSizePolicy,
-    QTabWidget,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt6.QtWidgets import (QComboBox, QFormLayout, QFrame, QGroupBox,
+                             QHBoxLayout, QInputDialog, QLabel, QLayout,
+                             QLineEdit, QMessageBox, QPushButton, QScrollArea,
+                             QSizePolicy, QTabWidget, QVBoxLayout, QWidget)
 
 from stashofexile import consts, file, gamedata, log
 from stashofexile.items import filter as m_filter

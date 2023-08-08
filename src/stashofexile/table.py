@@ -4,7 +4,8 @@ Defines the custom table used to disable items.
 
 from typing import Callable, Dict, List
 
-from PyQt6.QtCore import QAbstractTableModel, QModelIndex, QObject, Qt, QVariant
+from PyQt6.QtCore import (QAbstractTableModel, QModelIndex, QObject, Qt,
+                          QVariant)
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QTableView
 

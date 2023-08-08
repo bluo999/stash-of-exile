@@ -7,15 +7,8 @@ from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import QItemSelection, Qt
 from PyQt6.QtGui import QFont, QTextCursor
-from PyQt6.QtWidgets import (
-    QApplication,
-    QFrame,
-    QLabel,
-    QPushButton,
-    QTextEdit,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt6.QtWidgets import (QApplication, QFrame, QLabel, QPushButton,
+                             QTextEdit, QVBoxLayout, QWidget)
 
 from stashofexile import consts
 

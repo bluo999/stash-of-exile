@@ -9,16 +9,9 @@ import re
 from typing import TYPE_CHECKING, List, Optional, Set, Tuple
 
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtWidgets import (
-    QAbstractItemView,
-    QAbstractScrollArea,
-    QComboBox,
-    QHBoxLayout,
-    QHeaderView,
-    QSplitter,
-    QTableView,
-    QWidget,
-)
+from PyQt6.QtWidgets import (QAbstractItemView, QAbstractScrollArea, QComboBox,
+                             QHBoxLayout, QHeaderView, QSplitter, QTableView,
+                             QWidget)
 
 from stashofexile import consts, file, log, save, table
 from stashofexile.items import item as m_item

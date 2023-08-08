@@ -8,14 +8,8 @@ from typing import List
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QCloseEvent, QFontDatabase
-from PyQt6.QtWidgets import (
-    QHBoxLayout,
-    QMainWindow,
-    QPushButton,
-    QStatusBar,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow, QPushButton, QStatusBar,
+                             QVBoxLayout, QWidget)
 
 from stashofexile import consts, log
 from stashofexile.threads import api, download, thread
