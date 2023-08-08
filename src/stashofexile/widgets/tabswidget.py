@@ -178,8 +178,8 @@ class TabsWidget(QWidget):
             z = re.search(UNIQUE_URL_REGEX, text)
             if z is None:
                 self.error_text.setText('Invalid unique URL')
+                logger.error("Invalid unique URL %s", text)
                 return
-            logger.critical(z.groups())
             self.account.leagues[self.league].uid = z.groups()[0]
 
         logger.info('Writing save file to %s', loginwidget.SAVE_FILE)

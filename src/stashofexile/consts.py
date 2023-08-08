@@ -19,7 +19,7 @@ else:
     app_path = importlib.resources.files(__package__)
 
 ASSETS_DIR = os.path.join(app_path, 'assets')
-ITEM_TYPE_SRC = 'assets/item_type'
+ITEM_TYPE_SRC = os.path.join(ASSETS_DIR, 'item_type')
 
 # Milliseconds for status bar to timeout
 STATUS_TIMEOUT = 10000

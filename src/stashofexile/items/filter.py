@@ -2,7 +2,9 @@
 Defines Filter class and filter functions for each item filter.
 """
 import dataclasses
+import os
 from typing import Callable, Dict, List, Optional, Type
+from pathlib import Path
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QDoubleValidator, QIntValidator, QValidator
@@ -48,8 +50,8 @@ class InfluenceFilter(QWidget):
             influence = QCheckBox()
             influence.stateChanged.connect(self._influence_checked)
             infl = gamedata.INFLUENCES[i]
-            image = f'{consts.ITEM_TYPE_SRC}/{infl}.png'
-            image_off = f'{consts.ITEM_TYPE_SRC}/{infl}_off.png'
+            image = f'src/stashofexile/assets/item_type/{infl}.png'
+            image_off = f'src/stashofexile/assets/item_type/{infl}_off.png'
             influence.setStyleSheet(
                 f'QCheckBox::indicator:checked {{image: url({image})}}'
                 f'QCheckBox::indicator:unchecked {{image: url({image_off})}}'
