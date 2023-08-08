@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['cli.py'],
+    ['src\\stashofexile\\app.py'],
     pathex=[],
     binaries=[],
     datas=[('assets', 'assets')],

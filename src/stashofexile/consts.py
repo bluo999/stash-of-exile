@@ -10,7 +10,7 @@ from PyQt6.QtCore import QSettings
 
 from stashofexile import file
 
-VERSION = '0.3.0'
+VERSION = '0.4.0'
 
 # Assets directory
 if getattr(sys, 'frozen', False):
@@ -18,7 +18,7 @@ if getattr(sys, 'frozen', False):
 else:
     app_path = importlib.resources.files(__package__)
 
-ASSETS_DIR = os.path.join(app_path, 'assets')
+ASSETS_DIR = os.path.join(app_path, '..', '..', 'assets')
 ITEM_TYPE_SRC = os.path.join(ASSETS_DIR, 'item_type')
 
 # Milliseconds for status bar to timeout

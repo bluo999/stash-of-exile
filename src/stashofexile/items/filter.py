@@ -8,8 +8,14 @@ from typing import Callable, Dict, List, Optional, Type
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QDoubleValidator, QIntValidator, QValidator
-from PyQt6.QtWidgets import (QCheckBox, QComboBox, QGroupBox, QHBoxLayout,
-                             QLineEdit, QWidget)
+from PyQt6.QtWidgets import (
+    QCheckBox,
+    QComboBox,
+    QGroupBox,
+    QHBoxLayout,
+    QLineEdit,
+    QWidget,
+)
 
 from stashofexile import consts, gamedata, log
 from stashofexile.items import item as m_item
@@ -44,8 +50,8 @@ class InfluenceFilter(QWidget):
             influence = QCheckBox()
             influence.stateChanged.connect(self._influence_checked)
             infl = gamedata.INFLUENCES[i]
-            image = f'src/stashofexile/assets/item_type/{infl}.png'
-            image_off = f'src/stashofexile/assets/item_type/{infl}_off.png'
+            image = f'assets/item_type/{infl}.png'
+            image_off = f'assets/item_type/{infl}_off.png'
             influence.setStyleSheet(
                 f'QCheckBox::indicator:checked {{image: url({image})}}'
                 f'QCheckBox::indicator:unchecked {{image: url({image_off})}}'
