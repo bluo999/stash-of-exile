@@ -10,6 +10,7 @@ from typing import Tuple
 
 from stashofexile import file, log
 from stashofexile.threads import thread
+from stashofexile.threads.api import HEADERS
 
 logger = log.get_logger(__name__)
 
@@ -24,7 +25,11 @@ class DownloadThread(thread.RetrieveThread):
             logger.debug('Downloading image to %s', file_path)
             # Download image
             try:
-                urllib.request.urlretrieve(icon, file_path)
+                request = urllib.request.Request(icon, headers=HEADERS)
+                with urllib.request.urlopen(request) as response:
+                    output = response.read()
+                    with open(file_path, 'wb') as f:
+                        f.write(output)
             except urllib.error.HTTPError as e:
                 logger.error(
                     'HTTP error: %s %s when downloading %s', e.code, e.reason, icon
