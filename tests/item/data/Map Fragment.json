@@ -1,0 +1,65 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUml0dWFsL0Jsb29kU29ha2VkRWZmaWd5IiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/1adc81c853/BloodSoakedEffigy.png",
+    "league": "Standard",
+    "id": "46e1330bdb29f3afd35c1e0f3526d51b9e4aadb214af0e049f0b0f7c7a0ce149",
+    "name": "",
+    "typeLine": "Blood-filled Vessel",
+    "baseType": "Blood-filled Vessel",
+    "identified": true,
+    "ilvl": 0,
+    "properties": [
+        {
+            "name": "Monsters:\n{0}",
+            "values": [
+                [
+                    "Shock and Horror",
+                    10
+                ]
+            ],
+            "displayMode": 3
+        },
+        {
+            "name": "{0} Other Monsters",
+            "values": [
+                [
+                    "43",
+                    0
+                ]
+            ],
+            "displayMode": 3
+        },
+        {
+            "name": "Monster Level",
+            "values": [
+                [
+                    "83",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 34
+        },
+        {
+            "name": "From",
+            "values": [
+                [
+                    "Mineral Pools",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 48
+        }
+    ],
+    "explicitMods": [
+        "Rituals have 20% improved Favour Rewards\nRituals spawn Monsters 20% faster\nRituals have 20% more maximum monsters alive"
+    ],
+    "descrText": "Can be used in a personal Map Device alongside a Map to add the monsters stored from a previous Ritual Altar to a Ritual Altar in that Map.",
+    "frameType": 0,
+    "x": 0,
+    "y": 11,
+    "inventoryId": "Stash11"
+}

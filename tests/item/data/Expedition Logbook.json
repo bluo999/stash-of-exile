@@ -1,0 +1,98 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvTWFwcy9FeHBlZGl0aW9uQ2hyb25pY2xlMyIsInciOjEsImgiOjEsInNjYWxlIjoxfV0/2802fe605e/ExpeditionChronicle3.png",
+    "league": "Standard",
+    "id": "58364639fb83d93c0082d09d6604456e3c1487ee7265bd1670b33e53dd3aea53",
+    "name": "Secluded Myth",
+    "typeLine": "Expedition Logbook",
+    "baseType": "Expedition Logbook",
+    "identified": true,
+    "ilvl": 83,
+    "corrupted": true,
+    "properties": [
+        {
+            "name": "Item Quantity",
+            "values": [
+                [
+                    "+81%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 2
+        },
+        {
+            "name": "Item Rarity",
+            "values": [
+                [
+                    "+47%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 3
+        },
+        {
+            "name": "Monster Pack Size",
+            "values": [
+                [
+                    "+31%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 4
+        },
+        {
+            "name": "Area Level",
+            "values": [
+                [
+                    "83",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 34
+        }
+    ],
+    "logbookMods": [
+        {
+            "name": "Volcanic Island",
+            "faction": {
+                "id": "Faction1",
+                "name": "Druids of the Broken Circle"
+            },
+            "mods": [
+                "29% increased number of Explosives",
+                "Area contains 31% increased number of Monster Markers"
+            ]
+        },
+        {
+            "name": "Shipwreck Reef",
+            "faction": {
+                "id": "Faction1",
+                "name": "Druids of the Broken Circle"
+            },
+            "mods": [
+                "12% increased quantity of Artifacts dropped by Monsters",
+                "Area contains 24% increased number of Monster Markers"
+            ]
+        }
+    ],
+    "explicitMods": [
+        "Monsters reflect 18% of Physical Damage",
+        "Monsters Poison on Hit",
+        "Monsters deal 98% extra Physical Damage as Lightning",
+        "Monsters' skills Chain 2 additional times",
+        "Monsters Blind on Hit",
+        "Players have 30% less Armour",
+        "Players have 40% reduced Chance to Block"
+    ],
+    "descrText": "Take this item to Dannig in your Hideout to open portals to an expedition.",
+    "frameType": 2,
+    "x": 5,
+    "y": 3,
+    "inventoryId": "Stash58"
+}

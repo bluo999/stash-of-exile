@@ -1,0 +1,99 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9TdXBwb3J0L1NlY29uZFdpbmRTdXBwb3J0IiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/ccfc5c7b25/SecondWindSupport.png",
+    "support": true,
+    "id": "64eb02b1fbfd1ccb145963f7435ab139671938e92284be8d125d6439e0730db0",
+    "name": "",
+    "typeLine": "Second Wind Support",
+    "baseType": "Second Wind Support",
+    "identified": true,
+    "ilvl": 0,
+    "properties": [
+        {
+            "name": "Support",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "12",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 5
+        },
+        {
+            "name": "Cost & Reservation Multiplier",
+            "values": [
+                [
+                    "200%",
+                    0
+                ]
+            ],
+            "displayMode": 0
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "54",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        },
+        {
+            "name": "Dex",
+            "values": [
+                [
+                    "55",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 64
+        },
+        {
+            "name": "Int",
+            "values": [
+                [
+                    "38",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 65
+        }
+    ],
+    "additionalProperties": [
+        {
+            "name": "Experience",
+            "values": [
+                [
+                    "162543/1956648",
+                    0
+                ]
+            ],
+            "displayMode": 2,
+            "progress": 0.08,
+            "type": 20
+        }
+    ],
+    "secDescrText": "Supports skills with cooldowns.\nCannot support triggered skills.",
+    "explicitMods": [
+        "Supported Skills have 13% reduced Cooldown Recovery Rate",
+        "Supported Non-Instant Skills have +1 Cooldown Use"
+    ],
+    "descrText": "This is a Support Gem. It does not grant a bonus to your character, but to skills in sockets connected to it. Place into an item socket connected to a socket containing the Active Skill Gem you wish to augment. Right click to remove from a socket.",
+    "frameType": 4,
+    "socket": 3,
+    "colour": "D"
+}

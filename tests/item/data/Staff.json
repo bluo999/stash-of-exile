@@ -1,0 +1,157 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 4,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9Ud29IYW5kV2VhcG9ucy9TdGF2ZXMvTWFydHlySW5ub2NlbmNlIiwidyI6MiwiaCI6NCwic2NhbGUiOjF9XQ/6fd4eee9df/MartyrInnocence.png",
+    "league": "Standard",
+    "id": "593eab7368a9ae3263dc95adad19a3f4c5c4aeb47ed13d146d32c90d9ef0c7cd",
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "S",
+            "sColour": "R"
+        },
+        {
+            "group": 1,
+            "attr": "S",
+            "sColour": "R"
+        },
+        {
+            "group": 1,
+            "attr": "I",
+            "sColour": "B"
+        },
+        {
+            "group": 2,
+            "attr": "I",
+            "sColour": "B"
+        }
+    ],
+    "name": "Martyr of Innocence",
+    "typeLine": "Highborn Staff",
+    "baseType": "Highborn Staff",
+    "identified": true,
+    "ilvl": 83,
+    "properties": [
+        {
+            "name": "Staff",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Physical Damage",
+            "values": [
+                [
+                    "48-145",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 9
+        },
+        {
+            "name": "Elemental Damage",
+            "values": [
+                [
+                    "388-571",
+                    4
+                ]
+            ],
+            "displayMode": 0,
+            "type": 10
+        },
+        {
+            "name": "Critical Strike Chance",
+            "values": [
+                [
+                    "6.50%",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 12
+        },
+        {
+            "name": "Attacks per Second",
+            "values": [
+                [
+                    "1.15",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 13
+        },
+        {
+            "name": "Weapon Range",
+            "values": [
+                [
+                    "13",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 14
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "52",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        },
+        {
+            "name": "Str",
+            "values": [
+                [
+                    "89",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 63
+        },
+        {
+            "name": "Int",
+            "values": [
+                [
+                    "89",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 65
+        }
+    ],
+    "enchantMods": [
+        "Quality does not increase Physical Damage",
+        "Grants 1% increased Elemental Damage per 2% Quality"
+    ],
+    "implicitMods": [
+        "+18% Chance to Block Attack Damage while wielding a Staff"
+    ],
+    "explicitMods": [
+        "Grants Level 15 Vengeance Skill",
+        "+16% Chance to Block Attack Damage while wielding a Staff",
+        "100% increased Fire Damage",
+        "Adds 388 to 571 Fire Damage",
+        "Damage Penetrates 15% of Fire Resistance if you have Blocked Recently",
+        "Immune to Freeze and Chill while Ignited",
+        "Battlemage"
+    ],
+    "flavourText": [
+        "You have been found guilty.\r",
+        "Let the fires cleanse you of your sins."
+    ],
+    "frameType": 3,
+    "x": 0,
+    "y": 0,
+    "inventoryId": "Stash4",
+    "socketedItems": []
+}

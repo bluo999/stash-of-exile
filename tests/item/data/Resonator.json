@@ -1,0 +1,65 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 2,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRGVsdmUvUmVyb2xsMngyQSIsInciOjIsImgiOjIsInNjYWxlIjoxfV0/b5be7d519f/Reroll2x2A.png",
+    "stackSize": 5,
+    "maxStackSize": 5000,
+    "league": "Standard",
+    "id": "261365aa02c450eb1b6ed58647c4d5a99fac091e70cb0a60e2efef661cb2177e",
+    "delve": true,
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "DV",
+            "sColour": "DV"
+        },
+        {
+            "group": 1,
+            "attr": "DV",
+            "sColour": "DV"
+        },
+        {
+            "group": 2,
+            "attr": "DV",
+            "sColour": "DV"
+        }
+    ],
+    "name": "",
+    "typeLine": "Powerful Chaotic Resonator",
+    "baseType": "Powerful Chaotic Resonator",
+    "identified": true,
+    "ilvl": 0,
+    "properties": [
+        {
+            "name": "Stack Size",
+            "values": [
+                [
+                    "5/10",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 32
+        },
+        {
+            "name": "Requires {0} Socketed Fossils",
+            "values": [
+                [
+                    "3",
+                    2
+                ]
+            ],
+            "displayMode": 3
+        }
+    ],
+    "explicitMods": [
+        "Reforges a rare item with new random modifiers"
+    ],
+    "descrText": "All sockets must be filled with Fossils before this item can be used.",
+    "frameType": 5,
+    "x": 33,
+    "y": 0,
+    "inventoryId": "Stash22",
+    "socketedItems": []
+}

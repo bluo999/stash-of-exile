@@ -1,0 +1,113 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 3,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9EYWdnZXJzL0NvbGRJcm9uUG9pbnQiLCJ3IjoxLCJoIjozLCJzY2FsZSI6MX1d/1a4002957b/ColdIronPoint.png",
+    "league": "Standard",
+    "id": "de7a65e0c1133e2025ce0d5d93f3689a76efa72d65d47221d937ef9ffa920234",
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "D",
+            "sColour": "G"
+        },
+        {
+            "group": 0,
+            "attr": "D",
+            "sColour": "G"
+        },
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        }
+    ],
+    "name": "",
+    "typeLine": "Ezomyte Dagger",
+    "baseType": "Ezomyte Dagger",
+    "identified": false,
+    "ilvl": 85,
+    "properties": [
+        {
+            "name": "Rune Dagger",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Physical Damage",
+            "values": [
+                [
+                    "20-79",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 9
+        },
+        {
+            "name": "Critical Strike Chance",
+            "values": [
+                [
+                    "6.30%",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 12
+        },
+        {
+            "name": "Attacks per Second",
+            "values": [
+                [
+                    "1.40",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 13
+        },
+        {
+            "name": "Weapon Range",
+            "values": [
+                [
+                    "10",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 14
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Dex",
+            "values": [
+                [
+                    "95",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 64
+        },
+        {
+            "name": "Int",
+            "values": [
+                [
+                    "131",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 65
+        }
+    ],
+    "implicitMods": [
+        "30% increased Global Critical Strike Chance"
+    ],
+    "frameType": 3,
+    "x": 5,
+    "y": 0,
+    "inventoryId": "Stash2",
+    "socketedItems": []
+}

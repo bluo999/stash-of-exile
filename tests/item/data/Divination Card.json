@@ -1,0 +1,42 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvRGl2aW5hdGlvbi9JbnZlbnRvcnlJY29uIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/f34bf8cbb5/InventoryIcon.png",
+    "stackSize": 36,
+    "maxStackSize": 3,
+    "league": "Standard",
+    "id": "4eb92cd326a5c251a709845894fd4e0751f5dff22df39289c14aff4f40fd5124",
+    "name": "",
+    "typeLine": "Cartographer's Delight",
+    "baseType": "Cartographer's Delight",
+    "identified": true,
+    "ilvl": 0,
+    "properties": [
+        {
+            "name": "Stack Size",
+            "values": [
+                [
+                    "36/3",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 32
+        }
+    ],
+    "explicitMods": [
+        "<normal>{Map}\r\n<default>{Map Tier:} <normal>{5}"
+    ],
+    "flavourText": [
+        "<size:28>{A map is similar\r",
+        "to a pair of eyes,\r",
+        "without one you stumble\r",
+        "around, unable to find your way.}"
+    ],
+    "frameType": 6,
+    "artFilename": "CartographersDelight",
+    "x": 151,
+    "y": 0,
+    "inventoryId": "Stash8"
+}

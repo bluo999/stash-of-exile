@@ -1,0 +1,174 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 4,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9Ud29IYW5kV2VhcG9ucy9Ud29IYW5kQXhlcy9Ud29IYW5kQXhlNSIsInciOjIsImgiOjQsInNjYWxlIjoxfV0/4b3fbfcd65/TwoHandAxe5.png",
+    "league": "Standard",
+    "id": "022339ac2bf0e636a39969e4b15c68ca971e20091fc0fd9106d1d422414b0267",
+    "influences": {
+        "elder": true
+    },
+    "elder": true,
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "S",
+            "sColour": "R"
+        },
+        {
+            "group": 0,
+            "attr": "S",
+            "sColour": "R"
+        },
+        {
+            "group": 0,
+            "attr": "S",
+            "sColour": "R"
+        },
+        {
+            "group": 0,
+            "attr": "D",
+            "sColour": "G"
+        },
+        {
+            "group": 0,
+            "attr": "S",
+            "sColour": "R"
+        },
+        {
+            "group": 0,
+            "attr": "S",
+            "sColour": "R"
+        }
+    ],
+    "name": "Horror Bite",
+    "typeLine": "Vaal Axe",
+    "baseType": "Vaal Axe",
+    "identified": true,
+    "ilvl": 83,
+    "properties": [
+        {
+            "name": "Two Handed Axe",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Quality",
+            "values": [
+                [
+                    "+29%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 6
+        },
+        {
+            "name": "Physical Damage",
+            "values": [
+                [
+                    "324-566",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 9
+        },
+        {
+            "name": "Critical Strike Chance",
+            "values": [
+                [
+                    "5.00%",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 12
+        },
+        {
+            "name": "Attacks per Second",
+            "values": [
+                [
+                    "1.15",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 13
+        },
+        {
+            "name": "Weapon Range",
+            "values": [
+                [
+                    "13",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 14
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "72",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62,
+            "suffix": "(gem)"
+        },
+        {
+            "name": "Str",
+            "values": [
+                [
+                    "159",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 63,
+            "suffix": "(gem)"
+        },
+        {
+            "name": "Dex",
+            "values": [
+                [
+                    "76",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 64
+        },
+        {
+            "name": "Int",
+            "values": [
+                [
+                    "46",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 65,
+            "suffix": "(gem)"
+        }
+    ],
+    "explicitMods": [
+        "Socketed Gems are Supported by Level 18 Fortify",
+        "118% increased Physical Damage",
+        "Adds 27 to 55 Physical Damage",
+        "15% reduced Enemy Stun Threshold"
+    ],
+    "craftedMods": [
+        "Prefixes Cannot Be Changed"
+    ],
+    "frameType": 2,
+    "x": 6,
+    "y": 8,
+    "inventoryId": "Stash35",
+    "socketedItems": []
+}

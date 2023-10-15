@@ -1,0 +1,88 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 4,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9Ud29IYW5kV2VhcG9ucy9GaXNoaW5nUm9kcy9SZWVmYmFuZSIsInciOjEsImgiOjQsInNjYWxlIjoxfV0/fb59feb3cd/Reefbane.png",
+    "league": null,
+    "id": "ecc682334cd04131a57c10b279a8d5bd22f3a8793f97090324bede095324409f",
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "D",
+            "sColour": "G"
+        },
+        {
+            "group": 0,
+            "attr": "D",
+            "sColour": "G"
+        }
+    ],
+    "name": "Reefbane",
+    "typeLine": "Fishing Rod",
+    "baseType": "Fishing Rod",
+    "identified": true,
+    "ilvl": 85,
+    "properties": [
+        {
+            "name": "Fishing Rod",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Physical Damage",
+            "values": [
+                [
+                    "8-15",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 9
+        },
+        {
+            "name": "Critical Strike Chance",
+            "values": [
+                [
+                    "5.00%",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 12
+        },
+        {
+            "name": "Attacks per Second",
+            "values": [
+                [
+                    "1.20",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 13
+        },
+        {
+            "name": "Weapon Range",
+            "values": [
+                [
+                    "13",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 14
+        }
+    ],
+    "explicitMods": [
+        "31% increased Cast Speed",
+        "Thaumaturgical Lure",
+        "18% increased Quantity of Fish Caught",
+        "Glows while in an Area containing a Unique Fish"
+    ],
+    "flavourText": [
+        "He cast far into the ocean\r",
+        "And tore out her heart."
+    ],
+    "frameType": 3,
+    "socketedItems": []
+}

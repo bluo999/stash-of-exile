@@ -1,0 +1,83 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 3,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9XYW5kcy9MaWZlc3ByaWdBbHQiLCJ3IjoxLCJoIjozLCJzY2FsZSI6MX1d/cb3e367bb7/LifesprigAlt.png",
+    "league": null,
+    "id": "a5dcfc3d9c470d4ecfdb58daec04190e0b12e6739758916e3a131a6307ec7f3f",
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "D",
+            "sColour": "G"
+        },
+        {
+            "group": 0,
+            "attr": "D",
+            "sColour": "G"
+        }
+    ],
+    "name": "Lifesprig",
+    "typeLine": "Driftwood Wand",
+    "baseType": "Driftwood Wand",
+    "identified": true,
+    "ilvl": 100,
+    "properties": [
+        {
+            "name": "Wand",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Physical Damage",
+            "values": [
+                [
+                    "5-9",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 9
+        },
+        {
+            "name": "Critical Strike Chance",
+            "values": [
+                [
+                    "7.00%",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 12
+        },
+        {
+            "name": "Attacks per Second",
+            "values": [
+                [
+                    "1.40",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 13
+        }
+    ],
+    "implicitMods": [
+        "10% increased Spell Damage"
+    ],
+    "explicitMods": [
+        "+1 to Level of Socketed Spell Gems",
+        "28% increased Spell Damage",
+        "5% increased Cast Speed",
+        "+17 to maximum Life",
+        "+17 to maximum Mana",
+        "Regenerate 8 Life over 1 second when you Cast a Spell"
+    ],
+    "flavourText": [
+        "From the smallest seeds\r",
+        "To the tallest redwoods,\r",
+        "Life endures in Wraeclast."
+    ],
+    "frameType": 3,
+    "socketedItems": []
+}

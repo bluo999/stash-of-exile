@@ -1,0 +1,49 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQW11bGV0cy9IZWlzdEFtdWxldDEiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/f43fa4b21a/HeistAmulet1.png",
+    "league": "Standard",
+    "id": "875b39ee520935d510b68f2525cf4cd9b52f5e75adb0c335f01307f33da100ee",
+    "influences": {
+        "shaper": true,
+        "elder": true,
+        "crusader": true,
+        "redeemer": true,
+        "hunter": true,
+        "warlord": true
+    },
+    "elder": true,
+    "shaper": true,
+    "name": "Gale Braid",
+    "typeLine": "Astrolabe Amulet",
+    "baseType": "Astrolabe Amulet",
+    "identified": true,
+    "ilvl": 86,
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "69",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        }
+    ],
+    "implicitMods": [
+        "Implicit Modifiers Cannot Be Changed",
+        "Has Elder, Shaper and all Conqueror Influences"
+    ],
+    "explicitMods": [
+        "10% increased Intelligence",
+        "9% increased Rarity of Items found",
+        "9% increased Mana Reservation Efficiency of Skills"
+    ],
+    "frameType": 2,
+    "x": 8,
+    "y": 3,
+    "inventoryId": "Stash3"
+}

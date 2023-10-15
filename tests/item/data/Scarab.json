@@ -1,0 +1,42 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvU2NhcmFicy9UaWVyNFNjYXJhYkJsaWdodCIsInciOjEsImgiOjEsInNjYWxlIjoxfV0/6dde3a6e88/Tier4ScarabBlight.png",
+    "stackSize": 18,
+    "maxStackSize": 5000,
+    "league": "Standard",
+    "id": "8a95e35fac72af87e6c7d2ae125239f0ed302a71a98a0ab4e50e6790a1aab65f",
+    "name": "",
+    "typeLine": "Winged Blight Scarab",
+    "baseType": "Winged Blight Scarab",
+    "identified": true,
+    "ilvl": 0,
+    "properties": [
+        {
+            "name": "Stack Size",
+            "values": [
+                [
+                    "18/10",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 32
+        }
+    ],
+    "explicitMods": [
+        "Area contains a Blight Encounter\r\nBlight Encounters contain an additional Blight Boss\r\n50% chance for Blight Chests to contain an additional Reward\r\nLanes of Blight Encounters in Areas have an additional Reward Chest"
+    ],
+    "descrText": "Can be used in a personal Map Device to add modifiers to a Map.",
+    "flavourText": [
+        "The fungal plague returns, and its roots have adapted.\r",
+        "The undiscovered Blightheart that Dhunan theorised\r",
+        "must still exist somewhere, yet none remain\r",
+        "with the skill to see to its destruction."
+    ],
+    "frameType": 0,
+    "x": 108,
+    "y": 0,
+    "inventoryId": "Stash14"
+}

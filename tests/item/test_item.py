@@ -66,6 +66,14 @@ def test_dimensions(example_items: ItemDict):
     assert abyss_jewel.width == 1
     assert abyss_jewel.height == 1
 
+    omen = example_items['Omen']
+    assert omen.width == 1
+    assert omen.height == 1
+
+    tattoo = example_items['Tattoo']
+    assert tattoo.width == 1
+    assert tattoo.height == 1
+
     rune_dagger = example_items['Rune Dagger']
     assert rune_dagger.width == 1
     assert rune_dagger.height == 3
@@ -133,6 +141,16 @@ def test_property(example_items: ItemDict):
         'style="color:#8888ff">+23%</span>',
         '<span style="color:#777777">Maximum Alive Reinforcements: </span><span '
         'style="color:#8888ff">+23%</span>',
+    ]
+
+    sanctum_research = example_items['Sanctum Research']
+    assert [prop.description for prop in sanctum_research.props] == [
+        '<span style="color:#777777">Area Level: </span><span style="color:#ffffff">83</span>',
+        '<span style="color:#777777">Resolve: <span style="color:#ffffff">108</span>/<span style="color:#8888ff">108</span></span>',
+        '<span style="color:#777777">Inspiration: <span style="color:#ffffff">51</span></span>',
+        '<span style="color:#777777">Aureus: <span style="color:#ffffff">1045</span></span>',
+        '<span style="color:#777777">Major Boons: </span><span style="color:#b5a890">Crystal Chalice</span>',
+        '<span style="color:#777777">Minor Afflictions: </span><span style="color:#a06dca">Weakened Flesh</span>',
     ]
 
 
@@ -311,8 +329,8 @@ def test_misc_props(example_items: ItemDict):
     assert boots.searing
     assert boots.tangled
 
-    sentinel = example_items['Sentinel']
-    assert sentinel.unmodifiable
+    sanctum_relic = example_items['Sanctum Relic']
+    assert sanctum_relic.unmodifiable
 
     claw = example_items['Claw']
     assert claw.quality == '+30%'

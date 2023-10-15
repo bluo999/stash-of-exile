@@ -1,0 +1,109 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 3,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9EYWdnZXJzL0RhZ2dlcjIiLCJ3IjoxLCJoIjozLCJzY2FsZSI6MSwiZnJhY3R1cmVkIjp0cnVlfV0/4493e12d1c/Dagger2.png",
+    "league": "Standard",
+    "id": "94926117af897f65ab7e7465c71c5cfbb38dc0b2c2241227918cd4a7d90bc5ae",
+    "fractured": true,
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "D",
+            "sColour": "G"
+        },
+        {
+            "group": 1,
+            "attr": "I",
+            "sColour": "B"
+        }
+    ],
+    "name": "",
+    "typeLine": "Gutting Knife",
+    "baseType": "Gutting Knife",
+    "identified": false,
+    "ilvl": 70,
+    "properties": [
+        {
+            "name": "Dagger",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Physical Damage",
+            "values": [
+                [
+                    "19-76",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 9
+        },
+        {
+            "name": "Critical Strike Chance",
+            "values": [
+                [
+                    "6.50%",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 12
+        },
+        {
+            "name": "Attacks per Second",
+            "values": [
+                [
+                    "1.40",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 13
+        },
+        {
+            "name": "Weapon Range",
+            "values": [
+                [
+                    "10",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 14
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Dex",
+            "values": [
+                [
+                    "113",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 64
+        },
+        {
+            "name": "Int",
+            "values": [
+                [
+                    "78",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 65
+        }
+    ],
+    "implicitMods": [
+        "30% increased Global Critical Strike Chance"
+    ],
+    "frameType": 2,
+    "x": 9,
+    "y": 3,
+    "inventoryId": "Stash76",
+    "socketedItems": []
+}

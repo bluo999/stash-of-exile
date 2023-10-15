@@ -493,5 +493,19 @@
         "Golden Brooch",
         "Enamel Brooch",
         "Foliate Brooch"
+    ],
+    "Sanctum Research": [
+        "Sanctum Cathedral Research",
+        "Sanctum Necropolis Research",
+        "Sanctum Vaults Research"
+    ],
+    "Sanctum Relic": [
+        "Candlestick Relic",
+        "Censer Relic",
+        "Coffer Relic",
+        "Papyrus Relic",
+        "Processional Relic",
+        "Tome Relic",
+        "Urn Relic"
     ]
 }

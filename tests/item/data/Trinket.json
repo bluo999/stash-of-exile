@@ -1,0 +1,38 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvSGVpc3QvTHVja0NoYXJtMSIsInciOjEsImgiOjEsInNjYWxlIjoxfV0/3641828a4f/LuckCharm1.png",
+    "league": "Standard",
+    "id": "a0cfb4bf290a7e2de691c043185d0d7b479c12f8f94f2d877e7cd5855195fd0d",
+    "name": "Blight Relic",
+    "typeLine": "Thief's Trinket",
+    "baseType": "Thief's Trinket",
+    "identified": true,
+    "ilvl": 83,
+    "corrupted": true,
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "64",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        }
+    ],
+    "explicitMods": [
+        "4% chance to receive additional Divination Card items when opening a Reward Chest in a Heist",
+        "1% chance to receive additional Harbinger items when opening a Reward Chest in a Heist",
+        "25% chance in Heists for Chromatic Orbs to drop as Orbs of Fusing instead",
+        "4% chance in Heists for Regal Orbs to drop as Exalted Orbs instead"
+    ],
+    "descrText": "You must find the sculpture The Catch in a Smuggler's Den or Underbelly Blueprint to be able to equip this",
+    "frameType": 2,
+    "x": 0,
+    "y": 0,
+    "inventoryId": "Trinket"
+}

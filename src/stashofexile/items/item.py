@@ -591,7 +591,11 @@ class Item:
             return 'Scarab'
         if item_base == 'Ultimatum Aspect' or 'Piece' in item_base:
             return 'Unique Fragment'
-        if item_base in ('Primeval Remnant', 'Primordial Remnant'):
+        if item_base in (
+            'Primeval Remnant',
+            'Primordial Remnant',
+            'Engraved Ultimatum',
+        ):
             return 'Map'
         if '\'s Crest' in item_base:
             return 'Map Fragment'

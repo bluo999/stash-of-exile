@@ -1,0 +1,113 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 2,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9DbGF3cy9OZXJhc0xhc3RSZXNvcnQiLCJ3IjoyLCJoIjoyLCJzY2FsZSI6MX1d/5f5a6bd205/NerasLastResort.png",
+    "league": "Standard",
+    "id": "1ade68f7c8fa29a2bb7d0e74aea7032639da2fd36484c6b2dbf661aaad2dcade",
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        },
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        },
+        {
+            "group": 0,
+            "attr": "D",
+            "sColour": "G"
+        }
+    ],
+    "name": "Replica Last Resort",
+    "typeLine": "Nailed Fist",
+    "baseType": "Nailed Fist",
+    "identified": true,
+    "ilvl": 81,
+    "properties": [
+        {
+            "name": "Claw",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Quality",
+            "values": [
+                [
+                    "+30%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 6
+        },
+        {
+            "name": "Physical Damage",
+            "values": [
+                [
+                    "9-24",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 9
+        },
+        {
+            "name": "Critical Strike Chance",
+            "values": [
+                [
+                    "6.20%",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 12
+        },
+        {
+            "name": "Attacks per Second",
+            "values": [
+                [
+                    "1.60",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 13
+        },
+        {
+            "name": "Weapon Range",
+            "values": [
+                [
+                    "11",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 14
+        }
+    ],
+    "implicitMods": [
+        "+3 Life gained for each Enemy hit by Attacks"
+    ],
+    "explicitMods": [
+        "50% increased Attack Speed when on Low Life",
+        "87% increased Physical Damage",
+        "100% increased Accuracy Rating when on Low Life",
+        "200% increased Damage with Claws while on Low Life",
+        "Deal no Damage when not on Low Life"
+    ],
+    "flavourText": [
+        "\"An absurdly vicious weapon in the hands of our test subjects. It seems to\r",
+        "channel the desperate will to live. Intriguing.\" \r",
+        "- Researcher Olesya"
+    ],
+    "replica": true,
+    "frameType": 3,
+    "x": 0,
+    "y": 0,
+    "inventoryId": "Stash27",
+    "socketedItems": []
+}

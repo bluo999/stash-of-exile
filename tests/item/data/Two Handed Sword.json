@@ -1,0 +1,169 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 4,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9Ud29IYW5kV2VhcG9ucy9Ud29IYW5kU3dvcmRzL1R3b0hhbmRTd29yZDgiLCJ3IjoyLCJoIjo0LCJzY2FsZSI6MX1d/decb6a0e86/TwoHandSword8.png",
+    "league": "Standard",
+    "id": "10b17da489e6512593ec4b3f59aab0253f297514414b6803b5e13fa0350f92f9",
+    "influences": {
+        "elder": true,
+        "warlord": true
+    },
+    "elder": true,
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "D",
+            "sColour": "G"
+        },
+        {
+            "group": 0,
+            "attr": "S",
+            "sColour": "R"
+        },
+        {
+            "group": 0,
+            "attr": "S",
+            "sColour": "R"
+        },
+        {
+            "group": 0,
+            "attr": "D",
+            "sColour": "G"
+        },
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        },
+        {
+            "group": 0,
+            "attr": "S",
+            "sColour": "R"
+        }
+    ],
+    "name": "Woe Gutter",
+    "typeLine": "Exquisite Blade",
+    "baseType": "Exquisite Blade",
+    "identified": true,
+    "ilvl": 86,
+    "properties": [
+        {
+            "name": "Two Handed Sword",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Quality",
+            "values": [
+                [
+                    "+47%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 6
+        },
+        {
+            "name": "Physical Damage",
+            "values": [
+                [
+                    "311-527",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 9
+        },
+        {
+            "name": "Critical Strike Chance",
+            "values": [
+                [
+                    "7.12%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 12
+        },
+        {
+            "name": "Attacks per Second",
+            "values": [
+                [
+                    "1.74",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 13
+        },
+        {
+            "name": "Weapon Range",
+            "values": [
+                [
+                    "13",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 14
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "70",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        },
+        {
+            "name": "Str",
+            "values": [
+                [
+                    "119",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 63
+        },
+        {
+            "name": "Dex",
+            "values": [
+                [
+                    "131",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 64
+        }
+    ],
+    "implicitMods": [
+        "+60% to Global Critical Strike Multiplier"
+    ],
+    "explicitMods": [
+        "Socketed Gems are Supported by Level 20 Fortify",
+        "202% increased Physical Damage",
+        "29% increased Attack Speed"
+    ],
+    "craftedMods": [
+        "Can have up to 3 Crafted Modifiers",
+        "Adds 22 to 39 Physical Damage",
+        "25% increased Critical Strike Chance",
+        "+17% to Quality"
+    ],
+    "cosmeticMods": [
+        "Has Voidforge Skin. You can reclaim this by shift-clicking this item."
+    ],
+    "frameType": 2,
+    "x": 0,
+    "y": 8,
+    "inventoryId": "Stash32",
+    "socketedItems": []
+}

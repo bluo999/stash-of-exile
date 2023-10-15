@@ -1,0 +1,18 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvTWVtb3J5TGluZS9LaXJhY01lbW9yeUl0ZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/def36e7b78/KiracMemoryItem.png",
+    "league": "Standard",
+    "id": "989d89747ae0a3d63544c41a89ae8ca907f4205e509d73ab94a2e10425be62f6",
+    "name": "",
+    "typeLine": "Kirac's Memory",
+    "baseType": "Kirac's Memory",
+    "identified": false,
+    "ilvl": 85,
+    "descrText": "Right-click on this, then left click on a completed Map on your Atlas to apply this Memory.",
+    "frameType": 1,
+    "x": 10,
+    "y": 2,
+    "inventoryId": "Stash17"
+}

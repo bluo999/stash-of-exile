@@ -1,0 +1,126 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 3,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9TY2VwdGVycy9zY2VwdGVyNyIsInciOjIsImgiOjMsInNjYWxlIjoxfV0/6b9c62e4c3/scepter7.png",
+    "league": "Standard",
+    "id": "cf943fb75687685e24c2d763b1e35914864c30b362b58907bcede1be6d04d181",
+    "influences": {
+        "shaper": true
+    },
+    "shaper": true,
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        },
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        }
+    ],
+    "name": "",
+    "typeLine": "Carnal Sceptre of the Apt",
+    "baseType": "Carnal Sceptre",
+    "identified": true,
+    "ilvl": 85,
+    "properties": [
+        {
+            "name": "Sceptre",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Physical Damage",
+            "values": [
+                [
+                    "41-95",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 9
+        },
+        {
+            "name": "Critical Strike Chance",
+            "values": [
+                [
+                    "6.00%",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 12
+        },
+        {
+            "name": "Attacks per Second",
+            "values": [
+                [
+                    "1.20",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 13
+        },
+        {
+            "name": "Weapon Range",
+            "values": [
+                [
+                    "11",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 14
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "66",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        },
+        {
+            "name": "Str",
+            "values": [
+                [
+                    "76",
+                    1
+                ]
+            ],
+            "displayMode": 1,
+            "type": 63
+        },
+        {
+            "name": "Int",
+            "values": [
+                [
+                    "76",
+                    1
+                ]
+            ],
+            "displayMode": 1,
+            "type": 65
+        }
+    ],
+    "implicitMods": [
+        "32% increased Elemental Damage"
+    ],
+    "explicitMods": [
+        "32% reduced Attribute Requirements"
+    ],
+    "frameType": 1,
+    "x": 0,
+    "y": 5,
+    "inventoryId": "Stash66",
+    "socketedItems": []
+}

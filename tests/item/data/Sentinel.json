@@ -1,0 +1,72 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 2,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvU2VudGluZWwvQmFzZURyb25lSXRlbVJ1c3RlZDEiLCJ3IjoyLCJoIjoyLCJzY2FsZSI6MX1d/a2980673b2/BaseDroneItemRusted1.png",
+    "league": "Sentinel",
+    "id": "62f3573483720afa9263b4333cdc5f9b3ee2dc1de4226f35cb75f970914a0704",
+    "name": "",
+    "typeLine": "Ample Rusted Stalker Sentinel of Invigoration",
+    "baseType": "Rusted Stalker Sentinel",
+    "identified": true,
+    "ilvl": 7,
+    "unmodifiable": true,
+    "properties": [
+        {
+            "name": "Duration: {0} seconds",
+            "values": [
+                [
+                    "30",
+                    0
+                ]
+            ],
+            "displayMode": 3,
+            "type": 59
+        },
+        {
+            "name": "Empowers: {0} enemies",
+            "values": [
+                [
+                    "15",
+                    0
+                ]
+            ],
+            "displayMode": 3,
+            "type": 60
+        },
+        {
+            "name": "Empowerment: {0}",
+            "values": [
+                [
+                    "7",
+                    1
+                ]
+            ],
+            "displayMode": 3,
+            "type": 61
+        }
+    ],
+    "additionalProperties": [
+        {
+            "name": "Charge",
+            "values": [
+                [
+                    "9/9",
+                    1
+                ]
+            ],
+            "displayMode": 2,
+            "progress": 1,
+            "type": 58,
+            "suffix": "9"
+        }
+    ],
+    "explicitMods": [
+        "+1 to Charge",
+        "Empowered Monsters grant 45% increased Sentinel Power"
+    ],
+    "frameType": 1,
+    "x": 0,
+    "y": 4,
+    "inventoryId": "Stash2"
+}

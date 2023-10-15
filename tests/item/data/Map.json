@@ -1,0 +1,94 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI4LDE0LHsiZiI6IjJESXRlbXMvTWFwcy9BdGxhczJNYXBzL05ldy9RdWF5IiwidyI6MSwiaCI6MSwic2NhbGUiOjEsIm1uIjo4LCJtdCI6MTUsIm1kIjp0cnVlLCJmcmFjdHVyZWQiOnRydWV9XQ/43586ffe8d/Quay.png",
+    "league": "Standard",
+    "id": "1a2459e6918f0cc4a699a43eb9c006884a63532a471c4c763c3e369e202f0d1c",
+    "fractured": true,
+    "name": "Demon Roost",
+    "typeLine": "Port Map",
+    "baseType": "Port Map",
+    "identified": true,
+    "ilvl": 85,
+    "properties": [
+        {
+            "name": "Map Tier",
+            "values": [
+                [
+                    "15",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 1
+        },
+        {
+            "name": "Item Quantity",
+            "values": [
+                [
+                    "+84%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 2
+        },
+        {
+            "name": "Item Rarity",
+            "values": [
+                [
+                    "+30%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 3
+        },
+        {
+            "name": "Monster Pack Size",
+            "values": [
+                [
+                    "+19%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 4
+        },
+        {
+            "name": "Quality",
+            "values": [
+                [
+                    "+35%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 6
+        }
+    ],
+    "enchantMods": [
+        "Does not consume Sextant Uses",
+        "Delirium Reward Type: Scarabs",
+        "Delirium Reward Type: Scarabs",
+        "Delirium Reward Type: Scarabs",
+        "Delirium Reward Type: Scarabs",
+        "Delirium Reward Type: Scarabs",
+        "Players in Area are 100% Delirious"
+    ],
+    "explicitMods": [
+        "Area is inhabited by ranged monsters",
+        "Players are Cursed with Enfeeble",
+        "25% more Monster Life",
+        "Monsters cannot be Stunned"
+    ],
+    "fracturedMods": [
+        "Slaying Enemies close together has a 13% chance to attract monsters from Beyond"
+    ],
+    "descrText": "Travel to this Map by using it in a personal Map Device. Maps can only be used once.",
+    "frameType": 2,
+    "x": 2,
+    "y": 11,
+    "inventoryId": "Stash11"
+}

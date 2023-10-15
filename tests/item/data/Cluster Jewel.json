@@ -1,0 +1,45 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL05ld0dlbUJhc2UzIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/db35e60885/NewGemBase3.png",
+    "league": "Standard",
+    "id": "a7e5f79c25515ae20aac84c84514d520d367e82178341ab8b4a165ba2b57f34c",
+    "name": "Apocalypse Curio",
+    "typeLine": "Large Cluster Jewel",
+    "baseType": "Large Cluster Jewel",
+    "identified": true,
+    "ilvl": 84,
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "67",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        }
+    ],
+    "enchantMods": [
+        "Adds 10 Passive Skills",
+        "2 Added Passive Skills are Jewel Sockets",
+        "Added Small Passive Skills grant: 12% increased Damage with Bows\nAdded Small Passive Skills grant: 12% increased Damage Over Time with Bow Skills"
+    ],
+    "implicitMods": [
+        "1% increased Movement Speed"
+    ],
+    "explicitMods": [
+        "Added Small Passive Skills also grant: 3% increased Attack Speed",
+        "Added Small Passive Skills also grant: +4% to Chaos Resistance",
+        "Added Small Passive Skills also grant: +10 to Maximum Life",
+        "Added Small Passive Skills have 35% increased Effect"
+    ],
+    "descrText": "Place into an allocated Large Jewel Socket on the Passive Skill Tree. Added passives do not interact with jewel radiuses. Right click to remove from the Socket.",
+    "frameType": 2,
+    "x": 12,
+    "y": 0,
+    "inventoryId": "PassiveJewels"
+}

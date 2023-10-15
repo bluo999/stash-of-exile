@@ -108,15 +108,18 @@ COMBO_ITEMS = {
         'Metamorph Sample',
         'Contract',
         'Blueprint',
+        'Inscribed Ultimatum',
+        'Expedition Logbook',
+        'Sentinel',
+        'Sanctum Research',
+        'Sanctum Relic',
         'Currency',
         'Unique Fragment',
         'Resonator',
         'Fossil',
         'Incubator',
-        'Inscribed Ultimatum',
-        'Expedition Logbook',
-        'Sentinel',
-        'Relic',
+        'Omen',
+        'Tattoo',
         'Quest',
     ],
     'Character Class': [
@@ -165,7 +168,8 @@ PARSE_CATEGORIES = [
     'Inscribed Ultimatum',
     'Expedition Logbook',
     'Sentinel',
-    'Relic',
+    'Tattoo',
+    'Omen',
 ]
 
 BASES_FILE = os.path.join(consts.ASSETS_DIR, 'bases.json')

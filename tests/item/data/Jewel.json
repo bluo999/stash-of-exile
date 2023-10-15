@@ -1,0 +1,51 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL1B1enpsZVBpZWNlSmV3ZWxfR3JlYXRUYW5nbGUiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/9035b9ffd4/PuzzlePieceJewel_GreatTangle.png",
+    "league": "Standard",
+    "id": "9596aa2383e5c9e69aa33af7b689f9c6ce272d177abf23aaecfdbdcd2526ab55",
+    "name": "Forbidden Flesh",
+    "typeLine": "Cobalt Jewel",
+    "baseType": "Cobalt Jewel",
+    "identified": true,
+    "ilvl": 86,
+    "corrupted": true,
+    "properties": [
+        {
+            "name": "Limited to",
+            "values": [
+                [
+                    "1",
+                    0
+                ]
+            ],
+            "displayMode": 0
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Class:",
+            "values": [
+                [
+                    "Ranger",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 57
+        }
+    ],
+    "explicitMods": [
+        "Allocates Gathering Winds if you have the matching modifier on Forbidden Flame"
+    ],
+    "descrText": "Place into an allocated Jewel Socket on the Passive Skill Tree. Right click to remove from the Socket.",
+    "flavourText": [
+        "The bodies of those wholly subsumed by the Tangle\r",
+        "continue to merge and mutate and cry out for release..."
+    ],
+    "frameType": 3,
+    "x": 50,
+    "y": 0,
+    "inventoryId": "PassiveJewels"
+}

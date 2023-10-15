@@ -1,0 +1,18 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 2,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9TaGllbGRzL1NoYXJkcy9DaGFubmVsaW5nU2hpZWxkU2hhcmQyIiwidyI6MSwiaCI6Miwic2NhbGUiOjF9XQ/d68b3e42b7/ChannelingShieldShard2.png",
+    "league": "Standard",
+    "id": "af969f80286dbf550da6f42cec6d838dd5642f903b54a47957d59d5238576f7c",
+    "name": "Second Piece of Focus",
+    "typeLine": "Archon Kite Shield Piece",
+    "baseType": "Archon Kite Shield Piece",
+    "identified": true,
+    "ilvl": 84,
+    "descrText": "This item will transform when correctly arranged with other items.",
+    "frameType": 3,
+    "x": 3,
+    "y": 10,
+    "inventoryId": "Stash64"
+}

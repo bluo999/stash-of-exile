@@ -1,0 +1,48 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ2xhc3NpYy9BbWJ1c2giLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/9d9efab23a/Ambush.png",
+    "league": "Standard",
+    "id": "b12b72bbaf44544a012530202c575679e07a5b77e9351e83c955f19c666f2f4d",
+    "name": "",
+    "typeLine": "Ambush Leaguestone",
+    "baseType": "Ambush Leaguestone",
+    "identified": true,
+    "ilvl": 45,
+    "corrupted": true,
+    "properties": [
+        {
+            "name": "Currently has {0} of {1} Charges",
+            "values": [
+                [
+                    "5",
+                    0
+                ],
+                [
+                    "5",
+                    0
+                ]
+            ],
+            "displayMode": 3
+        },
+        {
+            "name": "Can only be used in Areas with Monster Level {0} or below",
+            "values": [
+                [
+                    "56",
+                    0
+                ]
+            ],
+            "displayMode": 3
+        }
+    ],
+    "implicitMods": [
+        "Next Area will contain a Strongbox"
+    ],
+    "descrText": "Right-click to open your Legacy Panel and place a Leaguestone in an empty slot. It will apply to the next new area you enter.",
+    "frameType": 0,
+    "x": 0,
+    "y": 10,
+    "inventoryId": "Stash58"
+}

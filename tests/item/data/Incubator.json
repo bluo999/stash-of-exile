@@ -1,0 +1,37 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvSW5jdWJhdGlvbi9JbmN1YmF0aW9uQmxpZ2h0IiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/47630133e8/IncubationBlight.png",
+    "stackSize": 2,
+    "maxStackSize": 10,
+    "league": "Standard",
+    "id": "be9df27fc5e7ae2b47ce0a650ec240119e68ed157fd85dbd73a053847f5b16e2",
+    "name": "",
+    "typeLine": "Blighted Incubator",
+    "baseType": "Blighted Incubator",
+    "identified": true,
+    "itemLevel": 83,
+    "ilvl": 83,
+    "properties": [
+        {
+            "name": "Stack Size",
+            "values": [
+                [
+                    "2/10",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 32
+        }
+    ],
+    "explicitMods": [
+        "Adds an incubated Blight item to an equippable item\r\nItem drops after killing 6552 monsters"
+    ],
+    "descrText": "Right click this item then left click an item to apply it. The Incubated item drops after killing a specific number of monsters.",
+    "frameType": 5,
+    "x": 11,
+    "y": 2,
+    "inventoryId": "Stash2"
+}

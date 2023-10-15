@@ -64,6 +64,8 @@ COLORS = {
     'cold': '#366492',
     'chaos': '#d02090',
     'scourged': '#ff6e25',
+    'sanctum_boon': '#b5a890',
+    'sanctum_curse': '#a06dca',
 }
 
 # Rarity to frame type
@@ -94,6 +96,8 @@ VALNUM_TO_COLOR = {
     18: 'currency',
     19: 'white',
     20: 'divination',
+    21: 'sanctum_boon',
+    22: 'sanctum_curse',
 }
 
 _settings = QSettings(

@@ -1,0 +1,46 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 3,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUXVpdmVycy9RdWl2ZXJQZW5ldHJhdGluZyIsInciOjIsImgiOjMsInNjYWxlIjoxLCJzeW50aGVzaXNlZCI6dHJ1ZX1d/ee81fec0a5/QuiverPenetrating.png",
+    "league": "Standard",
+    "id": "389b4f30fdf0dc1f4ebc062cb9fc1b21123dda25948cdcafaec105b65e090eb1",
+    "synthesised": true,
+    "name": "Vengeance Barb",
+    "typeLine": "Synthesised Penetrating Arrow Quiver",
+    "baseType": "Penetrating Arrow Quiver",
+    "identified": true,
+    "ilvl": 84,
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "64",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        }
+    ],
+    "implicitMods": [
+        "+8 to Dexterity",
+        "Bow Attacks fire an additional Arrow"
+    ],
+    "explicitMods": [
+        "Adds 22 to 38 Physical Damage to Attacks",
+        "+38% to Critical Strike Multiplier with Bows",
+        "+99 to maximum Life",
+        "Bow Attacks fire an additional Arrow",
+        "36% increased Damage with Bow Skills"
+    ],
+    "craftedMods": [
+        "14% increased Global Critical Strike Chance",
+        "5% chance to gain a Frenzy Charge on Critical Strike"
+    ],
+    "frameType": 2,
+    "x": 0,
+    "y": 0,
+    "inventoryId": "Offhand"
+}

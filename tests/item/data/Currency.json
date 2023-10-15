@@ -1,0 +1,36 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lSZXJvbGxSYXJlIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/d119a0d734/CurrencyRerollRare.png",
+    "stackSize": 284,
+    "maxStackSize": 5000,
+    "league": "Standard",
+    "id": "92457a1f029ab700421813bdbd057fc37629eaff8cdcc7a223ca8b6c2a458404",
+    "name": "",
+    "typeLine": "Chaos Orb",
+    "baseType": "Chaos Orb",
+    "identified": true,
+    "ilvl": 0,
+    "properties": [
+        {
+            "name": "Stack Size",
+            "values": [
+                [
+                    "284/10",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 32
+        }
+    ],
+    "explicitMods": [
+        "Reforges a rare item with new random modifiers"
+    ],
+    "descrText": "Right click this item then left click a rare item to apply it.",
+    "frameType": 5,
+    "x": 2,
+    "y": 0,
+    "inventoryId": "Stash1"
+}

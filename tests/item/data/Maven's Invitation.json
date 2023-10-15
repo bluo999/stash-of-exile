@@ -1,0 +1,85 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQXRsYXMvTnVsbFZvaWQ1IiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/31ba48d1dc/NullVoid5.png",
+    "league": "Standard",
+    "id": "9504cd1c119497d2503da8bb21901bb11c1def5885837ec54c67d14f390cb67f",
+    "name": "Havoc Urge",
+    "typeLine": "Maven's Invitation: The Feared",
+    "baseType": "Maven's Invitation: The Feared",
+    "identified": true,
+    "ilvl": 83,
+    "properties": [
+        {
+            "name": "Item Quantity",
+            "values": [
+                [
+                    "+61%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 2
+        },
+        {
+            "name": "Item Rarity",
+            "values": [
+                [
+                    "+36%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 3
+        },
+        {
+            "name": "The Maven must Witness",
+            "values": [
+                [
+                    "\nCortex",
+                    16
+                ],
+                [
+                    "\nChayula's Domain",
+                    16
+                ],
+                [
+                    "\nThe Alluring Abyss",
+                    16
+                ],
+                [
+                    "\nThe Shaper's Realm",
+                    16
+                ],
+                [
+                    "\nAbsence of Value and Meaning",
+                    16
+                ]
+            ],
+            "displayMode": 0,
+            "type": 50
+        }
+    ],
+    "implicitMods": [
+        "Modifiers to Item Quantity will affect the number of encounter rewards dropped"
+    ],
+    "explicitMods": [
+        "-12% maximum Player Resistances",
+        "28% more Monster Life",
+        "Monsters cannot be Stunned",
+        "+25% Monster Chaos Resistance",
+        "+40% Monster Elemental Resistance",
+        "Monsters have 60% chance to Impale with Attacks"
+    ],
+    "descrText": "Open portals to The Maven's Crucible by using this item in a personal Map Device.",
+    "flavourText": [
+        "For those who must not endure it,\r",
+        "there may be found a perverse joy \r",
+        "in watching the struggle for survival."
+    ],
+    "frameType": 2,
+    "x": 16,
+    "y": 1,
+    "inventoryId": "Stash14"
+}

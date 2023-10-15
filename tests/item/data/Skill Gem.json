@@ -1,0 +1,117 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9CYXJyYWdlIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/0669bef74e/Barrage.png",
+    "support": false,
+    "id": "4d94e4ef72c507190dce57131de28dc77ab3b5e4b1cf3b9cc703958edde790a5",
+    "name": "",
+    "typeLine": "Divergent Barrage",
+    "baseType": "Barrage",
+    "identified": true,
+    "ilvl": 0,
+    "corrupted": true,
+    "properties": [
+        {
+            "name": "Attack, Projectile, Bow",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "21 (Max)",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 5
+        },
+        {
+            "name": "Cost",
+            "values": [
+                [
+                    "11 Mana",
+                    0
+                ]
+            ],
+            "displayMode": 0
+        },
+        {
+            "name": "Attack Damage",
+            "values": [
+                [
+                    "55% of base",
+                    0
+                ]
+            ],
+            "displayMode": 0
+        },
+        {
+            "name": "Effectiveness of Added Damage",
+            "values": [
+                [
+                    "55%",
+                    0
+                ]
+            ],
+            "displayMode": 0
+        },
+        {
+            "name": "Quality",
+            "values": [
+                [
+                    "+20%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 6
+        },
+        {
+            "name": "",
+            "values": [
+                [
+                    "Alternate Quality",
+                    0
+                ]
+            ],
+            "displayMode": 0
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "72",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        },
+        {
+            "name": "Dex",
+            "values": [
+                [
+                    "159",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 64
+        }
+    ],
+    "secDescrText": "After a short preparation time, you attack repeatedly with a ranged weapon. These attacks have a small randomised spread. Only works with Bows and Wands.",
+    "explicitMods": [
+        "Fires 4 additional Projectiles",
+        "Fires Projectiles sequentially",
+        "10% increased Attack Speed"
+    ],
+    "descrText": "Place into an item socket of the right colour to gain this skill. Right click to remove from a socket.",
+    "frameType": 4,
+    "socket": 0,
+    "colour": "D"
+}

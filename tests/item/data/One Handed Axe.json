@@ -1,0 +1,125 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 3,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9PbmVIYW5kQXhlcy9PbmVIYW5kQXhlOCIsInciOjIsImgiOjMsInNjYWxlIjoxLCJmcmFjdHVyZWQiOnRydWV9XQ/07afe4cc18/OneHandAxe8.png",
+    "league": "Standard",
+    "id": "c47257f7ca7049a8d0b0b75cd2b8482bc9d97a83087871fc289c0b65994b1a2f",
+    "fractured": true,
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "D",
+            "sColour": "G"
+        },
+        {
+            "group": 0,
+            "attr": "S",
+            "sColour": "R"
+        }
+    ],
+    "name": "Havoc Mangler",
+    "typeLine": "Wraith Axe",
+    "baseType": "Wraith Axe",
+    "identified": true,
+    "ilvl": 70,
+    "properties": [
+        {
+            "name": "One Handed Axe",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Physical Damage",
+            "values": [
+                [
+                    "49-84",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 9
+        },
+        {
+            "name": "Critical Strike Chance",
+            "values": [
+                [
+                    "5.00%",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 12
+        },
+        {
+            "name": "Attacks per Second",
+            "values": [
+                [
+                    "1.30",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 13
+        },
+        {
+            "name": "Weapon Range",
+            "values": [
+                [
+                    "11",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 14
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "54",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        },
+        {
+            "name": "Str",
+            "values": [
+                [
+                    "134",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 63
+        },
+        {
+            "name": "Dex",
+            "values": [
+                [
+                    "59",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 64
+        }
+    ],
+    "explicitMods": [
+        "Adds 4 to 9 Physical Damage",
+        "+32% to Cold Resistance"
+    ],
+    "fracturedMods": [
+        "+4 Life gained for each Enemy hit by Attacks",
+        "29% increased Damage with Bleeding"
+    ],
+    "frameType": 2,
+    "x": 0,
+    "y": 4,
+    "inventoryId": "Stash76",
+    "socketedItems": []
+}

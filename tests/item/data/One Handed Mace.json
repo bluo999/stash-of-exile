@@ -1,0 +1,147 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 3,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9PbmVIYW5kTWFjZXMvTWpvbG5lciIsInciOjIsImgiOjMsInNjYWxlIjoxfV0/3e6fc15b26/Mjolner.png",
+    "league": "Standard",
+    "id": "1c664d82f705c041a86bb26fb21cf3bd64e3728fed1ad923aac431b42d5c4c27",
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        },
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        },
+        {
+            "group": 0,
+            "attr": "G",
+            "sColour": "W"
+        }
+    ],
+    "name": "Mj\u00f6lner",
+    "typeLine": "Gavel",
+    "baseType": "Gavel",
+    "identified": true,
+    "ilvl": 62,
+    "corrupted": true,
+    "properties": [
+        {
+            "name": "One Handed Mace",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Quality",
+            "values": [
+                [
+                    "+24%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 6
+        },
+        {
+            "name": "Physical Damage",
+            "values": [
+                [
+                    "114-214",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 9
+        },
+        {
+            "name": "Critical Strike Chance",
+            "values": [
+                [
+                    "5.00%",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 12
+        },
+        {
+            "name": "Attacks per Second",
+            "values": [
+                [
+                    "1.15",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 13
+        },
+        {
+            "name": "Weapon Range",
+            "values": [
+                [
+                    "11",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 14
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "60",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        },
+        {
+            "name": "Str",
+            "values": [
+                [
+                    "412",
+                    1
+                ]
+            ],
+            "displayMode": 1,
+            "type": 63
+        },
+        {
+            "name": "Int",
+            "values": [
+                [
+                    "300",
+                    1
+                ]
+            ],
+            "displayMode": 1,
+            "type": 65
+        }
+    ],
+    "implicitMods": [
+        "15% reduced Enemy Stun Threshold"
+    ],
+    "explicitMods": [
+        "Trigger a Socketed Lightning Spell on Hit, with a 0.25 second Cooldown\nSocketed Lightning Spells have no Cost if Triggered",
+        "+300 Intelligence Requirement",
+        "+200 Strength Requirement",
+        "88% increased Physical Damage",
+        "37% increased Lightning Damage",
+        "Skills Chain +1 times"
+    ],
+    "flavourText": [
+        "Look the storm in the eye and you will have its respect."
+    ],
+    "frameType": 3,
+    "x": 0,
+    "y": 0,
+    "inventoryId": "Stash112",
+    "socketedItems": []
+}

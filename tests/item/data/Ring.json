@@ -1,0 +1,59 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvQWRhbWFudGluZVJpbmciLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/04d7eaa12e/AdamantineRing.png",
+    "league": "Standard",
+    "id": "043cc484791f758f62ed5ace1e68bb439e9dc1baadf6efc4ef1f1488ae6c89fd",
+    "influences": {
+        "warlord": true
+    },
+    "name": "Vengeance Grip",
+    "typeLine": "Steel Ring",
+    "baseType": "Steel Ring",
+    "identified": true,
+    "ilvl": 84,
+    "properties": [
+        {
+            "name": "Quality (Life and Mana Modifiers)",
+            "values": [
+                [
+                    "+20%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 6
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "80",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        }
+    ],
+    "implicitMods": [
+        "Adds 4 to 14 Physical Damage to Attacks"
+    ],
+    "explicitMods": [
+        "Adds 9 to 15 Physical Damage to Attacks",
+        "+22% to Global Critical Strike Multiplier",
+        "+94 to maximum Life",
+        "+35% to Chaos Resistance",
+        "Curse Enemies with Vulnerability on Hit, with 20% increased Effect"
+    ],
+    "craftedMods": [
+        "Non-Channelling Skills have -10 to Total Mana Cost"
+    ],
+    "frameType": 2,
+    "x": 9,
+    "y": 5,
+    "inventoryId": "Stash33"
+}

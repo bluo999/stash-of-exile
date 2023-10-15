@@ -1,0 +1,99 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 2,
+    "icon": "https://web.poecdn.com/gen/image/WzksMTQseyJmIjoiMkRJdGVtcy9GbGFza3MvVmlua3RhckZsYXNrIiwidyI6MSwiaCI6Miwic2NhbGUiOjEsImxldmVsIjoxLCJmaSI6dHJ1ZX1d/6af45743fa/VinktarFlask.png",
+    "league": "Standard",
+    "id": "a94bc3ba2cfb70d3a1d703c2a658d0024eae8404e66d2c6ccae26097d1fcbca4",
+    "name": "Vessel of Vinktar",
+    "typeLine": "Topaz Flask",
+    "baseType": "Topaz Flask",
+    "identified": true,
+    "ilvl": 82,
+    "properties": [
+        {
+            "name": "Quality",
+            "values": [
+                [
+                    "+28%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 6
+        },
+        {
+            "name": "Lasts {0} Seconds",
+            "values": [
+                [
+                    "10.20",
+                    1
+                ]
+            ],
+            "displayMode": 3
+        },
+        {
+            "name": "Consumes {0} of {1} Charges on use",
+            "values": [
+                [
+                    "20",
+                    0
+                ],
+                [
+                    "50",
+                    0
+                ]
+            ],
+            "displayMode": 3
+        },
+        {
+            "name": "Currently has {0} Charges",
+            "values": [
+                [
+                    "50",
+                    0
+                ]
+            ],
+            "displayMode": 3
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "68",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        }
+    ],
+    "utilityMods": [
+        "+50% to Lightning Resistance",
+        "20% less Lightning Damage taken"
+    ],
+    "enchantMods": [
+        "Used when an adjacent Flask is used"
+    ],
+    "explicitMods": [
+        "Shocks nearby Enemies during Flask effect, causing 10% increased Damage taken",
+        "You are Shocked during Flask effect, causing 50% increased Damage taken",
+        "Adds 25 to 130 Lightning Damage to Attacks during Flask effect",
+        "30% of Lightning Damage Leeched as Life during Flask effect",
+        "30% of Lightning Damage Leeched as Mana during Flask effect",
+        "Life and Mana Leech are instant during effect"
+    ],
+    "cosmeticMods": [
+        "Has Vessel of Vinktar Skin. You can reclaim this by shift-clicking this item."
+    ],
+    "descrText": "Right click to drink. Can only hold charges while in belt. Refills as you kill monsters.",
+    "flavourText": [
+        "The great city of storms, washed away by Vinktar's thirst for power."
+    ],
+    "frameType": 3,
+    "x": 4,
+    "y": 0,
+    "inventoryId": "Flask"
+}

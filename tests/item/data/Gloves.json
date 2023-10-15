@@ -1,0 +1,140 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 2,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9HbG92ZXMvR2xvdmVzU3RyRGV4MiIsInciOjIsImgiOjIsInNjYWxlIjoxLCJzeW50aGVzaXNlZCI6dHJ1ZX1d/1664fe8c37/GlovesStrDex2.png",
+    "league": "Standard",
+    "id": "6a233cb4a551dbeb6f547c6bc1a679702a97cf3fe4e7f0087e02665edaf818ad",
+    "synthesised": true,
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        },
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        },
+        {
+            "group": 1,
+            "attr": "S",
+            "sColour": "R"
+        },
+        {
+            "group": 1,
+            "attr": "D",
+            "sColour": "G"
+        }
+    ],
+    "name": "Phoenix Touch",
+    "typeLine": "Synthesised Hydrascale Gauntlets",
+    "baseType": "Hydrascale Gauntlets",
+    "identified": true,
+    "ilvl": 87,
+    "properties": [
+        {
+            "name": "Quality",
+            "values": [
+                [
+                    "+20%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 6
+        },
+        {
+            "name": "Armour",
+            "values": [
+                [
+                    "136",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 16
+        },
+        {
+            "name": "Evasion Rating",
+            "values": [
+                [
+                    "131",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 17
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "68",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        },
+        {
+            "name": "Str",
+            "values": [
+                [
+                    "146",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 63,
+            "suffix": "(gem)"
+        },
+        {
+            "name": "Dex",
+            "values": [
+                [
+                    "55",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 64,
+            "suffix": "(gem)"
+        },
+        {
+            "name": "Int",
+            "values": [
+                [
+                    "121",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 65,
+            "suffix": "(gem)"
+        }
+    ],
+    "implicitMods": [
+        "13% increased Global Accuracy Rating",
+        "+8% to Fire Resistance",
+        "25% of Physical Damage Converted to Fire Damage"
+    ],
+    "explicitMods": [
+        "+59 to Dexterity",
+        "+7 to Armour",
+        "+3 to Evasion Rating"
+    ],
+    "craftedMods": [
+        "Can have up to 3 Crafted Modifiers",
+        "+25 to Strength and Dexterity",
+        "+60 to maximum Life"
+    ],
+    "frameType": 2,
+    "x": 0,
+    "y": 0,
+    "inventoryId": "Gloves",
+    "socketedItems": []
+}

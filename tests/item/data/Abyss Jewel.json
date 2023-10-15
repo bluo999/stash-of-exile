@@ -1,0 +1,46 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL011cmRlcm91c0V5ZSIsInciOjEsImgiOjEsInNjYWxlIjoxfV0/439da96896/MurderousEye.png",
+    "id": "1b5a175f00d4c07418ad0af97ed2ed41ef6e4b336a3df7b5aae78bb795ad114a",
+    "abyssJewel": true,
+    "name": "Enthralling Bite",
+    "typeLine": "Murderous Eye Jewel",
+    "baseType": "Murderous Eye Jewel",
+    "identified": true,
+    "ilvl": 83,
+    "properties": [
+        {
+            "name": "Abyss",
+            "values": [],
+            "displayMode": 0
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "59",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        }
+    ],
+    "implicitMods": [
+        "Regenerate 0.1% of Life per second"
+    ],
+    "explicitMods": [
+        "+12% to Global Critical Strike Multiplier",
+        "+45 to maximum Life",
+        "6 to 9 Added Physical Damage with Sword Attacks",
+        "8% increased Attack Speed if you've dealt a Critical Strike Recently"
+    ],
+    "descrText": "Place into an Abyssal Socket on an Item or into an allocated Jewel Socket on the Passive Skill Tree. Right click to remove from the Socket.",
+    "frameType": 2,
+    "socket": 0,
+    "colour": null
+}

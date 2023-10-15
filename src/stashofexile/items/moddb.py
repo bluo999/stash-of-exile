@@ -44,6 +44,8 @@ MOD_CATEGORIES = [
     'Blueprint',
     'Expedition Logbook',
     'Sentinel',
+    'Sanctum Research',
+    'Sanctum Relic',
 ]
 
 NUMERIC_REGEX = r'(\d+(\.\d+)?(\d+)?)'

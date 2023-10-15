@@ -1,0 +1,98 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvTWFwcy9VbHRpbWF0dW1UcmlhbEJhc2UiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/b65f1edffb/UltimatumTrialBase.png",
+    "league": "Standard",
+    "id": "c2618f582e9971e1acf679b9ef1cf6c341c90c83afce984542e192eaeb250919",
+    "name": "",
+    "typeLine": "Inscribed Ultimatum",
+    "baseType": "Inscribed Ultimatum",
+    "identified": true,
+    "ilvl": 0,
+    "properties": [
+        {
+            "name": "Challenge",
+            "values": [
+                [
+                    "Stand in the Stone Circles",
+                    0
+                ]
+            ],
+            "displayMode": 0
+        },
+        {
+            "name": "Area Level",
+            "values": [
+                [
+                    "76",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 34
+        },
+        {
+            "name": "Requires Sacrifice: {0} {1}",
+            "values": [
+                [
+                    "Blessed Orb",
+                    18
+                ],
+                [
+                    "x20",
+                    0
+                ]
+            ],
+            "displayMode": 3,
+            "type": 51
+        },
+        {
+            "name": "Reward: {0}",
+            "values": [
+                [
+                    "Doubles sacrificed Currency",
+                    0
+                ]
+            ],
+            "displayMode": 3,
+            "type": 52
+        }
+    ],
+    "ultimatumMods": [
+        {
+            "type": "ChokingMiasma",
+            "tier": 1
+        },
+        {
+            "type": "Flamethrower",
+            "tier": 1
+        },
+        {
+            "type": "Revenant",
+            "tier": 3
+        },
+        {
+            "type": "Sawblade",
+            "tier": 3
+        },
+        {
+            "type": "CurseAilmentReflection",
+            "tier": 1
+        }
+    ],
+    "explicitMods": [
+        "Choking Miasma",
+        "Raging Dead",
+        "Stalking Ruin III",
+        "Razor Dance III",
+        "Ailment and Curse Reflection",
+        "10% increased Monster Damage",
+        "30% more Monster Life"
+    ],
+    "descrText": "Can be used in a personal map device to open portals to the Trialmaster's Domain and attempt his challenge. Portals will close once the challenge begins.",
+    "frameType": 5,
+    "x": 2,
+    "y": 1,
+    "inventoryId": "Stash58"
+}

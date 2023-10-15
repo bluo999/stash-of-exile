@@ -1,0 +1,46 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://www.pathofexile.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQW5jZXN0b3JzL0NvbW1vblN0clRhdHR0b29FcXVpcG1lbnQiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/b7072892c0/CommonStrTatttooEquipment.png",
+    "stackSize": 5,
+    "maxStackSize": 10,
+    "league": "Ancestor",
+    "id": "88b2b069659264ebaab0d9a2a5bd0bfabbf4e3a9f9d1f49b3926f6cbf3da175f",
+    "name": "",
+    "typeLine": "Tattoo of the Ngamahu Firewalker",
+    "baseType": "Tattoo of the Ngamahu Firewalker",
+    "identified": true,
+    "ilvl": 0,
+    "properties": [
+        {
+            "name": "Stack Size",
+            "values": [
+                [
+                    "5/10",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 32
+        },
+        {
+            "name": "Replaces a {0} Passive Skill",
+            "values": [
+                [
+                    "Small Strength",
+                    0
+                ]
+            ],
+            "displayMode": 3
+        }
+    ],
+    "explicitMods": [
+        "+8% to Fire Resistance"
+    ],
+    "descrText": "Right click this item then left click a valid Passive Skill. Maximum 50 Tattoos.",
+    "frameType": 5,
+    "x": 15,
+    "y": 3,
+    "inventoryId": "Stash5"
+}

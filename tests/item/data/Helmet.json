@@ -1,0 +1,151 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 2,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9IZWxtZXRzL0JvbmVIZWxtIiwidyI6MiwiaCI6Miwic2NhbGUiOjF9XQ/81dc21096f/BoneHelm.png",
+    "league": "Standard",
+    "id": "87d950154f8cc6954095c73b225695d60cd50f0104294f1a15cb02ef022e315f",
+    "influences": {
+        "shaper": true,
+        "elder": true
+    },
+    "elder": true,
+    "shaper": true,
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "G",
+            "sColour": "W"
+        },
+        {
+            "group": 0,
+            "attr": "G",
+            "sColour": "W"
+        },
+        {
+            "group": 0,
+            "attr": "G",
+            "sColour": "W"
+        },
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        }
+    ],
+    "name": "Death Salvation",
+    "typeLine": "Bone Helmet",
+    "baseType": "Bone Helmet",
+    "identified": true,
+    "ilvl": 86,
+    "split": true,
+    "properties": [
+        {
+            "name": "Quality",
+            "values": [
+                [
+                    "+30%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 6
+        },
+        {
+            "name": "Armour",
+            "values": [
+                [
+                    "267",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 16
+        },
+        {
+            "name": "Energy Shield",
+            "values": [
+                [
+                    "55",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 18
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "80",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62,
+            "suffix": "(gem)"
+        },
+        {
+            "name": "Str",
+            "values": [
+                [
+                    "76",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 63
+        },
+        {
+            "name": "Dex",
+            "values": [
+                [
+                    "126",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 64,
+            "suffix": "(gem)"
+        },
+        {
+            "name": "Int",
+            "values": [
+                [
+                    "159",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 65,
+            "suffix": "(gem)"
+        }
+    ],
+    "enchantMods": [
+        "Spectres have 12% increased Attack and Cast Speed"
+    ],
+    "implicitMods": [
+        "Minions deal 40% increased Damage",
+        "Item sells for much more to vendors"
+    ],
+    "explicitMods": [
+        "+2 to Level of Socketed Minion Gems",
+        "Socketed Gems are Supported by Level 18 Minion Damage",
+        "Socketed Gems are Supported by Level 25 Hypothermia",
+        "Socketed Gems deal 30% more Elemental Damage",
+        "Socketed Spells have +3% to Critical Strike Chance",
+        "Minions deal 22% increased Damage",
+        "18% increased Effect of Cold Ailments"
+    ],
+    "craftedMods": [
+        "+1 to maximum number of Raised Zombies",
+        "+1 to maximum number of Skeletons"
+    ],
+    "frameType": 2,
+    "x": 0,
+    "y": 0,
+    "inventoryId": "Helm",
+    "socketedItems": []
+}

@@ -1,0 +1,174 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 4,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9Ud29IYW5kV2VhcG9ucy9Cb3dzL0JvdzYiLCJ3IjoyLCJoIjo0LCJzY2FsZSI6MSwiZnJhY3R1cmVkIjp0cnVlfV0/250dc2bbe7/Bow6.png",
+    "league": "Standard",
+    "id": "776bdd04cc4106082e4a1e327a9a1d91673cd41b5ce64b9e58f5a9ce33f05251",
+    "fractured": true,
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "G",
+            "sColour": "W"
+        },
+        {
+            "group": 0,
+            "attr": "G",
+            "sColour": "W"
+        },
+        {
+            "group": 0,
+            "attr": "D",
+            "sColour": "G"
+        },
+        {
+            "group": 0,
+            "attr": "G",
+            "sColour": "W"
+        },
+        {
+            "group": 0,
+            "attr": "S",
+            "sColour": "R"
+        },
+        {
+            "group": 0,
+            "attr": "D",
+            "sColour": "G"
+        }
+    ],
+    "name": "Spirit Breeze",
+    "typeLine": "Spine Bow",
+    "baseType": "Spine Bow",
+    "identified": true,
+    "ilvl": 86,
+    "properties": [
+        {
+            "name": "Bow",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Quality",
+            "values": [
+                [
+                    "+48%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 6
+        },
+        {
+            "name": "Physical Damage",
+            "values": [
+                [
+                    "280-665",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 9
+        },
+        {
+            "name": "Critical Strike Chance",
+            "values": [
+                [
+                    "8.25%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 12
+        },
+        {
+            "name": "Attacks per Second",
+            "values": [
+                [
+                    "1.61",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 13
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "82",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62,
+            "suffix": "(gem)"
+        },
+        {
+            "name": "Str",
+            "values": [
+                [
+                    "111",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 63,
+            "suffix": "(gem)"
+        },
+        {
+            "name": "Dex",
+            "values": [
+                [
+                    "212",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 64
+        },
+        {
+            "name": "Int",
+            "values": [
+                [
+                    "56",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 65,
+            "suffix": "(gem)"
+        }
+    ],
+    "enchantMods": [
+        "Ailment Modifiers have 6% increased Effect",
+        "Fire Modifiers have 6% increased Effect"
+    ],
+    "implicitMods": [
+        "Item sells for much more to vendors"
+    ],
+    "explicitMods": [
+        "202% increased Physical Damage",
+        "Adds 42 to 75 Physical Damage",
+        "15% increased Attack Speed",
+        "+53 to Accuracy Rating",
+        "+18% to Quality"
+    ],
+    "craftedMods": [
+        "27% increased Critical Strike Chance"
+    ],
+    "fracturedMods": [
+        "Bow Attacks fire 2 additional Arrows"
+    ],
+    "cosmeticMods": [
+        "Has Windripper Skin. You can reclaim this by shift-clicking this item."
+    ],
+    "frameType": 2,
+    "x": 0,
+    "y": 0,
+    "inventoryId": "Weapon",
+    "socketedItems": []
+}

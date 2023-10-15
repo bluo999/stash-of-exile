@@ -1,0 +1,115 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 3,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9PbmVIYW5kU3dvcmRzL09uZUhhbmRTd29yZDIiLCJ3IjoxLCJoIjozLCJzY2FsZSI6MX1d/606dae9ce9/OneHandSword2.png",
+    "league": "Standard",
+    "id": "e82cba06058ee937afe72be314485d758fd40e32c59644d9180db45f4d61b8e8",
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        },
+        {
+            "group": 1,
+            "attr": "D",
+            "sColour": "G"
+        },
+        {
+            "group": 2,
+            "attr": "S",
+            "sColour": "R"
+        }
+    ],
+    "name": "",
+    "typeLine": "Copper Sword",
+    "baseType": "Copper Sword",
+    "identified": true,
+    "ilvl": 6,
+    "properties": [
+        {
+            "name": "One Handed Sword",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Physical Damage",
+            "values": [
+                [
+                    "6-14",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 9
+        },
+        {
+            "name": "Critical Strike Chance",
+            "values": [
+                [
+                    "5.00%",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 12
+        },
+        {
+            "name": "Attacks per Second",
+            "values": [
+                [
+                    "1.50",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 13
+        },
+        {
+            "name": "Weapon Range",
+            "values": [
+                [
+                    "11",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 14
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "70",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62,
+            "suffix": "(gem)"
+        },
+        {
+            "name": "Str",
+            "values": [
+                [
+                    "155",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 63,
+            "suffix": "(gem)"
+        }
+    ],
+    "implicitMods": [
+        "+45 to Accuracy Rating"
+    ],
+    "frameType": 0,
+    "x": 0,
+    "y": 0,
+    "inventoryId": "Weapon2",
+    "socketedItems": []
+}

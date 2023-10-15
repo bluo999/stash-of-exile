@@ -1,0 +1,26 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 2,
+    "icon": "https://www.pathofexile.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmVsaWNzL1JlbGljVW5pcXVlMngyIiwidyI6MiwiaCI6Miwic2NhbGUiOjF9XQ/15bd9eec94/RelicUnique2x2.png",
+    "league": "Standard",
+    "id": "c85566227108a3540c6b381b17174e7a8c4875f8e484134206abcb4d7e0356d6",
+    "name": "The First Crest",
+    "typeLine": "Coffer Relic",
+    "baseType": "Coffer Relic",
+    "identified": true,
+    "ilvl": 85,
+    "unmodifiable": true,
+    "explicitMods": [
+        "Aureus Coins are converted to Tainted Currency upon defeating the Herald of the Scourge",
+        "This item is destroyed when applied to a Sanctum"
+    ],
+    "descrText": "Place this item on the Relic Altar at the start of each Sanctum run",
+    "flavourText": [
+        "\"In pursuit of divinity, he tried many times to found a religion. Few followed his initial symbols and proverbs. He needed something greater. A symbol none could deny.\" - Lycia, the Heretic"
+    ],
+    "frameType": 3,
+    "x": 18,
+    "y": 20,
+    "inventoryId": "Stash26"
+}

@@ -1,0 +1,62 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQmVzdGlhcnlPcmJGdWxsIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/3214b44360/BestiaryOrbFull.png",
+    "league": "Standard",
+    "id": "024b287e2f187290bb2dec1dc75308e2f392595dc10b18dae324839704b46af2",
+    "name": "Crueljaws",
+    "typeLine": "Fenumal Plagued Arachnid",
+    "baseType": "Fenumal Plagued Arachnid",
+    "identified": true,
+    "itemLevel": 81,
+    "ilvl": 81,
+    "properties": [
+        {
+            "name": "Genus",
+            "values": [
+                [
+                    "Spiders",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 21
+        },
+        {
+            "name": "Group",
+            "values": [
+                [
+                    "Arachnids",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 22
+        },
+        {
+            "name": "Family",
+            "values": [
+                [
+                    "The Caverns",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 23
+        }
+    ],
+    "explicitMods": [
+        "Unstable Swarm",
+        "Incendiary Mite",
+        "Snow Bolt",
+        "Takes Reduced Physical Damage",
+        "Leeches Life",
+        "Frenzy as Damaged"
+    ],
+    "descrText": "Right-click to add this to your bestiary.",
+    "frameType": 2,
+    "x": 8,
+    "y": 11,
+    "inventoryId": "Stash12"
+}

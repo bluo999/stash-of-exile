@@ -1,0 +1,39 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvTWV0YW1vcnBoL0V5ZWJhbGxJbnZlbnRvcnkiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/c9e5430e41/EyeballInventory.png",
+    "league": "Standard",
+    "id": "73d6c7bfeb3c5210c4ec5b98deef8bc33917884bcd50265db9c2b232fd7abfa9",
+    "name": "",
+    "typeLine": "Puruna, the Challenger's Eye",
+    "baseType": "Puruna, the Challenger's Eye",
+    "identified": true,
+    "itemLevel": 83,
+    "ilvl": 83,
+    "properties": [
+        {
+            "name": "Uses",
+            "values": [
+                [
+                    "Frost Bolt",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 27
+        }
+    ],
+    "explicitMods": [
+        "Drops a Unique Item",
+        "Drops additional Expedition Items",
+        "Drops a Veiled Weapon",
+        "Drops additional Currency Items",
+        "Drops additional Abyssal Jewels"
+    ],
+    "descrText": "Combine this with four other different samples in Tane's Laboratory.",
+    "frameType": 3,
+    "x": 5,
+    "y": 6,
+    "inventoryId": "Stash58"
+}

@@ -1,5 +1,5 @@
 import json
-import os
+from pathlib import Path
 
 from typing import Dict
 
@@ -10,16 +10,24 @@ from stashofexile.items import item as m_item
 
 ItemDict = Dict[str, m_item.Item]
 
-DATA_PATH = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), 'data', 'item_data.json'
-)
+DATA_PATH = Path(Path(__file__).parent, 'data')
 
 
 @pytest.fixture(name='example_items', scope='session')
 def fixture_example_items() -> ItemDict:
-    with open(DATA_PATH, 'rb') as f:
-        items = json.load(f)
-    items = [m_item.Item(item, str(i)) for i, item in enumerate(items['items'])]
+    items = {}
     categories = gamedata.COMBO_ITEMS['Category']
-    assert len(items) == len(categories), "Test data missing item"
-    return {cat: items[categories.index(cat)] for cat in categories}
+    missing_categories = []
+    for i, category in enumerate(categories):
+        try:
+            with Path(DATA_PATH, f'{category}.json').open('r') as f:
+                items[category] = m_item.Item(json.load(f), str(i))
+        except FileNotFoundError:
+            missing_categories.append(category)
+
+    if missing_categories:
+        raise RuntimeError(
+            f"Categories {missing_categories} are missing test data files"
+        ) from None
+
+    return items

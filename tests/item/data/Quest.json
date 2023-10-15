@@ -1,0 +1,22 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 2,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUXVlc3RJdGVtcy9MYW50ZXJuIiwidyI6MSwiaCI6Miwic2NhbGUiOjF9XQ/bbbf315603/Lantern.png",
+    "league": "Sentinel",
+    "id": "fe3fcf08619c86f41c48d6c3dfec5eb4a5b7c3ab9e67f57ea979b548cbee68da",
+    "name": "",
+    "typeLine": "Allflame",
+    "baseType": "Allflame",
+    "identified": true,
+    "ilvl": 0,
+    "flavourText": [
+        "Distilled from naked ambition and unfettered obsession,\r",
+        "the Allflame emanates a silvern warmth like no other, \r",
+        "and engulfs those moths fool enough to embrace it."
+    ],
+    "frameType": 7,
+    "x": 4,
+    "y": 3,
+    "inventoryId": "MainInventory"
+}

@@ -1,0 +1,36 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRGVsdmUvTWV0YWxsaWNGb3NzaWwiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/c26857827c/MetallicFossil.png",
+    "stackSize": 139,
+    "maxStackSize": 5000,
+    "league": "Standard",
+    "id": "e72b9f19abad3ae243d1bd3f6069aa5052ae36089e7362508bf4242fe73119ea",
+    "name": "",
+    "typeLine": "Metallic Fossil",
+    "baseType": "Metallic Fossil",
+    "identified": true,
+    "ilvl": 0,
+    "properties": [
+        {
+            "name": "Stack Size",
+            "values": [
+                [
+                    "139/20",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 32
+        }
+    ],
+    "explicitMods": [
+        "More Lightning modifiers\r\nNo Physical modifiers"
+    ],
+    "descrText": "Place in a Resonator to influence item crafting.",
+    "frameType": 5,
+    "x": 2,
+    "y": 0,
+    "inventoryId": "Stash22"
+}

@@ -1,0 +1,100 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://www.pathofexile.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvU2FuY3R1bS9TYW5jdHVtRmxvb3IyIiwidyI6MSwiaCI6MSwic2NhbGUiOjF9XQ/e25fdf35c9/SanctumFloor2.png",
+    "league": "Standard",
+    "id": "a19f3aa5cff1c852ddec4ac0a9f69935c6e346102333fe3d1525c11103475f11",
+    "name": "",
+    "typeLine": "Sanctum Vaults Research",
+    "baseType": "Sanctum Vaults Research",
+    "identified": true,
+    "ilvl": 84,
+    "unmodifiable": true,
+    "properties": [
+        {
+            "name": "Area Level",
+            "values": [
+                [
+                    "83",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 34
+        },
+        {
+            "name": "Resolve: {0}/{1}",
+            "values": [
+                [
+                    "108",
+                    0
+                ],
+                [
+                    "108",
+                    1
+                ]
+            ],
+            "displayMode": 3,
+            "type": 68
+        },
+        {
+            "name": "Inspiration: {0}",
+            "values": [
+                [
+                    "51",
+                    0
+                ]
+            ],
+            "displayMode": 3,
+            "type": 69
+        },
+        {
+            "name": "Aureus: {0}",
+            "values": [
+                [
+                    "1045",
+                    0
+                ]
+            ],
+            "displayMode": 3,
+            "type": 70
+        },
+        {
+            "name": "Major Boons",
+            "values": [
+                [
+                    "Crystal Chalice",
+                    21
+                ]
+            ],
+            "displayMode": 0,
+            "type": 72
+        },
+        {
+            "name": "Minor Afflictions",
+            "values": [
+                [
+                    "Weakened Flesh",
+                    22
+                ]
+            ],
+            "displayMode": 0,
+            "type": 73
+        }
+    ],
+    "explicitMods": [
+        "Duplicates up to 4 random Offer Rewards upon defeating the Herald of the Scourge",
+        "Cannot recover Resolve",
+        "9 additional Rooms are revealed on the Sanctum Map",
+        "This item is destroyed when applied to a Sanctum"
+    ],
+    "descrText": "Right click this item to view details of the Sanctum in progress. Take this item to the Relic Altar in the Forbidden Sanctum to enter.",
+    "flavourText": [
+        "The treasures within are tainted by a black spirit."
+    ],
+    "frameType": 0,
+    "x": 17,
+    "y": 3,
+    "inventoryId": "Stash2"
+}

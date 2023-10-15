@@ -1,0 +1,157 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 4,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9Ud29IYW5kV2VhcG9ucy9TdGF2ZXMvUGxlZGdlb2ZIYW5kcyIsInciOjIsImgiOjQsInNjYWxlIjoxLCJyZWxpYyI6dHJ1ZX1d/896fe19673/PledgeofHands.png",
+    "league": null,
+    "id": "20de6891d737dbc338e13890d71988d1d34cf3001b5f1e60e100d525bedd4bd8",
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        },
+        {
+            "group": 0,
+            "attr": "S",
+            "sColour": "R"
+        },
+        {
+            "group": 0,
+            "attr": "S",
+            "sColour": "R"
+        },
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        },
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        },
+        {
+            "group": 0,
+            "attr": "I",
+            "sColour": "B"
+        }
+    ],
+    "name": "Pledge of Hands",
+    "typeLine": "Judgement Staff",
+    "baseType": "Judgement Staff",
+    "identified": true,
+    "ilvl": 75,
+    "properties": [
+        {
+            "name": "Warstaff",
+            "values": [],
+            "displayMode": 0
+        },
+        {
+            "name": "Quality",
+            "values": [
+                [
+                    "+30%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 6
+        },
+        {
+            "name": "Physical Damage",
+            "values": [
+                [
+                    "95-177",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 9
+        },
+        {
+            "name": "Critical Strike Chance",
+            "values": [
+                [
+                    "6.50%",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 12
+        },
+        {
+            "name": "Attacks per Second",
+            "values": [
+                [
+                    "1.30",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 13
+        },
+        {
+            "name": "Weapon Range",
+            "values": [
+                [
+                    "13",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 14
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "68",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        },
+        {
+            "name": "Str",
+            "values": [
+                [
+                    "113",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 63
+        },
+        {
+            "name": "Int",
+            "values": [
+                [
+                    "113",
+                    0
+                ]
+            ],
+            "displayMode": 1,
+            "type": 65
+        }
+    ],
+    "implicitMods": [
+        "+20% Chance to Block Spell Damage while wielding a Staff"
+    ],
+    "explicitMods": [
+        "Socketed Gems are Supported by Level 30 Greater Spell Echo",
+        "157% increased Spell Damage",
+        "100% increased maximum Mana"
+    ],
+    "flavourText": [
+        "\"To shake a hand is to double your power.\"\r",
+        "- Jaetai, Queen's Advisor"
+    ],
+    "isRelic": true,
+    "frameType": 9,
+    "socketedItems": []
+}

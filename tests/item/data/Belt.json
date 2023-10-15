@@ -1,0 +1,66 @@
+{
+    "verified": false,
+    "w": 2,
+    "h": 1,
+    "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvQWJ5c3NCZWx0IiwidyI6MiwiaCI6MSwic2NhbGUiOjF9XQ/973fb5fe7a/AbyssBelt.png",
+    "league": "Standard",
+    "id": "04aadf027a178a58a0528dace49734723ebce40f64d941ef90bff38e14f9e091",
+    "influences": {
+        "elder": true
+    },
+    "elder": true,
+    "sockets": [
+        {
+            "group": 0,
+            "attr": "A",
+            "sColour": "A"
+        }
+    ],
+    "name": "Corruption Cord",
+    "typeLine": "Stygian Vise",
+    "baseType": "Stygian Vise",
+    "identified": true,
+    "ilvl": 86,
+    "properties": [
+        {
+            "name": "Quality (Life and Mana Modifiers)",
+            "values": [
+                [
+                    "+20%",
+                    1
+                ]
+            ],
+            "displayMode": 0,
+            "type": 6
+        }
+    ],
+    "requirements": [
+        {
+            "name": "Level",
+            "values": [
+                [
+                    "64",
+                    0
+                ]
+            ],
+            "displayMode": 0,
+            "type": 62
+        }
+    ],
+    "implicitMods": [
+        "Has 1 Abyssal Socket"
+    ],
+    "explicitMods": [
+        "30% increased Global Physical Damage",
+        "+118 to maximum Life",
+        "12% increased maximum Life",
+        "24% increased Life Recovery rate",
+        "14% increased Attack Speed during any Flask Effect",
+        "33% increased Melee Damage during any Flask Effect"
+    ],
+    "frameType": 2,
+    "x": 10,
+    "y": 1,
+    "inventoryId": "Stash3",
+    "socketedItems": []
+}

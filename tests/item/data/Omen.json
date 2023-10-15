@@ -1,0 +1,21 @@
+{
+    "verified": false,
+    "w": 1,
+    "h": 1,
+    "icon": "https://www.pathofexile.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQW5jZXN0b3JzL0FuY2VzdG9yT21lbjFZZWxsb3ciLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d/95a39fc347/AncestorOmen1Yellow.png",
+    "league": "Ancestor",
+    "id": "2d38ffb3d144ed25eebf2492efa849a3c9a6e1d725c0bb8cc84812782d07954d",
+    "name": "",
+    "typeLine": "Omen of Revenge",
+    "baseType": "Omen of Revenge",
+    "identified": true,
+    "ilvl": 0,
+    "explicitMods": [
+        "Will be Consumed when you Die\nto make each nearby enemy permanently take 25% more Damage"
+    ],
+    "descrText": "Each player can only consume one Omen in each combat area.",
+    "frameType": 5,
+    "x": 0,
+    "y": 12,
+    "inventoryId": "Stash6"
+}
